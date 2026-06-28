@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
+import { supabase } from '../lib/supabase';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -200,32 +201,57 @@ const initialStocks: StockItem[] = [
   { id: 'STK-003', name: 'Réactif hématologie', quantity: 8, minQuantity: 10, unit: 'flacons', location: 'Labo', supplier: 'Sysmex' },
 ];
 
-// ── LocalStorage Hook ──────────────────────────────────────────────────────
+// ── LocalStorage helpers ───────────────────────────────────────────────────
 
-function useLocalStorage<T>(key: string, initial: T): [T, (val: T | ((prev: T) => T)) => void] {
-  const [state, setState] = useState<T>(() => {
-    try {
-      const stored = localStorage.getItem(key);
-      if (stored) return JSON.parse(stored);
-      // Écrire la valeur initiale pour que la clé apparaisse immédiatement
-      localStorage.setItem(key, JSON.stringify(initial));
-      return initial;
-    } catch {
-      return initial;
+function lsGet<T>(key: string, fallback: T): T {
+  try {
+    const v = localStorage.getItem(key);
+    return v ? JSON.parse(v) : fallback;
+  } catch { return fallback; }
+}
+
+function lsSet<T>(key: string, val: T) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch { /* quota */ }
+}
+
+// ── Supabase sync helpers ──────────────────────────────────────────────────
+
+// Map app table name → Supabase table name
+const TABLE: Record<string, string> = {
+  tickets: 'tickets',
+  equipments: 'equipments',
+  pmPlans: 'pm_plans',
+  stocks: 'stocks',
+};
+
+async function sbFetch<T>(table: string): Promise<T[] | null> {
+  try {
+    const { data, error } = await supabase.from(table).select('*');
+    if (error) throw error;
+    return data as T[];
+  } catch { return null; }
+}
+
+// Upsert all + delete removed rows
+async function sbSync<T extends { id: string }>(table: string, rows: T[]) {
+  if (!rows.length) return;
+  try {
+    // upsert all current rows
+    const { error: upsertErr } = await supabase.from(table).upsert(rows, { onConflict: 'id' });
+    if (upsertErr) throw upsertErr;
+
+    // delete rows no longer present
+    const ids = rows.map(r => r.id);
+    const { data: existing } = await supabase.from(table).select('id');
+    if (existing) {
+      const toDelete = (existing as { id: string }[]).map(r => r.id).filter(id => !ids.includes(id));
+      if (toDelete.length) {
+        await supabase.from(table).delete().in('id', toDelete);
+      }
     }
-  });
-
-  const setValue = (val: T | ((prev: T) => T)) => {
-    setState(prev => {
-      const next = typeof val === 'function' ? (val as (prev: T) => T)(prev) : val;
-      try {
-        localStorage.setItem(key, JSON.stringify(next));
-      } catch { /* quota exceeded */ }
-      return next;
-    });
-  };
-
-  return [state, setValue];
+  } catch (e) {
+    console.warn(`[Supabase] sync ${table} failed:`, e);
+  }
 }
 
 // ── Context ────────────────────────────────────────────────────────────────
@@ -239,18 +265,117 @@ interface DataStoreContextType {
   setPmPlans: (val: MaintenancePlan[] | ((prev: MaintenancePlan[]) => MaintenancePlan[])) => void;
   stocks: StockItem[];
   setStocks: (val: StockItem[] | ((prev: StockItem[]) => StockItem[])) => void;
+  supabaseReady: boolean;
 }
 
 const DataStoreContext = createContext<DataStoreContextType | null>(null);
 
 export function DataStoreProvider({ children }: { children: ReactNode }) {
-  const [tickets, setTickets] = useLocalStorage<Ticket[]>('gmao_tickets', initialTickets);
-  const [equipments, setEquipments] = useLocalStorage<Equipment[]>('gmao_equipments', initialEquipments);
-  const [pmPlans, setPmPlans] = useLocalStorage<MaintenancePlan[]>('gmao_pm', initialPlans);
-  const [stocks, setStocks] = useLocalStorage<StockItem[]>('gmao_stocks', initialStocks);
+  const [tickets, _setTickets] = useState<Ticket[]>(() => lsGet('gmao_tickets', initialTickets));
+  const [equipments, _setEquipments] = useState<Equipment[]>(() => lsGet('gmao_equipments', initialEquipments));
+  const [pmPlans, _setPmPlans] = useState<MaintenancePlan[]>(() => lsGet('gmao_pm', initialPlans));
+  const [stocks, _setStocks] = useState<StockItem[]>(() => lsGet('gmao_stocks', initialStocks));
+  const [supabaseReady, setSupabaseReady] = useState(false);
+  const initialized = useRef(false);
+
+  // On mount: load from Supabase (overrides localStorage if data exists)
+  useEffect(() => {
+    if (initialized.current) return;
+    initialized.current = true;
+
+    (async () => {
+      const [sbTickets, sbEquipments, sbPlans, sbStocks] = await Promise.all([
+        sbFetch<Ticket>('tickets'),
+        sbFetch<Equipment>('equipments'),
+        sbFetch<MaintenancePlan>('pm_plans'),
+        sbFetch<StockItem>('stocks'),
+      ]);
+
+      // Seed Supabase if empty, otherwise load from Supabase
+      if (sbTickets !== null) {
+        if (sbTickets.length === 0) {
+          await sbSync('tickets', initialTickets);
+          _setTickets(initialTickets);
+          lsSet('gmao_tickets', initialTickets);
+        } else {
+          _setTickets(sbTickets);
+          lsSet('gmao_tickets', sbTickets);
+        }
+      }
+      if (sbEquipments !== null) {
+        if (sbEquipments.length === 0) {
+          await sbSync('equipments', initialEquipments);
+          _setEquipments(initialEquipments);
+          lsSet('gmao_equipments', initialEquipments);
+        } else {
+          _setEquipments(sbEquipments);
+          lsSet('gmao_equipments', sbEquipments);
+        }
+      }
+      if (sbPlans !== null) {
+        if (sbPlans.length === 0) {
+          await sbSync('pm_plans', initialPlans);
+          _setPmPlans(initialPlans);
+          lsSet('gmao_pm', initialPlans);
+        } else {
+          _setPmPlans(sbPlans);
+          lsSet('gmao_pm', sbPlans);
+        }
+      }
+      if (sbStocks !== null) {
+        if (sbStocks.length === 0) {
+          await sbSync('stocks', initialStocks);
+          _setStocks(initialStocks);
+          lsSet('gmao_stocks', initialStocks);
+        } else {
+          _setStocks(sbStocks);
+          lsSet('gmao_stocks', sbStocks);
+        }
+      }
+
+      setSupabaseReady(true);
+    })();
+  }, []);
+
+  // Wrapped setters: update state + localStorage + Supabase
+  const setTickets = (val: Ticket[] | ((prev: Ticket[]) => Ticket[])) => {
+    _setTickets(prev => {
+      const next = typeof val === 'function' ? val(prev) : val;
+      lsSet('gmao_tickets', next);
+      sbSync(TABLE.tickets, next);
+      return next;
+    });
+  };
+
+  const setEquipments = (val: Equipment[] | ((prev: Equipment[]) => Equipment[])) => {
+    _setEquipments(prev => {
+      const next = typeof val === 'function' ? val(prev) : val;
+      lsSet('gmao_equipments', next);
+      sbSync(TABLE.equipments, next);
+      return next;
+    });
+  };
+
+  const setPmPlans = (val: MaintenancePlan[] | ((prev: MaintenancePlan[]) => MaintenancePlan[])) => {
+    _setPmPlans(prev => {
+      const next = typeof val === 'function' ? val(prev) : val;
+      lsSet('gmao_pm', next);
+      sbSync(TABLE.pmPlans, next);
+      return next;
+    });
+  };
+
+  const setStocks = (val: StockItem[] | ((prev: StockItem[]) => StockItem[])) => {
+    _setStocks(prev => {
+      const next = typeof val === 'function' ? val(prev) : val;
+      lsSet('gmao_stocks', next);
+      sbSync(TABLE.stocks, next);
+      return next;
+    });
+  };
 
   return (
-    <DataStoreContext.Provider value={{ tickets, setTickets, equipments, setEquipments, pmPlans, setPmPlans, stocks, setStocks }}>
+    <DataStoreContext.Provider value={{ tickets, setTickets, equipments, setEquipments, pmPlans, setPmPlans, stocks, setStocks, supabaseReady }}>
       {children}
     </DataStoreContext.Provider>
   );

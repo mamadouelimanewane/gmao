@@ -1,0 +1,53 @@
+{
+  "name": "GMAO Health — Maintenance Biomédicale",
+  "short_name": "GMAO Health",
+  "description": "Plateforme de gestion de maintenance biomédicale pour hôpitaux. Suivi équipements, PM planifiées, analytics IA.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020817",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "lang": "fr",
+  "categories": ["medical", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-dashboard.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Dashboard GMAO Health"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Interventions",
+      "short_name": "Tickets",
+      "description": "Voir les tickets ouverts",
+      "url": "/tickets",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "PM Planifiées",
+      "short_name": "PM",
+      "description": "Maintenances planifiées",
+      "url": "/pm",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

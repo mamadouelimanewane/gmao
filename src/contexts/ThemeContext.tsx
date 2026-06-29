@@ -22,6 +22,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const html = document.documentElement;
     const body = document.body;
+    // data-theme attribute (used by CSS variables) + class for legacy overrides
+    html.setAttribute('data-theme', theme);
     if (theme === 'light') {
       html.classList.add('light');
       html.classList.remove('dark');

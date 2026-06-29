@@ -91,8 +91,11 @@ export default function Layout() {
     navigate('/login');
   };
 
+  const isLight = theme === 'light';
+
   return (
-    <div className="min-h-screen bg-slate-900 flex text-slate-100 font-['Inter',system-ui,sans-serif]">
+    <div className="min-h-screen flex font-['Inter',system-ui,sans-serif]"
+      style={{ background: 'var(--bg-app)', color: 'var(--text-primary)' }}>
 
       {/* Sidebar overlay mobile */}
       {sidebarOpen && (
@@ -100,22 +103,31 @@ export default function Layout() {
       )}
 
       {/* ── SIDEBAR ── */}
-      <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 bg-slate-950 border-r border-slate-800 flex flex-col transition-transform duration-300 ease-in-out lg:static lg:translate-x-0",
-        sidebarOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 w-64 flex flex-col transition-transform duration-300 ease-in-out lg:static lg:translate-x-0",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+        style={{
+          background: 'var(--bg-sidebar)',
+          borderRight: '1px solid var(--border-base)',
+        }}
+      >
         {/* Logo */}
-        <div className="h-16 flex items-center justify-between px-5 border-b border-slate-800">
+        <div className="h-16 flex items-center justify-between px-5"
+          style={{ borderBottom: '1px solid var(--border-base)' }}>
           <div className="flex items-center gap-2.5">
             <div className="p-1.5 rounded-lg bg-emerald-500/10">
-              <Stethoscope size={22} className="text-emerald-400" />
+              <Stethoscope size={22} className="text-emerald-500" />
             </div>
             <div>
-              <span className="text-sm font-bold tracking-tight text-white">GMAO Health</span>
-              <div className="text-[10px] text-slate-500 leading-none">v3.0 · Sénégal</div>
+              <span className="text-sm font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>GMAO Health</span>
+              <div className="text-[10px] leading-none" style={{ color: 'var(--text-muted)' }}>v3.0 · Ndamatou</div>
             </div>
           </div>
-          <button onClick={() => setSidebarOpen(false)} className="p-1 text-slate-500 hover:text-white lg:hidden">
+          <button onClick={() => setSidebarOpen(false)}
+            className="p-1 rounded lg:hidden transition-colors"
+            style={{ color: 'var(--text-muted)' }}>
             <X size={18} />
           </button>
         </div>
@@ -123,7 +135,7 @@ export default function Layout() {
         {/* Online / offline banner */}
         <div className={cn(
           "mx-3 mt-3 mb-1 flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium",
-          online ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"
+          online ? "bg-emerald-500/10 text-emerald-500" : "bg-amber-500/10 text-amber-500"
         )}>
           {online ? <Wifi size={13} /> : <WifiOff size={13} />}
           {online ? t('online') + ' · Synchronisé' : t('offline') + ' · Mode cache'}
@@ -131,73 +143,75 @@ export default function Layout() {
 
         {/* Navigation */}
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-600 px-3 py-2">Principal</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest px-3 py-2"
+            style={{ color: 'var(--text-faint)' }}>Principal</p>
           {navigation.map((item) => {
-            const isActive = location.pathname === item.href;
+            const isActive = location.pathname === item.href || (item.href === '/' && location.pathname === '/dashboard');
             return (
               <Link
                 key={item.href}
                 to={item.href}
                 onClick={() => setSidebarOpen(false)}
-                className={cn(
-                  "flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group",
-                  isActive
-                    ? "bg-emerald-500/15 text-emerald-400"
-                    : "text-slate-400 hover:bg-slate-800/80 hover:text-slate-100"
-                )}
+                className="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group"
+                style={isActive ? {
+                  background: 'rgba(16,185,129,0.12)',
+                  color: '#10b981',
+                } : {
+                  color: 'var(--text-muted)',
+                }}
+                onMouseEnter={e => { if (!isActive) { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)'; } }}
+                onMouseLeave={e => { if (!isActive) { (e.currentTarget as HTMLElement).style.background = ''; (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'; } }}
               >
                 <div className="flex items-center gap-3">
-                  <item.icon size={18} className={cn(
-                    "transition-colors flex-shrink-0",
-                    isActive ? "text-emerald-400" : "text-slate-500 group-hover:text-slate-300"
-                  )} />
+                  <item.icon size={18} className="flex-shrink-0 transition-colors"
+                    style={{ color: isActive ? '#10b981' : 'var(--text-faint)' }} />
                   {item.name}
                 </div>
                 {item.badge && (
                   <span className={`text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center ${
                     item.badge === 'NEW' ? 'bg-violet-500 text-white' : 'bg-rose-500 text-white'
-                  }`}>
-                    {item.badge}
-                  </span>
+                  }`}>{item.badge}</span>
                 )}
-                {isActive && !item.badge && <ChevronRight size={14} className="text-emerald-400" />}
+                {isActive && !item.badge && <ChevronRight size={14} className="text-emerald-500" />}
               </Link>
             );
           })}
 
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-600 px-3 py-2 mt-4">Système</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest px-3 py-2 mt-4"
+            style={{ color: 'var(--text-faint)' }}>Système</p>
           <Link
             to="/settings"
             onClick={() => setSidebarOpen(false)}
-            className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group",
-              location.pathname === '/settings' ? "bg-emerald-500/15 text-emerald-400" : "text-slate-400 hover:bg-slate-800/80 hover:text-slate-100"
-            )}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group"
+            style={location.pathname === '/settings' ? { background: 'rgba(16,185,129,0.12)', color: '#10b981' } : { color: 'var(--text-muted)' }}
+            onMouseEnter={e => { if (location.pathname !== '/settings') { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)'; } }}
+            onMouseLeave={e => { if (location.pathname !== '/settings') { (e.currentTarget as HTMLElement).style.background = ''; (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'; } }}
           >
-            <Settings size={18} className="flex-shrink-0 text-slate-500 group-hover:text-slate-300" />
+            <Settings size={18} className="flex-shrink-0" style={{ color: 'var(--text-faint)' }} />
             {t('settings')}
           </Link>
         </nav>
 
         {/* User Profile */}
         {user && (
-          <div className="p-3 border-t border-slate-800">
+          <div className="p-3" style={{ borderTop: '1px solid var(--border-base)' }}>
             <div className={`px-3 py-2 mb-2 rounded-xl bg-gradient-to-r ${roleColors[user.role]} bg-opacity-10`}>
               <div className="flex items-center gap-1.5">
                 <Shield size={10} className="text-white/70" />
                 <span className="text-[10px] font-bold text-white/80">{roleLabels[user.role]}</span>
               </div>
             </div>
-            <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 transition-colors">
+            <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors"
+              style={{ background: 'var(--bg-elevated)' }}>
               <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${roleColors[user.role]} flex items-center justify-center text-xs font-bold text-white flex-shrink-0`}>
                 {user.avatar}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-200 truncate">{user.name}</p>
-                <p className="text-xs text-slate-500 truncate">{user.dept}</p>
+                <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{user.name}</p>
+                <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{user.dept}</p>
               </div>
               <button onClick={handleLogout} title={t('logout')}>
-                <LogOut size={15} className="text-slate-500 hover:text-rose-400 transition-colors flex-shrink-0" />
+                <LogOut size={15} className="text-rose-400 hover:text-rose-500 transition-colors flex-shrink-0" />
               </button>
             </div>
           </div>
@@ -208,68 +222,90 @@ export default function Layout() {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
         {/* Topbar */}
-        <header className="h-16 border-b border-slate-800 bg-slate-950/70 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6">
+        <header className="h-16 sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 backdrop-blur-xl"
+          style={{
+            background: 'var(--bg-topbar)',
+            borderBottom: '1px solid var(--border-base)',
+          }}>
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="p-2 -ml-2 text-slate-400 hover:text-slate-100 rounded-lg hover:bg-slate-800 lg:hidden transition-colors"
+              className="p-2 -ml-2 rounded-lg lg:hidden transition-colors"
+              style={{ color: 'var(--text-muted)' }}
             >
               <Menu size={22} />
             </button>
-            <div className="hidden sm:flex items-center gap-2 text-sm text-slate-500">
-              <span>GMAO Health</span>
+            <div className="hidden sm:flex items-center gap-2 text-sm" style={{ color: 'var(--text-muted)' }}>
+              <span>GMAO</span>
               <ChevronRight size={14} />
-              <span className="text-slate-200 font-medium">{currentPage}</span>
+              <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{currentPage}</span>
             </div>
           </div>
 
           {/* Search */}
           <div className="flex-1 max-w-md mx-4 hidden md:block">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2" size={16}
+                style={{ color: 'var(--text-faint)' }} />
               <input
                 type="text"
                 placeholder={t('search')}
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl py-2 pl-9 pr-4 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all"
+                className="w-full rounded-xl py-2 pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 transition-all"
+                style={{
+                  background: 'var(--bg-elevated)',
+                  border: '1px solid var(--border-soft)',
+                  color: 'var(--text-primary)',
+                }}
               />
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
 
-            {/* Theme Toggle */}
+            {/* Theme Toggle — pill switch */}
             <button
               onClick={toggleTheme}
-              className="p-2 text-slate-400 hover:text-emerald-400 transition-colors rounded-lg hover:bg-slate-800"
-              title={theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
+              title={isLight ? 'Passer en mode sombre' : 'Passer en mode clair'}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
+              style={{
+                background: isLight ? '#0f172a' : '#f1f5f9',
+                color: isLight ? '#f8fafc' : '#0f172a',
+                border: '1px solid var(--border-base)',
+              }}
             >
-              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+              {isLight ? <Moon size={14} /> : <Sun size={14} />}
+              <span className="hidden sm:inline">{isLight ? 'Sombre' : 'Clair'}</span>
             </button>
 
             {/* Language Switcher */}
             <div ref={langRef} className="relative">
               <button
                 onClick={() => { setLangOpen(!langOpen); setNotifOpen(false); }}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all"
+                style={{ color: 'var(--text-muted)', background: langOpen ? 'var(--bg-elevated)' : '' }}
               >
                 <Globe size={15} />
                 <span>{langMeta[lang].flag}</span>
               </button>
               {langOpen && (
-                <div className="absolute right-0 top-full mt-1.5 w-36 bg-slate-900 border border-slate-700/60 rounded-xl shadow-2xl overflow-hidden z-50">
+                <div className="absolute right-0 top-full mt-1.5 w-36 rounded-xl shadow-2xl overflow-hidden z-50"
+                  style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-base)' }}>
                   {(Object.entries(langMeta) as [Lang, typeof langMeta[Lang]][]).map(([code, meta]) => (
                     <button
                       key={code}
                       onClick={() => { setLang(code); setLangOpen(false); }}
-                      className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-left transition-colors ${
-                        lang === code ? 'bg-emerald-500/10 text-emerald-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                      }`}
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-left transition-colors"
+                      style={lang === code
+                        ? { background: 'rgba(16,185,129,0.1)', color: '#10b981' }
+                        : { color: 'var(--text-muted)' }}
+                      onMouseEnter={e => { if (lang !== code) (e.currentTarget as HTMLElement).style.background = 'var(--bg-elevated)'; }}
+                      onMouseLeave={e => { if (lang !== code) (e.currentTarget as HTMLElement).style.background = ''; }}
                     >
                       <span className="text-base">{meta.flag}</span>
                       <span className="font-medium">{meta.label}</span>
-                      {lang === code && <CheckCircle2 size={10} className="ml-auto text-emerald-400" />}
+                      {lang === code && <CheckCircle2 size={10} className="ml-auto text-emerald-500" />}
                     </button>
                   ))}
                 </div>
@@ -280,54 +316,58 @@ export default function Layout() {
             <div ref={notifRef} className="relative">
               <button
                 onClick={() => { setNotifOpen(!notifOpen); setLangOpen(false); }}
-                className="relative p-2 text-slate-400 hover:text-emerald-400 transition-colors rounded-lg hover:bg-slate-800"
+                className="relative p-2 rounded-lg transition-colors"
+                style={{ color: 'var(--text-muted)' }}
               >
                 <Bell size={20} />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-rose-500 flex items-center justify-center text-[9px] font-bold text-white ring-2 ring-slate-950 animate-pulse">
+                  <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-rose-500 flex items-center justify-center text-[9px] font-bold text-white animate-pulse">
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
               </button>
 
-              {/* Notification Panel */}
               {notifOpen && (
-                <div className="absolute right-0 top-full mt-1.5 w-80 bg-slate-900 border border-slate-700/60 rounded-2xl shadow-2xl z-50 overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
-                    <h3 className="text-sm font-semibold text-white">{t('notif_title')}</h3>
-                    <button onClick={markAllRead} className="text-[10px] text-slate-500 hover:text-emerald-400 transition-colors">
+                <div className="absolute right-0 top-full mt-1.5 w-80 rounded-2xl shadow-2xl z-50 overflow-hidden"
+                  style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-base)' }}>
+                  <div className="flex items-center justify-between px-4 py-3"
+                    style={{ borderBottom: '1px solid var(--border-soft)' }}>
+                    <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{t('notif_title')}</h3>
+                    <button onClick={markAllRead} className="text-[10px] text-emerald-500 transition-colors">
                       {t('mark_read')}
                     </button>
                   </div>
-                  <div className="max-h-80 overflow-y-auto divide-y divide-slate-800/60">
+                  <div className="max-h-80 overflow-y-auto">
                     {notifications.length === 0 ? (
-                      <p className="text-xs text-slate-500 text-center py-6">{t('notif_empty')}</p>
+                      <p className="text-xs text-center py-6" style={{ color: 'var(--text-muted)' }}>{t('notif_empty')}</p>
                     ) : notifications.slice(0, 8).map((n: Notification) => {
                       const NIcon = notifTypeIcon[n.type];
                       return (
-                        <div
-                          key={n.id}
-                          className={`flex gap-3 px-4 py-3 hover:bg-slate-800/40 transition-colors ${!n.read ? 'bg-slate-800/20' : ''}`}
+                        <div key={n.id}
+                          className={`flex gap-3 px-4 py-3 transition-colors ${!n.read ? 'bg-emerald-500/5' : ''}`}
+                          style={{ borderBottom: '1px solid var(--border-soft)' }}
+                          onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--bg-elevated)'}
+                          onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = !n.read ? 'rgba(16,185,129,0.05)' : ''}
                         >
                           <div className={`p-1.5 rounded-lg border shrink-0 mt-0.5 ${notifTypeBg[n.type]}`}>
                             <NIcon size={11} className={toastIconColors[n.type]} />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-1">
-                              <p className={`text-[11px] font-semibold leading-snug ${!n.read ? 'text-white' : 'text-slate-400'}`}>{n.title}</p>
+                              <p className="text-[11px] font-semibold leading-snug" style={{ color: 'var(--text-primary)' }}>{n.title}</p>
                               {!n.read && <div className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0 mt-1" />}
                             </div>
-                            <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-2">{n.message}</p>
-                            <p className="text-[9px] text-slate-600 mt-1">{timeAgo(n.ts)}</p>
+                            <p className="text-[10px] mt-0.5 line-clamp-2" style={{ color: 'var(--text-muted)' }}>{n.message}</p>
+                            <p className="text-[9px] mt-1" style={{ color: 'var(--text-faint)' }}>{timeAgo(n.ts)}</p>
                           </div>
                         </div>
                       );
                     })}
                   </div>
-                  <div className="border-t border-slate-800 px-4 py-2.5">
+                  <div className="px-4 py-2.5" style={{ borderTop: '1px solid var(--border-soft)' }}>
                     <button
                       onClick={() => { setNotifOpen(false); navigate('/settings'); }}
-                      className="text-[11px] text-emerald-400 hover:text-emerald-300 transition-colors font-medium"
+                      className="text-[11px] text-emerald-500 hover:text-emerald-400 transition-colors font-medium"
                     >
                       Voir toutes les notifications →
                     </button>
@@ -338,7 +378,7 @@ export default function Layout() {
 
             {/* User Avatar */}
             {user && (
-              <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${roleColors[user.role]} flex items-center justify-center text-xs font-bold text-white cursor-pointer shadow-lg`}>
+              <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${roleColors[user.role]} flex items-center justify-center text-xs font-bold text-white cursor-pointer shadow-lg ml-1`}>
                 {user.avatar}
               </div>
             )}
@@ -347,14 +387,14 @@ export default function Layout() {
 
         {/* Offline banner */}
         {!online && (
-          <div className="bg-amber-500/20 border-b border-amber-500/30 px-4 py-2 flex items-center justify-center gap-2 text-xs text-amber-300">
+          <div className="bg-amber-500/20 border-b border-amber-500/30 px-4 py-2 flex items-center justify-center gap-2 text-xs text-amber-600">
             <WifiOff size={13} />
             Mode hors ligne actif — Données mises en cache disponibles. Modifications synchronisées dès le retour réseau.
           </div>
         )}
 
         {/* Page content */}
-        <main className="flex-1 overflow-auto bg-slate-900">
+        <main className="flex-1 overflow-auto" style={{ background: 'var(--bg-app)' }}>
           <div className="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
             <Outlet />
           </div>

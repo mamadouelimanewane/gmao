@@ -21,12 +21,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const html = document.documentElement;
+    const body = document.body;
     if (theme === 'light') {
       html.classList.add('light');
       html.classList.remove('dark');
+      body.style.backgroundColor = '#f0f4f8';
+      body.style.color = '#020617';
     } else {
       html.classList.add('dark');
       html.classList.remove('light');
+      body.style.backgroundColor = '#0f172a';
+      body.style.color = '#f8fafc';
     }
     localStorage.setItem('gmao_theme', theme);
   }, [theme]);

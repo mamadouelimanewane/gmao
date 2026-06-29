@@ -19,6 +19,7 @@ import MedPool from './pages/MedPool';
 import EcoMed from './pages/EcoMed';
 import HospitalMap from './pages/HospitalMap';
 import Parametres from './pages/Parametres';
+import Landing from './pages/Landing';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -30,15 +31,17 @@ function AppRoutes() {
 
   return (
     <Routes>
+      <Route path="/accueil" element={<Landing />} />
       <Route
         path="/login"
-        element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}
+        element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />}
       />
       <Route
         path="/"
-        element={<PrivateRoute><Layout /></PrivateRoute>}
+        element={isAuthenticated ? <PrivateRoute><Layout /></PrivateRoute> : <Landing />}
       >
-        <Route index element={<Dashboard />} />
+        <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route path="dashboard" element={<Dashboard />} />
         <Route path="equipements" element={<Equipments />} />
         <Route path="tickets" element={<Tickets />} />
         <Route path="pm" element={<MaintenancePlanifiee />} />

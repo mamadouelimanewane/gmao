@@ -338,7 +338,7 @@ export default function Login() {
                   🔐 Accès — Hôpital Ndamatou
                 </span>
               </div>
-              <div className="divide-y" style={{ divideColor: 'rgba(255,255,255,0.04)' }}>
+              <div className="divide-y divide-white/5">
                 {ACCOUNTS.map(acc => (
                   <div key={acc.role} className="grid grid-cols-2 px-4 py-2.5 text-[10px]"
                     style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>

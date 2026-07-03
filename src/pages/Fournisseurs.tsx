@@ -136,7 +136,7 @@ function AddSupplierModal({ onClose, onAdd }: { onClose: () => void; onAdd: (sup
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Catégorie *</label>
               <select
@@ -174,7 +174,7 @@ function AddSupplierModal({ onClose, onAdd }: { onClose: () => void; onAdd: (sup
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Email de contact *</label>
               <input
@@ -274,7 +274,7 @@ export default function Fournisseurs() {
               className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-9 pr-4 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors"
             />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs text-slate-500">Filtrer:</span>
             {['Tous', 'Constructeur', 'Distributeur Local', 'Prestataire de service'].map((cat) => (
               <button

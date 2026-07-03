@@ -1,12 +1,32 @@
 import { useState, useEffect } from 'react';
-import { useAuth, roleLabels } from '../contexts/AuthContext';
+import { useAuth, roleLabels, roleColors } from '../contexts/AuthContext';
+import type { UserRole } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLang } from '../contexts/LanguageContext';
 import { useNotifications } from '../contexts/NotificationContext';
+import { supabase } from '../lib/supabase';
+import { createUser, updateUser, deleteUser } from '../lib/adminApi';
 import {
   User, Bell, Palette, Database, Info, Save,
-  RotateCcw, Download, CheckCircle2, Shield, Moon, Sun
+  RotateCcw, Download, CheckCircle2, Shield, Moon, Sun,
+  Users, Plus, Trash2, X, KeyRound
 } from 'lucide-react';
+
+interface Profile {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  dept: string;
+  avatar: string;
+}
+
+const ROLE_PRIVILEGES: { role: UserRole; privileges: string[] }[] = [
+  { role: 'technician', privileges: ['Créer et traiter des tickets (workflow réparation)', 'Consulter équipements, stocks et plans PM', 'Créer des demandes d\'achat'] },
+  { role: 'engineer', privileges: ['Tout ce que peut faire un technicien', 'Gérer les équipements et plans de maintenance', 'Marquer une commande comme envoyée/reçue'] },
+  { role: 'director', privileges: ['Valider ou rejeter les demandes d\'achat', 'Consulter rapports, finances et tableaux de bord', 'Accès à tous les modules en lecture'] },
+  { role: 'admin', privileges: ['Tous les droits ci-dessus', 'Gérer les comptes utilisateurs et leurs rôles', 'Accès aux paramètres système'] },
+];
 
 interface NotifPrefs {
   pmRetard: boolean;
@@ -41,6 +61,83 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
   );
 }
 
+function AddUserModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState<UserRole>('technician');
+  const [dept, setDept] = useState('');
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !email.trim() || !password || !dept.trim()) { setError('Tous les champs sont requis'); return; }
+    setSubmitting(true);
+    setError('');
+    const res = await createUser({ name: name.trim(), email: email.trim(), password, role, dept: dept.trim() });
+    setSubmitting(false);
+    if (res.error) { setError(res.error); return; }
+    onCreated();
+    onClose();
+  };
+
+  const inputCls = "w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors";
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <form onSubmit={handleSubmit} className="relative w-full max-w-md glass-strong rounded-2xl p-6 shadow-2xl border border-slate-700/50 z-10 animate-fade-in-up max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2">
+            <Users className="text-emerald-400" size={20} />
+            <h3 className="text-lg font-bold text-white">Nouvel utilisateur</h3>
+          </div>
+          <button type="button" onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"><X size={18} /></button>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-slate-400 mb-1.5">Nom complet *</label>
+            <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="ex: Fatou Sow" className={inputCls} />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-400 mb-1.5">Email *</label>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="prenom.nom@ndamatou.sn" className={inputCls} />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-400 mb-1.5">Mot de passe temporaire *</label>
+            <input type="text" value={password} onChange={e => setPassword(e.target.value)} placeholder="min. 6 caractères" className={inputCls} />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5">Rôle *</label>
+              <select value={role} onChange={e => setRole(e.target.value as UserRole)} className={inputCls}>
+                <option value="technician">Technicien</option>
+                <option value="engineer">Ingénieur</option>
+                <option value="director">Directeur</option>
+                <option value="admin">Administrateur</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5">Département *</label>
+              <input type="text" value={dept} onChange={e => setDept(e.target.value)} placeholder="ex: Urgences" className={inputCls} />
+            </div>
+          </div>
+          {error && <p className="text-xs text-rose-400">{error}</p>}
+        </div>
+
+        <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-800">
+          <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white bg-slate-800 rounded-xl transition-colors">Annuler</button>
+          <button type="submit" disabled={submitting} className="px-5 py-2 text-sm font-semibold text-white bg-emerald-500 hover:bg-emerald-600 rounded-xl transition-all shadow-lg shadow-emerald-900/30 active:scale-95 disabled:opacity-60">
+            {submitting ? 'Création…' : 'Créer le compte'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 export default function Parametres() {
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
@@ -56,6 +153,37 @@ export default function Parametres() {
 
   const [activeSection, setActiveSection] = useState('profil');
   const [saved, setSaved] = useState(false);
+
+  const isAdmin = user?.role === 'admin';
+  const [users, setUsers] = useState<Profile[]>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [showAddUser, setShowAddUser] = useState(false);
+
+  const loadUsers = async () => {
+    setUsersLoading(true);
+    const { data } = await supabase.from('profiles').select('*').order('name');
+    setUsers((data as Profile[]) || []);
+    setUsersLoading(false);
+  };
+
+  useEffect(() => {
+    if (activeSection === 'utilisateurs' && isAdmin) loadUsers();
+  }, [activeSection, isAdmin]);
+
+  const handleRoleChange = async (id: string, role: UserRole) => {
+    const res = await updateUser(id, { role });
+    if (res.error) { push({ type: 'error', title: 'Erreur', message: res.error }); return; }
+    setUsers(prev => prev.map(u => u.id === id ? { ...u, role } : u));
+    push({ type: 'success', title: 'Rôle mis à jour', message: `${users.find(u => u.id === id)?.name || ''} → ${roleLabels[role]}` });
+  };
+
+  const handleDeleteUser = async (u: Profile) => {
+    if (!window.confirm(`Supprimer le compte de ${u.name} ? Cette action est irréversible.`)) return;
+    const res = await deleteUser(u.id);
+    if (res.error) { push({ type: 'error', title: 'Erreur', message: res.error }); return; }
+    setUsers(prev => prev.filter(x => x.id !== u.id));
+    push({ type: 'success', title: 'Utilisateur supprimé', message: u.name });
+  };
 
   // Persist prefs
   useEffect(() => {
@@ -98,6 +226,7 @@ export default function Parametres() {
 
   const sections = [
     { id: 'profil', label: 'Profil utilisateur', icon: User },
+    ...(isAdmin ? [{ id: 'utilisateurs', label: 'Utilisateurs & Rôles', icon: Users }] : []),
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'apparence', label: 'Apparence', icon: Palette },
     { id: 'donnees', label: 'Données', icon: Database },
@@ -189,6 +318,87 @@ export default function Parametres() {
                   <input readOnly defaultValue={roleLabels[user.role]}
                     className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-slate-300 cursor-not-allowed"
                   />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Utilisateurs & Rôles */}
+          {activeSection === 'utilisateurs' && isAdmin && (
+            <div className="space-y-6">
+              {showAddUser && <AddUserModal onClose={() => setShowAddUser(false)} onCreated={loadUsers} />}
+
+              <div className="glass border border-slate-700/40 rounded-2xl p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+                  <h2 className="text-base font-semibold text-white">Comptes utilisateurs</h2>
+                  <button
+                    onClick={() => setShowAddUser(true)}
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-xl transition-all active:scale-95"
+                  >
+                    <Plus size={15} /> Nouvel utilisateur
+                  </button>
+                </div>
+
+                {usersLoading ? (
+                  <p className="text-sm text-slate-500 text-center py-8">Chargement…</p>
+                ) : (
+                  <div className="space-y-2">
+                    {users.map(u => (
+                      <div key={u.id} className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-xl bg-slate-900/40 border border-slate-800">
+                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${roleColors[u.role]} flex items-center justify-center text-white font-bold text-sm flex-shrink-0`}>
+                          {u.avatar}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-slate-200 truncate">{u.name}</p>
+                          <p className="text-xs text-slate-500 truncate">{u.email} · {u.dept}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <select
+                            value={u.role}
+                            onChange={e => handleRoleChange(u.id, e.target.value as UserRole)}
+                            disabled={u.id === user?.id}
+                            className="bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 disabled:opacity-50"
+                          >
+                            <option value="technician">Technicien</option>
+                            <option value="engineer">Ingénieur</option>
+                            <option value="director">Directeur</option>
+                            <option value="admin">Administrateur</option>
+                          </select>
+                          <button
+                            onClick={() => handleDeleteUser(u)}
+                            disabled={u.id === user?.id}
+                            title={u.id === user?.id ? 'Vous ne pouvez pas supprimer votre propre compte' : 'Supprimer'}
+                            className="p-2 rounded-lg text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    {users.length === 0 && <p className="text-sm text-slate-500 text-center py-8">Aucun utilisateur</p>}
+                  </div>
+                )}
+              </div>
+
+              <div className="glass border border-slate-700/40 rounded-2xl p-6">
+                <h2 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+                  <KeyRound size={16} className="text-emerald-400" /> Privilèges par rôle
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {ROLE_PRIVILEGES.map(({ role, privileges }) => (
+                    <div key={role} className="p-4 rounded-xl bg-slate-900/40 border border-slate-800">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-gradient-to-r ${roleColors[role]} text-white mb-3`}>
+                        <Shield size={11} /> {roleLabels[role]}
+                      </span>
+                      <ul className="space-y-1.5">
+                        {privileges.map(p => (
+                          <li key={p} className="text-xs text-slate-400 flex items-start gap-1.5">
+                            <span className="text-emerald-500 mt-0.5">•</span> {p}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

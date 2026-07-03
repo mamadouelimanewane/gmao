@@ -156,7 +156,7 @@ function ProposerModal({ onClose, onAdd }: { onClose: () => void; onAdd: (p: Par
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Type</label>
               <select value={type} onChange={e => setType(e.target.value)} className={inputCls}>
@@ -170,7 +170,7 @@ function ProposerModal({ onClose, onAdd }: { onClose: () => void; onAdd: (p: Par
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Quantité disponible *</label>
               <input type="number" min="1" value={qty} onChange={e => { setQty(e.target.value); setErrors(v => ({...v, qty: ''})); }} className={inputCls} />
@@ -254,7 +254,7 @@ export default function MedPool() {
             className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-9 pr-4 text-sm text-slate-200 focus:outline-none focus:border-violet-500 transition-colors"
           />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Filter size={14} className="text-slate-500" />
           <div className="flex bg-slate-900 rounded-lg p-1 border border-slate-700/50">
             {['Tous', 'Prêt', 'Vente'].map((t) => (

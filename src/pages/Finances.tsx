@@ -104,7 +104,7 @@ function BudgetModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <form onSubmit={handleAdd} className="space-y-4 mb-6">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Département</label>
               <select value={dept} onChange={e => setDept(e.target.value)} className={inputCls}>
@@ -118,7 +118,7 @@ function BudgetModal({ onClose }: { onClose: () => void }) {
               <input type="number" value={annee} onChange={e => setAnnee(e.target.value)} className={inputCls} min="2024" max="2030" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Budget alloué (FCFA) *</label>
               <input type="number" value={alloue} onChange={e => setAlloue(e.target.value)} placeholder="ex: 15000000" className={inputCls} required />

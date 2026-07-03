@@ -81,7 +81,7 @@ function AddEquipmentModal({ onClose, onAdd }: { onClose: () => void; onAdd: (eq
           </button>
         </div>
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Nom de l'équipement *</label>
               <input
@@ -105,7 +105,7 @@ function AddEquipmentModal({ onClose, onAdd }: { onClose: () => void; onAdd: (eq
               {errors.serialNumber && <p className="text-xs text-rose-400 mt-1">{errors.serialNumber}</p>}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Catégorie *</label>
               <select value={category} onChange={e => setCategory(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors">
@@ -126,7 +126,7 @@ function AddEquipmentModal({ onClose, onAdd }: { onClose: () => void; onAdd: (eq
             <label className="block text-xs font-medium text-slate-400 mb-1.5">Localisation</label>
             <input type="text" value={location} onChange={e => setLocation(e.target.value)} placeholder="ex: Radiologie – Salle 2" className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Fournisseur</label>
               <input type="text" value={supplier} onChange={e => setSupplier(e.target.value)} placeholder="Siemens, GE, Philips..." className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors" />
@@ -470,7 +470,7 @@ export default function Equipments() {
               className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-9 pr-4 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors"
             />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Filter size={14} className="text-slate-500" />
             <span className="text-xs text-slate-500">Statut:</span>
             {statusFilters.map((st) => (

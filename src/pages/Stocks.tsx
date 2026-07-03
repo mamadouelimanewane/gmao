@@ -97,7 +97,7 @@ function AddArticleModal({ onClose, onAdd }: { onClose: () => void; onAdd: (item
             {errors.name && <p className={errCls}>{errors.name}</p>}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Catégorie</label>
               <select value={form.category} onChange={e => set('category', e.target.value)} className={inputCls}>
@@ -113,7 +113,7 @@ function AddArticleModal({ onClose, onAdd }: { onClose: () => void; onAdd: (item
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Quantité *</label>
               <input type="number" min="0" value={form.quantity} onChange={e => set('quantity', e.target.value)} className={inputCls} />
@@ -126,7 +126,7 @@ function AddArticleModal({ onClose, onAdd }: { onClose: () => void; onAdd: (item
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Prix unitaire (FCFA)</label>
               <input type="number" min="0" value={form.price} onChange={e => set('price', e.target.value)} className={inputCls} />
@@ -423,7 +423,7 @@ export default function Stocks() {
             className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-9 pr-4 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors"
           />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Filter size={14} className="text-slate-500" />
           <span className="text-xs text-slate-500">Catégorie:</span>
           {categories.map((c) => (

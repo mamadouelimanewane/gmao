@@ -204,7 +204,7 @@ function AddTicketModal({
             {errors.title && <p className="text-xs text-rose-400 mt-1">{errors.title}</p>}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Équipement *</label>
               <input
@@ -229,7 +229,7 @@ function AddTicketModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Priorité / Gravité</label>
               <select
@@ -567,7 +567,7 @@ export default function Tickets() {
               className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-9 pr-4 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors"
             />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Filter size={14} className="text-slate-500" />
             <span className="text-xs text-slate-500">Priorité:</span>
             {['Tous', 'Critique', 'Haute', 'Moyenne', 'Basse'].map((p) => (

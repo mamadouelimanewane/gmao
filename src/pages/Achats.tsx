@@ -69,7 +69,7 @@ function NewRequestModal({ onClose, onAdd }: { onClose: () => void; onAdd: (po: 
             <input type="text" value={itemName} onChange={e => setItemName(e.target.value)} placeholder="ex: Filtre antibactérien respirateur" className={inputCls} />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Quantité *</label>
               <input type="number" min="1" value={quantity} onChange={e => setQuantity(e.target.value)} className={inputCls} />
@@ -80,7 +80,7 @@ function NewRequestModal({ onClose, onAdd }: { onClose: () => void; onAdd: (po: 
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Fournisseur suggéré</label>
               <input type="text" value={supplierName} onChange={e => setSupplierName(e.target.value)} placeholder="ex: BioSénégal SARL" className={inputCls} />

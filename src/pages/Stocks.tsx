@@ -7,29 +7,8 @@ import {
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-
-interface StockItem {
-  id: string;
-  name: string;
-  category: string;
-  quantity: number;
-  minThreshold: number;
-  unit: string;
-  price: number;
-  supplier: string;
-  status: 'Normal' | 'Critique' | 'Surstock';
-  location: string;
-  leadTimeWeeks: number;
-  consumptionPerWeek: number;
-}
-
-const initialStocks: StockItem[] = [
-  { id: 'STK-001', name: 'Électrodes pédiatriques ECG', category: 'Consommables', quantity: 120, minThreshold: 50, unit: 'boîtes', price: 15000, supplier: 'BioSénégal SARL', status: 'Normal', location: 'Armoire A - Urgences', leadTimeWeeks: 2, consumptionPerWeek: 15 },
-  { id: 'STK-002', name: 'Filtre antibactérien respirateur', category: 'Pièces Détachées', quantity: 18, minThreshold: 15, unit: 'unités', price: 28000, supplier: 'Dräger France', status: 'Critique', location: 'Dépôt Principal B', leadTimeWeeks: 6, consumptionPerWeek: 4 },
-  { id: 'STK-003', name: 'Gel conducteur ultrasons 5L', category: 'Consommables', quantity: 2, minThreshold: 5, unit: 'bidons', price: 8500, supplier: 'Medica-Dakar', status: 'Critique', location: 'Armoire B - Maternité', leadTimeWeeks: 1, consumptionPerWeek: 3 },
-  { id: 'STK-004', name: 'Batterie de secours défibrillateur Zoll', category: 'Batteries', quantity: 18, minThreshold: 6, unit: 'unités', price: 110000, supplier: 'Zoll SAS', status: 'Surstock', location: 'Dépôt Principal A', leadTimeWeeks: 8, consumptionPerWeek: 0.5 },
-  { id: 'STK-005', name: 'Lampe halogène pour scialytique', category: 'Pièces Détachées', quantity: 12, minThreshold: 10, unit: 'unités', price: 35000, supplier: 'Surgical Light Co.', status: 'Normal', location: 'Bloc Op. - Réserve', leadTimeWeeks: 4, consumptionPerWeek: 1 },
-];
+import { useDataStore } from '../contexts/DataStore';
+import type { StockItem } from '../contexts/DataStore';
 
 const forecastData = [
   { week: 'S0', stock: 18, threshold: 15 },
@@ -183,7 +162,7 @@ function BonCommandeModal({ stocks, onClose }: { stocks: StockItem[]; onClose: (
   const generatePDF = () => {
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text('Bon de Commande — CHU Aristide Le Dantec', 14, 20);
+    doc.text('Bon de Commande — Hôpital Ndamatou Touba', 14, 20);
     doc.setFontSize(10);
     doc.text(`Date : ${new Date().toLocaleDateString('fr-FR')}`, 14, 28);
     doc.text('Département : Maintenance Biomédicale', 14, 34);
@@ -274,7 +253,7 @@ function BonCommandeModal({ stocks, onClose }: { stocks: StockItem[]; onClose: (
 }
 
 export default function Stocks() {
-  const [stocks, setStocks] = useState<StockItem[]>(initialStocks);
+  const { stocks, setStocks } = useDataStore();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('Tous');
   const [showAddModal, setShowAddModal] = useState(false);

@@ -1,11 +1,14 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Plus, Search, Filter, Clock, CheckCircle,
-  Wrench, X, ShieldAlert, PenLine, Eye
+  Wrench, X, ShieldAlert, PenLine, Eye, ArrowRight, ArrowLeft,
+  ClipboardList, ShoppingCart
 } from 'lucide-react';
-import { useDataStore } from '../contexts/DataStore';
-import type { Ticket } from '../contexts/DataStore';
+import { useDataStore, REPAIR_STEPS, repairStepToStatus } from '../contexts/DataStore';
+import type { Ticket, PurchaseOrder } from '../contexts/DataStore';
 import { useNotifications } from '../contexts/NotificationContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const priorityStyles: Record<string, string> = {
   'Critique': 'bg-rose-500/10 text-rose-400 border border-rose-500/20',
@@ -140,6 +143,7 @@ function AddTicketModal({
   const [priority, setPriority] = useState<Ticket['priority']>('Moyenne');
   const [location, setLocation] = useState('');
   const [assignee, setAssignee] = useState('');
+  const [contractType, setContractType] = useState<Ticket['contractType']>('interne');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validate = () => {
@@ -166,6 +170,8 @@ function AddTicketModal({
       location,
       sla: priority === 'Critique' ? '2h 00m restants' : '8h 00m restants',
       slaUrgent: priority === 'Critique' || priority === 'Haute',
+      repairStep: 'signalement',
+      contractType,
     };
     onAdd(newTkt);
     onClose();
@@ -248,6 +254,26 @@ function AddTicketModal({
               />
             </div>
           </div>
+
+          <div>
+            <label className="block text-xs font-medium text-slate-400 mb-1.5">Type d'intervention</label>
+            <div className="flex gap-2">
+              {(['interne', 'externe'] as const).map(ct => (
+                <button
+                  key={ct}
+                  type="button"
+                  onClick={() => setContractType(ct)}
+                  className={`flex-1 px-3 py-2 rounded-xl text-xs font-semibold transition-all border ${
+                    contractType === ct
+                      ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/40'
+                      : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-slate-200'
+                  }`}
+                >
+                  {ct === 'interne' ? 'Équipe interne' : 'Sous-traitant externe'}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-800">
@@ -261,16 +287,179 @@ function AddTicketModal({
   );
 }
 
+// ── Repair Workflow Modal ──────────────────────────────────────────────────
+
+function WorkflowModal({
+  ticket, onClose, onUpdate, onRequestClosure, onRequestPurchase,
+}: {
+  ticket: Ticket;
+  onClose: () => void;
+  onUpdate: (patch: Partial<Ticket>) => void;
+  onRequestClosure: () => void;
+  onRequestPurchase: () => void;
+}) {
+  const [diagnosticNotes, setDiagnosticNotes] = useState(ticket.diagnosticNotes || '');
+  const [devisMontant, setDevisMontant] = useState(ticket.devisMontant?.toString() || '');
+
+  const currentIdx = REPAIR_STEPS.findIndex(s => s.id === ticket.repairStep);
+
+  const goToStep = (idx: number) => {
+    const step = REPAIR_STEPS[idx];
+    if (!step) return;
+    if (step.id === 'cloture') {
+      onUpdate({ diagnosticNotes, devisMontant: devisMontant ? Number(devisMontant) : undefined });
+      onRequestClosure();
+      return;
+    }
+    onUpdate({
+      repairStep: step.id,
+      status: repairStepToStatus(step.id),
+      diagnosticNotes,
+      devisMontant: devisMontant ? Number(devisMontant) : undefined,
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-xl glass-strong rounded-2xl p-6 shadow-2xl border border-slate-700/50 z-10 animate-fade-in-up max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2">
+            <ClipboardList className="text-emerald-400" size={20} />
+            <div>
+              <h3 className="text-lg font-bold text-white">Workflow de réparation</h3>
+              <p className="text-[11px] text-slate-500 font-mono">{ticket.id} · {ticket.equipment}</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Type d'intervention */}
+        <div className="flex gap-2 mb-5">
+          {(['interne', 'externe'] as const).map(ct => (
+            <button
+              key={ct}
+              onClick={() => onUpdate({ contractType: ct })}
+              className={`flex-1 px-3 py-2 rounded-xl text-xs font-semibold transition-all border ${
+                ticket.contractType === ct
+                  ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/40'
+                  : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-slate-200'
+              }`}
+            >
+              {ct === 'interne' ? 'Équipe interne' : 'Sous-traitant externe'}
+            </button>
+          ))}
+        </div>
+
+        {/* Stepper */}
+        <div className="flex items-center mb-6">
+          {REPAIR_STEPS.map((step, idx) => (
+            <div key={step.id} className="flex items-center flex-1 last:flex-none">
+              <div className="flex flex-col items-center gap-1.5">
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold border-2 ${
+                  idx < currentIdx ? 'bg-emerald-500 border-emerald-500 text-white' :
+                  idx === currentIdx ? 'border-emerald-400 text-emerald-400 bg-emerald-500/10' :
+                  'border-slate-700 text-slate-600'
+                }`}>
+                  {idx < currentIdx ? '✓' : idx + 1}
+                </div>
+                <span className={`text-[9px] text-center max-w-[64px] leading-tight ${idx === currentIdx ? 'text-emerald-400 font-semibold' : 'text-slate-500'}`}>
+                  {step.label}
+                </span>
+              </div>
+              {idx < REPAIR_STEPS.length - 1 && (
+                <div className={`h-0.5 flex-1 mx-1 mb-4 ${idx < currentIdx ? 'bg-emerald-500' : 'bg-slate-700'}`} />
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Step content */}
+        <div className="space-y-4">
+          {(ticket.repairStep === 'diagnostic' || currentIdx >= 1) && (
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5">Notes de diagnostic</label>
+              <textarea
+                value={diagnosticNotes}
+                onChange={e => setDiagnosticNotes(e.target.value)}
+                onBlur={() => onUpdate({ diagnosticNotes })}
+                rows={3}
+                placeholder="Cause identifiée, observations techniques…"
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+              />
+            </div>
+          )}
+
+          {ticket.repairStep === 'devis_pieces' && (
+            <div className="space-y-3 p-3 rounded-xl bg-slate-900/50 border border-slate-800">
+              {ticket.contractType === 'externe' ? (
+                <div>
+                  <label className="block text-xs font-medium text-slate-400 mb-1.5">Montant du devis (FCFA)</label>
+                  <input
+                    type="number"
+                    value={devisMontant}
+                    onChange={e => setDevisMontant(e.target.value)}
+                    onBlur={() => onUpdate({ devisMontant: devisMontant ? Number(devisMontant) : undefined })}
+                    placeholder="ex: 850000"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+              ) : (
+                <p className="text-xs text-slate-400">Intervention interne : si des pièces sont nécessaires, lancez une demande d'achat.</p>
+              )}
+              <button
+                onClick={onRequestPurchase}
+                className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition-all active:scale-95"
+              >
+                <ShoppingCart size={14} /> Demander des pièces (Workflow Achat)
+              </button>
+            </div>
+          )}
+
+          {ticket.repairStep === 'test_validation' && (
+            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300">
+              Effectuez les tests de validation avant de clôturer. La clôture nécessitera une signature électronique.
+            </div>
+          )}
+        </div>
+
+        {/* Navigation */}
+        <div className="flex justify-between gap-3 mt-6 pt-4 border-t border-slate-800">
+          <button
+            onClick={() => goToStep(currentIdx - 1)}
+            disabled={currentIdx <= 0}
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-slate-400 hover:text-white bg-slate-800 rounded-xl transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <ArrowLeft size={14} /> Précédent
+          </button>
+          <button
+            onClick={() => goToStep(currentIdx + 1)}
+            disabled={currentIdx >= REPAIR_STEPS.length - 1}
+            className="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-semibold text-white bg-emerald-500 hover:bg-emerald-600 rounded-xl transition-all shadow-lg shadow-emerald-900/30 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            {REPAIR_STEPS[currentIdx + 1]?.id === 'cloture' ? 'Clôturer & Signer' : 'Étape suivante'} <ArrowRight size={14} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main Component ───────────────────────────────────────────────────────────
 
 export default function Tickets() {
-  const { tickets, setTickets } = useDataStore();
+  const { tickets, setTickets, setPurchaseOrders } = useDataStore();
+  const { user } = useAuth();
   const { push } = useNotifications();
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [filterPriority, setFilterPriority] = useState('Tous');
   const [signTicketId, setSignTicketId] = useState<string | null>(null);
   const [viewSigTicketId, setViewSigTicketId] = useState<string | null>(null);
+  const [workflowTicketId, setWorkflowTicketId] = useState<string | null>(null);
   const [prefillEquipment, setPrefillEquipment] = useState<string | undefined>();
 
   const handleAddTicket = (newTkt: Ticket) => {
@@ -281,11 +470,34 @@ export default function Tickets() {
   const handleSign = (dataUrl: string) => {
     setTickets(prev =>
       prev.map(t =>
-        t.id === signTicketId ? { ...t, status: 'Résolu', signature: dataUrl } : t
+        t.id === signTicketId ? { ...t, status: 'Résolu', repairStep: 'cloture', signature: dataUrl } : t
       )
     );
     setSignTicketId(null);
     push({ type: 'success', title: 'Ticket clôturé', message: 'Signature enregistrée. Ticket passé en Résolu.' });
+  };
+
+  const handleWorkflowUpdate = (ticketId: string, patch: Partial<Ticket>) => {
+    setTickets(prev => prev.map(t => (t.id === ticketId ? { ...t, ...patch } : t)));
+  };
+
+  const handleRequestPurchase = (ticket: Ticket) => {
+    const po: PurchaseOrder = {
+      id: `PO-${Date.now().toString().slice(-6)}`,
+      itemName: `Pièces pour ${ticket.equipment}`,
+      quantity: 1,
+      unit: 'pcs',
+      supplierName: '',
+      requestedBy: user?.name || 'Utilisateur',
+      requestDate: new Date().toLocaleDateString('fr-FR'),
+      status: 'Demande',
+      unitPrice: 0,
+      linkedTicketId: ticket.id,
+    };
+    setPurchaseOrders(prev => [po, ...prev]);
+    push({ type: 'success', title: 'Demande d\'achat créée', message: `${po.id} liée au ticket ${ticket.id}` });
+    setWorkflowTicketId(null);
+    navigate('/achats');
   };
 
   const filteredTickets = tickets.filter(t => {
@@ -298,6 +510,7 @@ export default function Tickets() {
   });
 
   const viewSigTicket = tickets.find(t => t.id === viewSigTicketId);
+  const workflowTicket = tickets.find(t => t.id === workflowTicketId);
 
   return (
     <>
@@ -313,6 +526,15 @@ export default function Tickets() {
       )}
       {viewSigTicket?.signature && viewSigTicketId && (
         <ViewSignatureModal signature={viewSigTicket.signature} onClose={() => setViewSigTicketId(null)} />
+      )}
+      {workflowTicket && (
+        <WorkflowModal
+          ticket={workflowTicket}
+          onClose={() => setWorkflowTicketId(null)}
+          onUpdate={patch => handleWorkflowUpdate(workflowTicket.id, patch)}
+          onRequestClosure={() => { setWorkflowTicketId(null); setSignTicketId(workflowTicket.id); }}
+          onRequestPurchase={() => handleRequestPurchase(workflowTicket)}
+        />
       )}
 
       <div className="space-y-6 animate-fade-in-up">
@@ -381,6 +603,7 @@ export default function Tickets() {
                   {colTickets.map((t) => (
                     <div
                       key={t.id}
+                      onClick={() => setWorkflowTicketId(t.id)}
                       className="p-4 rounded-xl glass border border-slate-800/80 hover:border-slate-700/60 transition-all duration-200 group cursor-pointer relative overflow-hidden"
                     >
                       {/* Priority strip */}
@@ -394,6 +617,14 @@ export default function Tickets() {
                         <span className="text-[10px] font-mono text-slate-500">{t.id}</span>
                         <span className={`text-[9px] uppercase font-semibold px-2 py-0.5 rounded-md ${priorityStyles[t.priority]}`}>
                           {t.priority}
+                        </span>
+                      </div>
+
+                      <div className="pl-1.5 mb-1.5">
+                        <span className="inline-flex items-center gap-1 text-[9px] font-semibold px-2 py-0.5 rounded-md bg-slate-800/80 text-slate-400 border border-slate-700/50">
+                          <ClipboardList size={9} />
+                          {REPAIR_STEPS.find(s => s.id === t.repairStep)?.label || 'Signalement'}
+                          {t.contractType === 'externe' && ' · Externe'}
                         </span>
                       </div>
 
@@ -422,7 +653,7 @@ export default function Tickets() {
                       {/* Signature buttons */}
                       {t.status === 'Résolu' && t.signature && (
                         <button
-                          onClick={() => setViewSigTicketId(t.id)}
+                          onClick={e => { e.stopPropagation(); setViewSigTicketId(t.id); }}
                           className="flex items-center gap-1.5 text-[10px] text-emerald-400 hover:text-emerald-300 mb-3 pl-1.5"
                         >
                           <Eye size={11} /> Voir signature
@@ -430,7 +661,7 @@ export default function Tickets() {
                       )}
                       {t.status === 'En Cours' && (
                         <button
-                          onClick={() => setSignTicketId(t.id)}
+                          onClick={e => { e.stopPropagation(); setSignTicketId(t.id); }}
                           className="flex items-center gap-1.5 text-[10px] px-2.5 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition-colors mb-3 ml-1.5"
                         >
                           <PenLine size={11} /> Clôturer & Signer

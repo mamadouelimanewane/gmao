@@ -16,6 +16,12 @@ export interface Ticket {
   sla: string;
   slaUrgent: boolean;
   signature?: string;
+  // ── Workflow de réparation ──
+  repairStep: 'signalement' | 'diagnostic' | 'devis_pieces' | 'reparation' | 'test_validation' | 'cloture';
+  contractType: 'interne' | 'externe';
+  diagnosticNotes?: string;
+  devisMontant?: number;
+  devisValide?: boolean;
 }
 
 export interface Equipment {
@@ -59,21 +65,65 @@ export interface MaintenancePlan {
 export interface StockItem {
   id: string;
   name: string;
+  category: string;
   quantity: number;
-  minQuantity: number;
+  minThreshold: number;
   unit: string;
-  location: string;
+  price: number;
   supplier: string;
+  status: 'Normal' | 'Critique' | 'Surstock';
+  location: string;
+  leadTimeWeeks: number;
+  consumptionPerWeek: number;
+}
+
+// ── Workflow Achat ───────────────────────────────────────────────────────
+export interface PurchaseOrder {
+  id: string;
+  itemName: string;
+  quantity: number;
+  unit: string;
+  supplierName: string;
+  requestedBy: string;
+  requestDate: string;
+  status: 'Demande' | 'Validé' | 'Commandé' | 'Reçu' | 'Rejeté';
+  approvedBy?: string;
+  orderDate?: string;
+  receivedDate?: string;
+  unitPrice: number;
+  notes?: string;
+  linkedTicketId?: string;
+  linkedStockId?: string;
+}
+
+// ── Repair workflow helpers ──────────────────────────────────────────────
+
+export const REPAIR_STEPS: { id: Ticket['repairStep']; label: string }[] = [
+  { id: 'signalement', label: 'Signalement' },
+  { id: 'diagnostic', label: 'Diagnostic' },
+  { id: 'devis_pieces', label: 'Devis / Pièces' },
+  { id: 'reparation', label: 'Réparation en cours' },
+  { id: 'test_validation', label: 'Test & validation' },
+  { id: 'cloture', label: 'Clôturé' },
+];
+
+export function repairStepToStatus(step: Ticket['repairStep']): Ticket['status'] {
+  switch (step) {
+    case 'signalement': return 'Ouvert';
+    case 'devis_pieces': return 'En Attente';
+    case 'cloture': return 'Résolu';
+    default: return 'En Cours';
+  }
 }
 
 // ── Initial Data ───────────────────────────────────────────────────────────
 
 const initialTickets: Ticket[] = [
-  { id: 'TKT-1042', title: 'Erreur de calibration & instabilité de champ', equipment: 'IRM Siemens Magnetom Skyra', status: 'Ouvert', priority: 'Critique', date: '28 Juin, 09:30', assignee: 'Dr. Jean Diallo', location: 'Radiologie – Salle 2', sla: '1h 15m restants', slaUrgent: true },
-  { id: 'TKT-1041', title: 'Bruit anormal et surchauffe du compresseur', equipment: 'Scanner GE Optima CT660', status: 'En Cours', priority: 'Haute', date: '27 Juin, 14:15', assignee: 'Tech. Amadou Ndiaye', location: 'Urgences', sla: '4h 30m restants', slaUrgent: false },
-  { id: 'TKT-1039', title: 'Remplacement de la sonde cardiaque défectueuse', equipment: 'Échographe Sonosite Edge II', status: 'En Attente', priority: 'Moyenne', date: '22 Juin, 11:45', assignee: 'Fournisseur (Import)', location: 'Maternité', sla: 'Attente livraison', slaUrgent: false },
-  { id: 'TKT-1040', title: 'Maintenance préventive trimestrielle Q2', equipment: 'Moniteur Philips IntelliVue MX800', status: 'Résolu', priority: 'Basse', date: '25 Juin, 10:00', assignee: 'Équipe BioMed', location: 'Réanimation – Lit 4', sla: 'Résolu dans les temps', slaUrgent: false },
-  { id: 'TKT-1043', title: "Dysfonctionnement de l'alimentation électrique", equipment: 'Automate Sysmex XN', status: 'Ouvert', priority: 'Haute', date: '28 Juin, 11:00', assignee: 'Tech. Fatou Sow', location: 'Laboratoire Central', sla: '2h 45m restants', slaUrgent: true },
+  { id: 'TKT-1042', title: 'Erreur de calibration & instabilité de champ', equipment: 'IRM Siemens Magnetom Skyra', status: 'Ouvert', priority: 'Critique', date: '28 Juin, 09:30', assignee: 'Dr. Jean Diallo', location: 'Radiologie – Salle 2', sla: '1h 15m restants', slaUrgent: true, repairStep: 'signalement', contractType: 'externe' },
+  { id: 'TKT-1041', title: 'Bruit anormal et surchauffe du compresseur', equipment: 'Scanner GE Optima CT660', status: 'En Cours', priority: 'Haute', date: '27 Juin, 14:15', assignee: 'Tech. Amadou Ndiaye', location: 'Urgences', sla: '4h 30m restants', slaUrgent: false, repairStep: 'reparation', contractType: 'interne' },
+  { id: 'TKT-1039', title: 'Remplacement de la sonde cardiaque défectueuse', equipment: 'Échographe Sonosite Edge II', status: 'En Attente', priority: 'Moyenne', date: '22 Juin, 11:45', assignee: 'Fournisseur (Import)', location: 'Maternité', sla: 'Attente livraison', slaUrgent: false, repairStep: 'devis_pieces', contractType: 'externe', devisMontant: 850000 },
+  { id: 'TKT-1040', title: 'Maintenance préventive trimestrielle Q2', equipment: 'Moniteur Philips IntelliVue MX800', status: 'Résolu', priority: 'Basse', date: '25 Juin, 10:00', assignee: 'Équipe BioMed', location: 'Réanimation – Lit 4', sla: 'Résolu dans les temps', slaUrgent: false, repairStep: 'cloture', contractType: 'interne' },
+  { id: 'TKT-1043', title: "Dysfonctionnement de l'alimentation électrique", equipment: 'Automate Sysmex XN', status: 'Ouvert', priority: 'Haute', date: '28 Juin, 11:00', assignee: 'Tech. Fatou Sow', location: 'Laboratoire Central', sla: '2h 45m restants', slaUrgent: true, repairStep: 'diagnostic', contractType: 'interne' },
 ];
 
 const initialEquipments: Equipment[] = [
@@ -196,10 +246,14 @@ const initialPlans: MaintenancePlan[] = [
 ];
 
 const initialStocks: StockItem[] = [
-  { id: 'STK-001', name: 'Filtre HEPA', quantity: 2, minQuantity: 5, unit: 'pcs', location: 'Magasin A', supplier: 'Siemens' },
-  { id: 'STK-002', name: 'Électrodes ECG', quantity: 150, minQuantity: 50, unit: 'pcs', location: 'Magasin B', supplier: 'Philips' },
-  { id: 'STK-003', name: 'Réactif hématologie', quantity: 8, minQuantity: 10, unit: 'flacons', location: 'Labo', supplier: 'Sysmex' },
+  { id: 'STK-001', name: 'Électrodes pédiatriques ECG', category: 'Consommables', quantity: 120, minThreshold: 50, unit: 'boîtes', price: 15000, supplier: 'BioSénégal SARL', status: 'Normal', location: 'Armoire A - Urgences', leadTimeWeeks: 2, consumptionPerWeek: 15 },
+  { id: 'STK-002', name: 'Filtre antibactérien respirateur', category: 'Pièces Détachées', quantity: 18, minThreshold: 15, unit: 'unités', price: 28000, supplier: 'Dräger France', status: 'Critique', location: 'Dépôt Principal B', leadTimeWeeks: 6, consumptionPerWeek: 4 },
+  { id: 'STK-003', name: 'Gel conducteur ultrasons 5L', category: 'Consommables', quantity: 2, minThreshold: 5, unit: 'bidons', price: 8500, supplier: 'Medica-Dakar', status: 'Critique', location: 'Armoire B - Maternité', leadTimeWeeks: 1, consumptionPerWeek: 3 },
+  { id: 'STK-004', name: 'Batterie de secours défibrillateur Zoll', category: 'Batteries', quantity: 18, minThreshold: 6, unit: 'unités', price: 110000, supplier: 'Zoll SAS', status: 'Surstock', location: 'Dépôt Principal A', leadTimeWeeks: 8, consumptionPerWeek: 0.5 },
+  { id: 'STK-005', name: 'Lampe halogène pour scialytique', category: 'Pièces Détachées', quantity: 12, minThreshold: 10, unit: 'unités', price: 35000, supplier: 'Surgical Light Co.', status: 'Normal', location: 'Bloc Op. - Réserve', leadTimeWeeks: 4, consumptionPerWeek: 1 },
 ];
+
+const initialPurchaseOrders: PurchaseOrder[] = [];
 
 // ── LocalStorage helpers ───────────────────────────────────────────────────
 
@@ -222,6 +276,7 @@ const TABLE: Record<string, string> = {
   equipments: 'equipments',
   pmPlans: 'pm_plans',
   stocks: 'stocks',
+  purchaseOrders: 'purchase_orders',
 };
 
 async function sbFetch<T>(table: string): Promise<T[] | null> {
@@ -265,6 +320,8 @@ interface DataStoreContextType {
   setPmPlans: (val: MaintenancePlan[] | ((prev: MaintenancePlan[]) => MaintenancePlan[])) => void;
   stocks: StockItem[];
   setStocks: (val: StockItem[] | ((prev: StockItem[]) => StockItem[])) => void;
+  purchaseOrders: PurchaseOrder[];
+  setPurchaseOrders: (val: PurchaseOrder[] | ((prev: PurchaseOrder[]) => PurchaseOrder[])) => void;
   supabaseReady: boolean;
 }
 
@@ -275,23 +332,24 @@ export function DataStoreProvider({ children }: { children: ReactNode }) {
   const [equipments, _setEquipments] = useState<Equipment[]>(() => lsGet('gmao_equipments', initialEquipments));
   const [pmPlans, _setPmPlans] = useState<MaintenancePlan[]>(() => lsGet('gmao_pm', initialPlans));
   const [stocks, _setStocks] = useState<StockItem[]>(() => lsGet('gmao_stocks', initialStocks));
+  const [purchaseOrders, _setPurchaseOrders] = useState<PurchaseOrder[]>(() => lsGet('gmao_purchase_orders', initialPurchaseOrders));
   const [supabaseReady, setSupabaseReady] = useState(false);
-  const initialized = useRef(false);
+  const syncing = useRef(false);
 
-  // On mount: load from Supabase (overrides localStorage if data exists)
+  // Load from Supabase once a session exists (RLS requires an authenticated user).
   useEffect(() => {
-    if (initialized.current) return;
-    initialized.current = true;
+    const syncFromSupabase = async () => {
+      if (syncing.current) return;
+      syncing.current = true;
 
-    (async () => {
-      const [sbTickets, sbEquipments, sbPlans, sbStocks] = await Promise.all([
+      const [sbTickets, sbEquipments, sbPlans, sbStocks, sbPOs] = await Promise.all([
         sbFetch<Ticket>('tickets'),
         sbFetch<Equipment>('equipments'),
         sbFetch<MaintenancePlan>('pm_plans'),
         sbFetch<StockItem>('stocks'),
+        sbFetch<PurchaseOrder>('purchase_orders'),
       ]);
 
-      // Seed Supabase if empty, otherwise load from Supabase
       if (sbTickets !== null) {
         if (sbTickets.length === 0) {
           await sbSync('tickets', initialTickets);
@@ -332,9 +390,24 @@ export function DataStoreProvider({ children }: { children: ReactNode }) {
           lsSet('gmao_stocks', sbStocks);
         }
       }
+      if (sbPOs !== null) {
+        _setPurchaseOrders(sbPOs);
+        lsSet('gmao_purchase_orders', sbPOs);
+      }
 
       setSupabaseReady(true);
-    })();
+      syncing.current = false;
+    };
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) syncFromSupabase();
+    });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN') syncFromSupabase();
+    });
+
+    return () => sub.subscription.unsubscribe();
   }, []);
 
   // Wrapped setters: update state + localStorage + Supabase
@@ -374,8 +447,20 @@ export function DataStoreProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const setPurchaseOrders = (val: PurchaseOrder[] | ((prev: PurchaseOrder[]) => PurchaseOrder[])) => {
+    _setPurchaseOrders(prev => {
+      const next = typeof val === 'function' ? val(prev) : val;
+      lsSet('gmao_purchase_orders', next);
+      sbSync(TABLE.purchaseOrders, next);
+      return next;
+    });
+  };
+
   return (
-    <DataStoreContext.Provider value={{ tickets, setTickets, equipments, setEquipments, pmPlans, setPmPlans, stocks, setStocks, supabaseReady }}>
+    <DataStoreContext.Provider value={{
+      tickets, setTickets, equipments, setEquipments, pmPlans, setPmPlans,
+      stocks, setStocks, purchaseOrders, setPurchaseOrders, supabaseReady,
+    }}>
       {children}
     </DataStoreContext.Provider>
   );

@@ -109,7 +109,7 @@ function ProposerModal({ onClose, onAdd }: { onClose: () => void; onAdd: (p: Par
       id: `MP-${Date.now().toString().slice(-4)}`,
       name: name.trim(), category: 'Pièce Proposée',
       compatibleWith: compatTags.length ? compatTags : ['Universel'],
-      hospital: 'CHU Aristide Le Dantec', distance: '0 km',
+      hospital: 'Hôpital Ndamatou Touba', distance: '0 km',
       availability: dispo, stock: Number(qty),
       trustScore: 99, type: type === 'Vente' ? 'Sale' : 'Loan',
       price: prixLabel,

@@ -314,11 +314,11 @@ export default function Parametres() {
                 </div>
                 <div className="flex justify-between py-2 border-b border-slate-800">
                   <span className="text-slate-400">Établissement</span>
-                  <span className="text-white">CHU Aristide Le Dantec</span>
+                  <span className="text-white">Hôpital Ndamatou Touba</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-slate-800">
                   <span className="text-slate-400">Localisation</span>
-                  <span className="text-white">Dakar, Sénégal</span>
+                  <span className="text-white">Touba, Sénégal</span>
                 </div>
                 <div className="py-2 border-b border-slate-800">
                   <p className="text-slate-400 mb-2">Certifications</p>

@@ -105,7 +105,7 @@ function BilanModal({ onClose }: { onClose: () => void }) {
   const generatePDF = () => {
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text('Bilan Carbone — CHU Aristide Le Dantec', 14, 20);
+    doc.text('Bilan Carbone — Hôpital Ndamatou Touba', 14, 20);
     doc.setFontSize(10);
     doc.text(`Date : ${new Date().toLocaleDateString('fr-FR')}`, 14, 28);
     doc.text(`CO₂ total : ${total.toFixed(1)} TCO₂e/mois`, 14, 35);

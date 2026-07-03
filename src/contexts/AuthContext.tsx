@@ -1,5 +1,6 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { supabase } from '../lib/supabase';
 
 // ── Types ──────────────────────────────────────────────
 export type UserRole = 'technician' | 'engineer' | 'director' | 'admin';
@@ -19,62 +20,57 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
+  loading: boolean;
 }
 
-// ── Comptes Hôpital Ndamatou Touba ─────────────────────
-const MOCK_USERS: (User & { password: string })[] = [
-  {
-    id: 'USR-001', name: 'Abdoulaye Diallo', email: 'a.diallo@ndamatou.sn',
-    password: 'tech2026', role: 'technician', avatar: 'AD',
-    dept: 'Maintenance Biomédicale', lang: 'fr',
-  },
-  {
-    id: 'USR-002', name: 'Ibrahima Faye', email: 'i.faye@ndamatou.sn',
-    password: 'ing2026', role: 'engineer', avatar: 'IF',
-    dept: 'Ingénierie Biomédicale', lang: 'fr',
-  },
-  {
-    id: 'USR-003', name: 'Dr. Mariama Diop', email: 'm.diop@ndamatou.sn',
-    password: 'dir2026', role: 'director', avatar: 'MD',
-    dept: 'Direction Générale', lang: 'fr',
-  },
-  {
-    id: 'USR-004', name: 'Admin GMAO', email: 'admin@ndamatou.sn',
-    password: 'ndamatou2026', role: 'admin', avatar: 'AG',
-    dept: 'Informatique & Systèmes', lang: 'fr',
-  },
-];
+async function loadProfile(userId: string, email: string): Promise<User | null> {
+  const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+  if (error || !data) return null;
+  return {
+    id: data.id, name: data.name, email,
+    role: data.role, avatar: data.avatar, dept: data.dept, lang: data.lang,
+  };
+}
 
 // ── Context ────────────────────────────────────────────
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    try {
-      const stored = localStorage.getItem('gmao_user');
-      return stored ? JSON.parse(stored) : null;
-    } catch { return null; }
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        const profile = await loadProfile(session.user.id, session.user.email!);
+        setUser(profile);
+      }
+      setLoading(false);
+    });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session?.user) setUser(null);
+    });
+
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    await new Promise(r => setTimeout(r, 700));
-    const found = MOCK_USERS.find(u => u.email === email && u.password === password);
-    if (found) {
-      const { password: _, ...userData } = found;
-      setUser(userData);
-      localStorage.setItem('gmao_user', JSON.stringify(userData));
-      return true;
-    }
-    return false;
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error || !data.user) return false;
+    const profile = await loadProfile(data.user.id, data.user.email!);
+    if (!profile) { await supabase.auth.signOut(); return false; }
+    setUser(profile);
+    return true;
   };
 
   const logout = () => {
+    supabase.auth.signOut();
     setUser(null);
-    localStorage.removeItem('gmao_user');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user, loading }}>
       {children}
     </AuthContext.Provider>
   );

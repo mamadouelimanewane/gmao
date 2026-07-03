@@ -80,7 +80,7 @@ export default function Dashboard() {
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Tableau de bord</h1>
           <p className="text-sm text-slate-400 mt-1">
-            Vue temps réel · <span className="text-emerald-400">CHU Aristide Le Dantec, Dakar</span>
+            Vue temps réel · <span className="text-emerald-400">Hôpital Ndamatou Touba</span>
           </p>
         </div>
         <div className="flex items-center gap-3">

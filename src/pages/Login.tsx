@@ -3,11 +3,13 @@ import { Eye, EyeOff, Loader2, AlertCircle, Heart, Shield, Wrench, Settings } fr
 import { useAuth, roleLabels, roleColors } from '../contexts/AuthContext';
 import type { UserRole } from '../contexts/AuthContext';
 
+// Note : par sécurité, les mots de passe ne sont jamais codés côté client.
+// Ces raccourcis ne pré-remplissent que l'email ; le mot de passe reste à saisir.
 const ACCOUNTS = [
-  { role: 'technician' as UserRole, email: 'a.diallo@ndamatou.sn', password: 'tech2026',     name: 'Abdoulaye Diallo',   post: 'Technicien Biomédical'  },
-  { role: 'engineer'   as UserRole, email: 'i.faye@ndamatou.sn',   password: 'ing2026',      name: 'Ibrahima Faye',      post: 'Ingénieur Biomédical'   },
-  { role: 'director'   as UserRole, email: 'm.diop@ndamatou.sn',   password: 'dir2026',      name: 'Dr. Mariama Diop',   post: 'Directrice'             },
-  { role: 'admin'      as UserRole, email: 'admin@ndamatou.sn',    password: 'ndamatou2026', name: 'Admin GMAO',         post: 'Administrateur Système' },
+  { role: 'technician' as UserRole, email: 'a.diallo@ndamatou.sn', name: 'Abdoulaye Diallo',   post: 'Technicien Biomédical'  },
+  { role: 'engineer'   as UserRole, email: 'i.faye@ndamatou.sn',   name: 'Ibrahima Faye',      post: 'Ingénieur Biomédical'   },
+  { role: 'director'   as UserRole, email: 'm.diop@ndamatou.sn',   name: 'Dr. Mariama Diop',   post: 'Directrice'             },
+  { role: 'admin'      as UserRole, email: 'admin@ndamatou.sn',    name: 'Admin GMAO',         post: 'Administrateur Système' },
 ];
 
 const RoleIcon: Record<UserRole, React.ElementType> = {
@@ -39,15 +41,12 @@ export default function Login() {
     if (!ok) setError('Identifiants incorrects. Vérifiez votre email et mot de passe.');
   };
 
-  const quickLogin = async (acc: typeof ACCOUNTS[0], idx: number) => {
+  const quickFill = (acc: typeof ACCOUNTS[0], idx: number) => {
     setActiveCard(idx);
     setEmail(acc.email);
-    setPassword(acc.password);
+    setPassword('');
     setError('');
-    setLoading(true);
-    await login(acc.email, acc.password);
-    setLoading(false);
-    setActiveCard(null);
+    document.getElementById('password-input')?.focus();
   };
 
   return (
@@ -233,6 +232,7 @@ export default function Login() {
               </label>
               <div className="relative">
                 <input
+                  id="password-input"
                   type={showPwd ? 'text' : 'password'}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
@@ -295,8 +295,9 @@ export default function Login() {
                 const isActive = activeCard === idx;
                 return (
                   <button
+                    type="button"
                     key={acc.role}
-                    onClick={() => quickLogin(acc, idx)}
+                    onClick={() => quickFill(acc, idx)}
                     disabled={loading}
                     className="relative flex items-center gap-3 p-3 rounded-xl text-left transition-all group disabled:opacity-50 overflow-hidden"
                     style={{
@@ -316,10 +317,7 @@ export default function Login() {
                   >
                     {/* Avatar */}
                     <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${avatarColors[acc.role]} flex items-center justify-center shrink-0`}>
-                      {isActive
-                        ? <Loader2 size={13} className="text-white animate-spin" />
-                        : <Icon size={13} className="text-white" />
-                      }
+                      <Icon size={13} className="text-white" />
                     </div>
                     <div className="min-w-0">
                       <p className="text-[11px] font-semibold text-slate-200 truncate">{acc.name.split(' ')[0]} {acc.name.split(' ')[1]}</p>
@@ -330,33 +328,9 @@ export default function Login() {
               })}
             </div>
 
-            {/* Tableau des accès */}
-            <div className="mt-5 rounded-xl overflow-hidden"
-              style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <div className="px-4 py-2.5 border-b" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-                <span className="text-[10px] font-bold tracking-widest uppercase" style={{ color: '#d4af37' }}>
-                  🔐 Accès — Hôpital Ndamatou
-                </span>
-              </div>
-              <div className="divide-y divide-white/5">
-                {ACCOUNTS.map(acc => (
-                  <div key={acc.role} className="grid grid-cols-2 px-4 py-2.5 text-[10px]"
-                    style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                    <div>
-                      <span className="text-slate-500">Login: </span>
-                      <span className="text-slate-300 font-mono">{acc.email.split('@')[0]}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-500">Pwd: </span>
-                      <span className="font-mono" style={{ color: '#d4af37' }}>{acc.password}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="px-4 py-2 text-[9px] text-slate-600 text-center">
-                @ndamatou.sn · Modifier après première connexion
-              </div>
-            </div>
+            <p className="mt-4 text-[10px] text-slate-600 text-center">
+              Cliquez sur votre profil pour pré-remplir l'email, puis saisissez votre mot de passe.
+            </p>
           </div>
 
           {/* Indicateur statut système */}

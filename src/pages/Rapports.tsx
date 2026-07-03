@@ -41,7 +41,7 @@ export default function Rapports() {
     doc.setTextColor(52, 211, 153);
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('CHU Aristide Le Dantec', 15, 15);
+    doc.text('Hôpital Ndamatou Touba', 15, 15);
     doc.setTextColor(148, 163, 184);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
@@ -127,7 +127,7 @@ export default function Rapports() {
       doc.setTextColor(100, 116, 139);
       doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Généré le ${dateStr} par GMAO Health v3.0 · CHU Aristide Le Dantec`, 15, 292);
+      doc.text(`Généré le ${dateStr} par GMAO Health v3.0 · Hôpital Ndamatou Touba`, 15, 292);
       doc.text(`Page ${i}/${pageCount}`, 190, 292, { align: 'right' });
     }
 

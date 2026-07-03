@@ -4,7 +4,7 @@ import {
   Menu, Stethoscope, TrendingUp, FileBarChart, X, ChevronRight,
   Wifi, WifiOff, LogOut, Users, Coins, Sparkles, UserCog,
   CalendarClock, CheckCircle2, AlertTriangle, Info, XCircle,
-  Globe, Shield, Network, Leaf, Sun, Moon, Map
+  Globe, Shield, Network, Leaf, Sun, Moon, Map, ShoppingCart
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { cn } from '../lib/utils';
@@ -23,6 +23,7 @@ const buildNav = (t: (k: string) => string) => [
   { name: t('medpool'),       href: '/medpool',      icon: Network,         badge: null  },
   { name: t('energie'),       href: '/energie',      icon: Leaf,            badge: null  },
   { name: t('stocks'),        href: '/stocks',       icon: Package,         badge: null  },
+  { name: t('achats'),        href: '/achats',       icon: ShoppingCart,    badge: null  },
   { name: t('fournisseurs'),  href: '/fournisseurs', icon: Users,           badge: null  },
   { name: t('finances'),      href: '/finances',     icon: Coins,           badge: null  },
   { name: t('rh'),            href: '/rh',           icon: UserCog,         badge: null  },

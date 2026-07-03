@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import Equipments from './pages/Equipments';
 import Tickets from './pages/Tickets';
 import Stocks from './pages/Stocks';
+import Achats from './pages/Achats';
 import Analytics from './pages/Analytics';
 import Rapports from './pages/Rapports';
 import Fournisseurs from './pages/Fournisseurs';
@@ -27,7 +28,15 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 }
 
 function AppRoutes() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-950">
+        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <Routes>
@@ -48,6 +57,7 @@ function AppRoutes() {
         <Route path="medpool" element={<MedPool />} />
         <Route path="energie" element={<EcoMed />} />
         <Route path="stocks" element={<Stocks />} />
+        <Route path="achats" element={<Achats />} />
         <Route path="fournisseurs" element={<Fournisseurs />} />
         <Route path="finances" element={<Finances />} />
         <Route path="rh" element={<RH />} />

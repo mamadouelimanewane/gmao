@@ -4,7 +4,7 @@ import {
   Menu, Stethoscope, TrendingUp, FileBarChart, X, ChevronRight,
   Wifi, WifiOff, LogOut, Users, Coins, Sparkles, UserCog,
   CalendarClock, CheckCircle2, AlertTriangle, Info, XCircle,
-  Globe, Shield, Network, Leaf, Sun, Moon, Map, ShoppingCart
+  Globe, Shield, Network, Leaf, Sun, Moon, Map, ShoppingCart, ClipboardList
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { cn } from '../lib/utils';
@@ -19,6 +19,7 @@ const buildNav = (t: (k: string) => string) => [
   { name: t('dashboard'),     href: '/',            icon: LayoutDashboard, badge: null  },
   { name: t('equipements'),   href: '/equipements', icon: Stethoscope,     badge: null  },
   { name: t('interventions'), href: '/tickets',      icon: Wrench,          badge: '5'   },
+  { name: t('reparation'),    href: '/tickets',      icon: ClipboardList,   badge: null  },
   { name: t('pm'),            href: '/pm',           icon: CalendarClock,   badge: '2'   },
   { name: t('medpool'),       href: '/medpool',      icon: Network,         badge: null  },
   { name: t('energie'),       href: '/energie',      icon: Leaf,            badge: null  },
@@ -150,7 +151,7 @@ export default function Layout() {
             const isActive = location.pathname === item.href || (item.href === '/' && location.pathname === '/dashboard');
             return (
               <Link
-                key={item.href}
+                key={item.name}
                 to={item.href}
                 onClick={() => setSidebarOpen(false)}
                 className="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group"

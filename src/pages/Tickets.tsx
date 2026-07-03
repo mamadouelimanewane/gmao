@@ -543,7 +543,7 @@ export default function Tickets() {
           <div>
             <h1 className="text-2xl font-bold text-white tracking-tight">Interventions</h1>
             <p className="text-sm text-slate-400 mt-1">
-              Gérez les demandes de dépannage, interventions préventives et curatives.
+              Gérez les demandes de dépannage, interventions préventives et curatives. Cliquez sur un ticket pour ouvrir le workflow de réparation.
             </p>
           </div>
           <button

@@ -100,16 +100,28 @@ export default function Landing() {
           Système opérationnel · GMAO v3.0
         </div>
 
-        <button
-          onClick={() => navigate('/login')}
-          className="px-5 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95"
-          style={{
-            background: 'linear-gradient(135deg, #d4af37, #f5d769)',
-            color: '#0a3d2e',
-            boxShadow: '0 4px 20px rgba(212,175,55,0.3)',
-          }}>
-          Connexion →
-        </button>
+        <div className="flex items-center gap-3">
+          <a
+            href="https://hospice-seven.vercel.app/#applications"
+            className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[11px] font-semibold border transition-all"
+            style={{
+              borderColor: 'rgba(255,255,255,0.12)',
+              color: 'rgba(255,255,255,0.6)',
+              background: 'rgba(255,255,255,0.03)',
+            }}>
+            ← Les 44 Applications Ndamatou
+          </a>
+          <button
+            onClick={() => navigate('/login')}
+            className="px-5 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95"
+            style={{
+              background: 'linear-gradient(135deg, #d4af37, #f5d769)',
+              color: '#0a3d2e',
+              boxShadow: '0 4px 20px rgba(212,175,55,0.3)',
+            }}>
+            Connexion →
+          </button>
+        </div>
       </nav>
 
       {/* ══ HERO ════════════════════════════════════════════════ */}
@@ -321,7 +333,10 @@ export default function Landing() {
       </section>
 
       {/* ══ FOOTER ══════════════════════════════════════════════ */}
-      <footer className="relative z-10 px-8 py-5 text-center border-t" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
+      <footer className="relative z-10 px-8 py-5 text-center border-t flex flex-col items-center gap-2" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
+        <a href="https://hospice-seven.vercel.app/#applications" className="text-[11px] font-semibold" style={{ color: '#d4af37' }}>
+          ← Retour aux 44 Applications Ndamatou
+        </a>
         <p className="text-[10px] text-slate-700">
           © 2026 GMAO Health · Hôpital Ndamatou, Touba, Sénégal · Développé par Antigravity AI
         </p>

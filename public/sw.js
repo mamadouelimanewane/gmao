@@ -1,7 +1,7 @@
 // PWA Service Worker — GMAO Health
 // Strategy: Cache First for static assets, Network First for API
 
-const CACHE_NAME = 'gmao-health-v4';
+const CACHE_NAME = 'gmao-health-v5';
 const OFFLINE_URL = '/offline.html';
 
 // Assets to pre-cache on install

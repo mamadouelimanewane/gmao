@@ -97,20 +97,20 @@ export default function AppsHub() {
               </svg>
             </div>
             <div>
-              <p className="font-bold text-sm leading-tight" style={{ color: C.text }}>Portail GMAO</p>
-              <p className="text-[11px]" style={{ color: C.muted }}>Hôpital Ndamatou Touba</p>
+              <p className="font-bold text-base leading-tight" style={{ color: C.text }}>Portail GMAO</p>
+              <p className="text-xs" style={{ color: C.muted }}>Hôpital Ndamatou Touba</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             {user && (
-              <span className="hidden sm:inline text-xs" style={{ color: C.muted }}>
+              <span className="hidden sm:inline text-sm" style={{ color: C.muted }}>
                 {user.name} · <span className="text-emerald-600 font-medium">{roleLabels[user.role]}</span>
               </span>
             )}
             <button
               onClick={() => navigate('/dashboard')}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-colors border"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-colors border"
               style={{ color: C.text, borderColor: C.border, background: '#f9fafc' }}
             >
               <ArrowLeft size={14} /> Tableau de bord classique
@@ -123,13 +123,13 @@ export default function AppsHub() {
       <div className="max-w-6xl mx-auto px-6 pt-10 pb-6 text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border mb-4"
           style={{ borderColor: 'rgba(212,175,55,0.35)', background: 'rgba(212,175,55,0.08)' }}>
-          <LayoutGrid size={13} style={{ color: C.gold }} />
-          <span className="text-[10px] font-bold tracking-[0.15em] uppercase" style={{ color: C.gold }}>Portail d'accès</span>
+          <LayoutGrid size={14} style={{ color: C.gold }} />
+          <span className="text-xs font-bold tracking-[0.15em] uppercase" style={{ color: C.gold }}>Portail d'accès</span>
         </div>
         <h1 className="font-black text-3xl sm:text-4xl tracking-tight mb-2" style={{ color: C.text }}>
           {totalApps} modules GMAO
         </h1>
-        <p className="text-sm max-w-xl mx-auto" style={{ color: C.muted }}>
+        <p className="text-base max-w-xl mx-auto" style={{ color: C.muted }}>
           Un seul écosystème pour la maintenance biomédicale, l'approvisionnement et le pilotage de l'Hôpital Ndamatou Touba.
         </p>
       </div>
@@ -139,8 +139,8 @@ export default function AppsHub() {
         {GROUPS.map(group => (
           <section key={group.label}>
             <div className="flex items-baseline gap-3 mb-4">
-              <h2 className="text-sm font-bold uppercase tracking-wide" style={{ color: C.text }}>{group.label}</h2>
-              <span className="text-xs" style={{ color: C.faint }}>{group.hint}</span>
+              <h2 className="text-base font-bold uppercase tracking-wide" style={{ color: C.text }}>{group.label}</h2>
+              <span className="text-sm" style={{ color: C.faint }}>{group.hint}</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {group.tiles.map(tile => (
@@ -152,15 +152,15 @@ export default function AppsHub() {
                   onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = C.borderHover; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 14px rgba(16,24,40,0.08)'; }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = C.border; (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 2px rgba(16,24,40,0.04)'; }}
                 >
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100 transition-colors">
-                    <tile.icon size={18} />
+                  <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100 transition-colors">
+                    <tile.icon size={20} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold truncate" style={{ color: C.text }}>{tile.name}</p>
-                    <p className="text-[11px] leading-snug mt-0.5" style={{ color: C.muted }}>{tile.desc}</p>
-                    <span className="inline-flex items-center gap-1 mt-2 text-[10px] font-bold uppercase tracking-wide"
+                    <p className="text-base font-semibold truncate" style={{ color: C.text }}>{tile.name}</p>
+                    <p className="text-sm leading-snug mt-0.5" style={{ color: C.muted }}>{tile.desc}</p>
+                    <span className="inline-flex items-center gap-1 mt-2 text-xs font-bold uppercase tracking-wide"
                       style={{ color: C.gold }}>
-                      Ouvrir <ArrowRight size={10} />
+                      Ouvrir <ArrowRight size={11} />
                     </span>
                   </div>
                 </button>

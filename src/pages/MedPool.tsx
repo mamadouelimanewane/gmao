@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Network, Search, Filter, MapPin, ShieldCheck, Clock, ExternalLink, X, Plus, Tag } from 'lucide-react';
 import { useNotifications } from '../contexts/NotificationContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 const mockParts = [
   {
@@ -137,7 +138,7 @@ function ProposerModal({ onClose, onAdd }: { onClose: () => void; onAdd: (p: Par
           <div>
             <label className="block text-xs font-medium text-slate-400 mb-1.5">Nom de la pièce *</label>
             <input type="text" value={name} onChange={e => { setName(e.target.value); setErrors(v => ({...v, name: ''})); }} placeholder="ex: Filtre HEPA H14" className={inputCls} />
-            {errors.name && <p className="text-[10px] text-rose-400 mt-0.5">{errors.name}</p>}
+            {errors.name && <p className="text-sm text-rose-400 mt-0.5">{errors.name}</p>}
           </div>
 
           <div>
@@ -148,7 +149,7 @@ function ProposerModal({ onClose, onAdd }: { onClose: () => void; onAdd: (p: Par
             </div>
             <div className="flex flex-wrap gap-1.5">
               {compatTags.map(t => (
-                <span key={t} className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 text-[11px] border border-violet-500/30">
+                <span key={t} className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 text-sm border border-violet-500/30">
                   <Tag size={10} />{t}
                   <button type="button" onClick={() => setCompatTags(tags => tags.filter(x => x !== t))} className="ml-0.5 text-violet-400 hover:text-white"><X size={9} /></button>
                 </span>
@@ -174,7 +175,7 @@ function ProposerModal({ onClose, onAdd }: { onClose: () => void; onAdd: (p: Par
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Quantité disponible *</label>
               <input type="number" min="1" value={qty} onChange={e => { setQty(e.target.value); setErrors(v => ({...v, qty: ''})); }} className={inputCls} />
-              {errors.qty && <p className="text-[10px] text-rose-400 mt-0.5">{errors.qty}</p>}
+              {errors.qty && <p className="text-sm text-rose-400 mt-0.5">{errors.qty}</p>}
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Disponibilité</label>
@@ -207,6 +208,8 @@ export default function MedPool() {
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('Tous');
   const [showProposer, setShowProposer] = useState(false);
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
 
   const filtered = parts.filter(p => {
     const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) || 
@@ -222,20 +225,27 @@ export default function MedPool() {
       {showProposer && <ProposerModal onClose={() => setShowProposer(false)} onAdd={p => setParts(prev => [p as typeof prev[0], ...prev])} />}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1"
+        style={isLight ? { background: 'linear-gradient(135deg, #f3f1fb 0%, #eef3fb 100%)' } : undefined}
+      >
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold text-white tracking-tight">MedPool</h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30">
+            <h1 className="text-2xl font-bold tracking-tight" style={{ color: isLight ? '#1e1b2e' : undefined }}>MedPool</h1>
+            <span className="px-2 py-0.5 rounded text-xs font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30">
               RÉSEAU PARTENAIRE
             </span>
           </div>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm mt-1" style={{ color: isLight ? '#5b5876' : 'var(--text-muted)' }}>
             Marketplace d'entraide inter-hospitalière pour pièces détachées et consommables.
           </p>
         </div>
         <div className="flex gap-3">
-          <button onClick={() => setShowProposer(true)} className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95">
+          <button
+            onClick={() => setShowProposer(true)}
+            className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95 ${isLight ? 'text-white' : 'bg-slate-800 hover:bg-slate-700 text-white'}`}
+            style={isLight ? { background: '#4c3fb0' } : undefined}
+          >
             <Network size={16} />
             Proposer une pièce
           </button>
@@ -328,8 +338,8 @@ export default function MedPool() {
             
             {/* Trust Score indicator */}
             <div className="mt-3 flex items-center gap-1.5 justify-end">
-               <span className="text-[10px] text-slate-500">Fiabilité Partenaire:</span>
-               <span className="text-[10px] font-bold text-emerald-400">{part.trustScore}%</span>
+               <span className="text-sm text-slate-500">Fiabilité Partenaire:</span>
+               <span className="text-sm font-bold text-emerald-400">{part.trustScore}%</span>
             </div>
           </div>
         ))}

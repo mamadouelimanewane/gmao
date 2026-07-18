@@ -7,6 +7,7 @@ import {
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, ReferenceLine } from 'recharts';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { useTheme } from '../contexts/ThemeContext';
 
 const energyData = [
   { time: '00:00', cons: 120, baseline: 110, peak: false },
@@ -359,6 +360,8 @@ export default function EcoMed() {
   const [showDetecteurs, setShowDetecteurs] = useState(false);
   const [showExtinction, setShowExtinction] = useState(false);
   const [showSimuFinance, setShowSimuFinance] = useState(false);
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
 
   return (
     <div className="space-y-6 animate-fade-in-up">
@@ -368,21 +371,28 @@ export default function EcoMed() {
       {showSimuFinance && <SimuFinanciereModal onClose={() => setShowSimuFinance(false)} />}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1"
+        style={isLight ? { background: 'linear-gradient(135deg, #f3f1fb 0%, #eef3fb 100%)' } : undefined}
+      >
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold text-white tracking-tight">EcoMed</h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+            <h1 className="text-2xl font-bold tracking-tight" style={{ color: isLight ? '#1e1b2e' : undefined }}>EcoMed</h1>
+            <span className="px-2 py-0.5 rounded text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
               ÉNERGIE & ESG
             </span>
           </div>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm mt-1" style={{ color: isLight ? '#5b5876' : 'var(--text-muted)' }}>
             Optimisation énergétique, éclairage intelligent et bilan carbone hospitalier.
           </p>
         </div>
         <div className="flex gap-3">
-          <button onClick={() => setShowBilan(true)} className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95">
-            <Leaf size={16} className="text-emerald-400" />
+          <button
+            onClick={() => setShowBilan(true)}
+            className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95 ${isLight ? 'text-white' : 'bg-slate-800 hover:bg-slate-700 text-white'}`}
+            style={isLight ? { background: '#4c3fb0' } : undefined}
+          >
+            <Leaf size={16} className={isLight ? 'text-white' : 'text-emerald-400'} />
             Générer Bilan Carbone
           </button>
         </div>
@@ -452,14 +462,14 @@ export default function EcoMed() {
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
                       <Icon size={14} className={`text-${algo.color}-400`} />
-                      <h3 className="text-[13px] font-bold text-slate-200">{algo.title}</h3>
+                      <h3 className="text-sm font-bold text-slate-200">{algo.title}</h3>
                     </div>
-                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded bg-${algo.color}-500/20 text-${algo.color}-400 border border-${algo.color}-500/30`}>
+                    <span className={`text-xs font-bold px-1.5 py-0.5 rounded bg-${algo.color}-500/20 text-${algo.color}-400 border border-${algo.color}-500/30`}>
                       {algo.status}
                     </span>
                   </div>
-                  <p className="text-[10px] text-slate-500 mb-2 leading-relaxed">{algo.desc}</p>
-                  <p className="text-[11px] font-medium text-slate-300 bg-slate-950/50 p-1.5 rounded-lg border border-slate-800 text-center">
+                  <p className="text-sm text-slate-500 mb-2 leading-relaxed">{algo.desc}</p>
+                  <p className="text-sm font-medium text-slate-300 bg-slate-950/50 p-1.5 rounded-lg border border-slate-800 text-center">
                     {algo.impact}
                   </p>
                 </div>
@@ -483,21 +493,21 @@ export default function EcoMed() {
               <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-slate-800/40 border border-slate-700/30">
                 <div>
                   <h4 className="text-sm font-semibold text-slate-200">{zone.zone}</h4>
-                  <p className="text-[11px] text-slate-500">{zone.type}</p>
+                  <p className="text-sm text-slate-500">{zone.type}</p>
                 </div>
                 <div className="text-right">
-                  <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold mb-1 ${
-                    zone.status === 'Optimisé' ? 'bg-emerald-500/20 text-emerald-400' : 
+                  <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold mb-1 ${
+                    zone.status === 'Optimisé' ? 'bg-emerald-500/20 text-emerald-400' :
                     zone.status === 'À optimiser' ? 'bg-amber-500/20 text-amber-400' : 'bg-rose-500/20 text-rose-400'
                   }`}>
                     {zone.status}
                   </span>
-                  <p className="text-[11px] text-slate-400">Éco: {zone.saving}%</p>
+                  <p className="text-sm text-slate-400">Éco: {zone.saving}%</p>
                 </div>
               </div>
             ))}
           </div>
-          <button onClick={() => setShowDetecteurs(true)} className="w-full mt-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors border border-slate-700">
+          <button onClick={() => setShowDetecteurs(true)} className="w-full mt-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold transition-colors border border-slate-700">
             Configurer les détecteurs de présence
           </button>
         </div>
@@ -515,11 +525,11 @@ export default function EcoMed() {
                 <AlertTriangle size={8} className="text-rose-500" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-rose-400 mb-0.5">Alerte Gaspillage (Scanner GE)</h4>
-                <p className="text-[11px] text-slate-400 leading-relaxed">
+                <h4 className="text-sm font-bold text-rose-400 mb-0.5">Alerte Gaspillage (Scanner GE)</h4>
+                <p className="text-sm text-slate-400 leading-relaxed">
                   L'équipement est resté en mode 'Veille Profonde' (consommation 8kW) pendant 14 heures hors des plages de consultation.
                 </p>
-                <button onClick={() => setShowExtinction(true)} className="mt-2 text-[10px] font-bold bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 px-2 py-1 rounded transition-colors border border-rose-500/20">
+                <button onClick={() => setShowExtinction(true)} className="mt-2 text-xs font-bold bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 px-2 py-1 rounded transition-colors border border-rose-500/20">
                   Planifier Extinction Auto
                 </button>
               </div>
@@ -530,11 +540,11 @@ export default function EcoMed() {
                 <BatteryCharging size={8} className="text-blue-500" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-blue-400 mb-0.5">ROI Remplacement (Autoclave STERIS)</h4>
-                <p className="text-[11px] text-slate-400 leading-relaxed">
+                <h4 className="text-sm font-bold text-blue-400 mb-0.5">ROI Remplacement (Autoclave STERIS)</h4>
+                <p className="text-sm text-slate-400 leading-relaxed">
                   Modèle actuel (2012) consomme 35% de plus que la moyenne. Le remplacement par un modèle 2024 sera amorti en énergie en 18 mois.
                 </p>
-                <button onClick={() => setShowSimuFinance(true)} className="mt-2 text-[10px] font-bold bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-2 py-1 rounded transition-colors border border-blue-500/20">
+                <button onClick={() => setShowSimuFinance(true)} className="mt-2 text-xs font-bold bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-2 py-1 rounded transition-colors border border-blue-500/20">
                   Voir Simulation Financière
                 </button>
               </div>
@@ -545,8 +555,8 @@ export default function EcoMed() {
                 <ThermometerSun size={8} className="text-amber-500" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-amber-400 mb-0.5">Optimisation HVAC & Éclairage</h4>
-                <p className="text-[11px] text-slate-400 leading-relaxed">
+                <h4 className="text-sm font-bold text-amber-400 mb-0.5">Optimisation HVAC & Éclairage</h4>
+                <p className="text-sm text-slate-400 leading-relaxed">
                   Lier les capteurs de présence de l'aile B aux climatiseurs permettrait d'effacer 4.5 kW de crête journalière.
                 </p>
               </div>

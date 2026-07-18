@@ -10,6 +10,21 @@ import {
   Legend, ResponsiveContainer, LineChart, Line,
   AreaChart, Area, ReferenceLine
 } from 'recharts';
+import { useTheme } from '../contexts/ThemeContext';
+
+// ── Piste "Confort clair" (cf. Équipements) — pastilles type + liseré statut ──
+const FIN_TYPE_TAG: Record<string, { bg: string; text: string; bgDark: string; textDark: string }> = {
+  'Préventif':          { bg: '#dcf5f0', text: '#0d6b5c', bgDark: 'rgba(45,212,191,0.14)',  textDark: '#5eead4' },
+  'Curatif':            { bg: '#fde2e7', text: '#b1123b', bgDark: 'rgba(251,113,133,0.14)', textDark: '#fda4af' },
+  'Étalonnage':         { bg: '#e9edfc', text: '#2451d6', bgDark: 'rgba(96,165,250,0.14)',  textDark: '#93c5fd' },
+  'Pièces détachées':   { bg: '#fdedd6', text: '#8a4c07', bgDark: 'rgba(251,191,36,0.14)',  textDark: '#fcd34d' },
+};
+
+const FIN_ROW_STRIPE: Record<string, { light: string; dark: string }> = {
+  'Approuvé':   { light: '#047857', dark: '#10b981' },
+  'En attente': { light: '#b45309', dark: '#f59e0b' },
+  'Rejeté':     { light: '#e11d48', dark: '#f43f5e' },
+};
 
 interface CostItem {
   id: string;
@@ -178,6 +193,8 @@ export default function Finances() {
   const [costsList] = useState<CostItem[]>(initialCosts);
   const [filterDept, setFilterDept] = useState('Tous');
   const [showBudgetModal, setShowBudgetModal] = useState(false);
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
 
   const totalCurative = costsList
     .filter(c => c.maintenanceType === 'Curatif' || c.maintenanceType === 'Pièces détachées')
@@ -200,15 +217,22 @@ export default function Finances() {
   return (
     <div className="space-y-6 animate-fade-in-up">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1"
+        style={isLight ? { background: 'linear-gradient(135deg, #f3f1fb 0%, #eef3fb 100%)' } : undefined}
+      >
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Gestion des Coûts & TCO</h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <h1 className="text-2xl font-bold tracking-tight" style={{ color: isLight ? '#1e1b2e' : undefined }}>Gestion des Coûts & TCO</h1>
+          <p className="text-sm mt-1" style={{ color: isLight ? '#5b5876' : 'var(--text-muted)' }}>
             Analyse financière, budgets par centre de coûts, TCO (Total Cost of Ownership) et indices de remplacement (RRI).
           </p>
         </div>
         {showBudgetModal && <BudgetModal onClose={() => setShowBudgetModal(false)} />}
-        <button onClick={() => setShowBudgetModal(true)} className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-emerald-900/30 active:scale-95">
+        <button
+          onClick={() => setShowBudgetModal(true)}
+          className={`inline-flex items-center gap-2 px-4 py-2 text-white text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95 ${isLight ? '' : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-900/30'}`}
+          style={isLight ? { background: '#4c3fb0' } : undefined}
+        >
           <FileText size={16} />
           Planification Budgétaire
         </button>
@@ -306,8 +330,11 @@ export default function Finances() {
         <div className="xl:col-span-2 p-5 rounded-2xl glass border border-slate-700/40">
           <h2 className="text-base font-semibold text-white mb-4">Grand Livre des dépenses de maintenance</h2>
           <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left">
-              <thead className="text-[10px] uppercase text-slate-500 tracking-wider border-b border-slate-800 bg-slate-900/30">
+            <table className="w-full text-base text-left" style={isLight ? { background: '#fbfaff' } : undefined}>
+              <thead
+                className="text-xs uppercase tracking-wider border-b"
+                style={isLight ? { color: '#6b6790', background: '#f3f1fb', borderColor: '#e6e3f5' } : { color: 'var(--text-muted)', borderColor: 'var(--border-base)' }}
+              >
                 <tr>
                   <th className="px-4 py-3 font-semibold">Référence</th>
                   <th className="px-4 py-3 font-semibold">Équipement</th>
@@ -319,23 +346,41 @@ export default function Finances() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/40 text-slate-300">
-                {costsList.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-800/20 transition-colors">
-                    <td className="px-4 py-3 font-mono text-slate-500">{item.id}</td>
-                    <td className="px-4 py-3 font-medium text-slate-200">{item.equipment}</td>
-                    <td className="px-4 py-3 text-slate-400">{item.department}</td>
-                    <td className="px-4 py-3 text-slate-400 font-semibold">{item.maintenanceType}</td>
+                {costsList.map((item) => {
+                  const stripe = FIN_ROW_STRIPE[item.status];
+                  const stripeColor = stripe ? (isLight ? stripe.light : stripe.dark) : 'transparent';
+                  const typeTag = FIN_TYPE_TAG[item.maintenanceType];
+                  return (
+                  <tr
+                    key={item.id}
+                    className="hover:bg-slate-800/20 transition-colors"
+                    style={{ boxShadow: `inset 4px 0 0 ${stripeColor}` }}
+                  >
+                    <td className="px-4 py-3 font-mono text-sm text-slate-500">{item.id}</td>
+                    <td className="px-4 py-3 font-semibold text-slate-200">{item.equipment}</td>
+                    <td className="px-4 py-3 text-sm text-slate-400">{item.department}</td>
+                    <td className="px-4 py-3">
+                      {typeTag && (
+                        <span
+                          className="inline-flex items-center px-2.5 py-1 rounded-lg text-sm font-medium"
+                          style={{ background: isLight ? typeTag.bg : typeTag.bgDark, color: isLight ? typeTag.text : typeTag.textDark }}
+                        >
+                          {item.maintenanceType}
+                        </span>
+                      )}
+                    </td>
                     <td className="px-4 py-3 font-bold text-slate-200">{formatCurrency(item.cost)}</td>
-                    <td className="px-4 py-3 text-slate-500">{item.date}</td>
+                    <td className="px-4 py-3 text-sm text-slate-500">{item.date}</td>
                     <td className="px-4 py-3 text-right">
-                      <span className={`inline-flex px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                      <span className={`inline-flex px-2.5 py-1 rounded text-sm font-bold ${
                         item.status === 'Approuvé' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'
                       }`}>
                         {item.status}
                       </span>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

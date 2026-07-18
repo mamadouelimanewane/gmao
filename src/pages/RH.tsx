@@ -11,6 +11,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   CartesianGrid, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts';
+import { useTheme } from '../contexts/ThemeContext';
 
 // ─────────────────────────────────────────────
 // DATA
@@ -188,7 +189,7 @@ function GanttView() {
           <h2 className="text-base font-semibold text-white">Vue Gantt — Semaine 26</h2>
           <div className="flex flex-wrap gap-2">
             {Object.entries(taskLabels).map(([k, v]) => (
-              <span key={k} className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${taskColors[k]}`}>{v}</span>
+              <span key={k} className={`text-xs font-bold px-2 py-0.5 rounded-full border ${taskColors[k]}`}>{v}</span>
             ))}
           </div>
         </div>
@@ -200,7 +201,7 @@ function GanttView() {
             {days.map((d, i) => (
               <div key={d} className="text-center py-2">
                 <p className="text-xs font-bold text-slate-300">{d}</p>
-                <p className="text-[10px] text-slate-500">30 Juin – {i + 1} Juil.</p>
+                <p className="text-sm text-slate-500">30 Juin – {i + 1} Juil.</p>
               </div>
             ))}
           </div>
@@ -212,12 +213,12 @@ function GanttView() {
               <div key={s.id} className="grid gap-0.5 mb-1" style={{ gridTemplateColumns: '160px repeat(5, 1fr)' }}>
                 {/* Tech label */}
                 <div className="flex items-center gap-2 pr-3">
-                  <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${s.color} flex items-center justify-center text-white font-bold text-[10px] shrink-0`}>
+                  <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${s.color} flex items-center justify-center text-white font-bold text-sm shrink-0`}>
                     {s.avatar}
                   </div>
                   <div>
-                    <p className="text-[11px] font-semibold text-slate-200 truncate">{s.name.split(' ')[0]}</p>
-                    <p className="text-[9px] text-slate-500 truncate">{s.grade}</p>
+                    <p className="text-sm font-semibold text-slate-200 truncate">{s.name.split(' ')[0]}</p>
+                    <p className="text-xs text-slate-500 truncate">{s.grade}</p>
                   </div>
                 </div>
 
@@ -236,13 +237,13 @@ function GanttView() {
                       }}
                       title={`${p.task} · ${p.dept}`}
                     >
-                      <p className="text-[10px] font-semibold leading-tight line-clamp-2" style={{ color: colors.text }}>
+                      <p className="text-sm font-semibold leading-tight line-clamp-2" style={{ color: colors.text }}>
                         {p.task}
                       </p>
                       <div className="flex items-center justify-between mt-1">
-                        <span className="text-[9px] opacity-60" style={{ color: colors.text }}>{p.dept}</span>
+                        <span className="text-xs opacity-60" style={{ color: colors.text }}>{p.dept}</span>
                         {hours > 0 && (
-                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${overload ? 'bg-rose-500/30 text-rose-300' : 'bg-black/20 text-slate-300'}`}>
+                          <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${overload ? 'bg-rose-500/30 text-rose-300' : 'bg-black/20 text-slate-300'}`}>
                             {hours}h
                           </span>
                         )}
@@ -256,7 +257,7 @@ function GanttView() {
 
           {/* Daily total row */}
           <div className="grid gap-0.5 mt-3 pt-3 border-t border-slate-800" style={{ gridTemplateColumns: '160px repeat(5, 1fr)' }}>
-            <div className="text-[10px] font-bold text-slate-500 flex items-center">Charge/jour</div>
+            <div className="text-sm font-bold text-slate-500 flex items-center">Charge/jour</div>
             {shortDays.map((d, di) => {
               const totalH = staff.reduce((acc, s) => {
                 const type = s.planning[di]?.type ?? 'admin';
@@ -265,7 +266,7 @@ function GanttView() {
               const avg = (totalH / staff.length).toFixed(1);
               const high = Number(avg) > 6;
               return (
-                <div key={d} className={`text-center py-1 rounded text-[10px] font-bold ${high ? 'bg-rose-500/20 text-rose-400' : 'bg-slate-800 text-slate-400'}`}>
+                <div key={d} className={`text-center py-1 rounded text-sm font-bold ${high ? 'bg-rose-500/20 text-rose-400' : 'bg-slate-800 text-slate-400'}`}>
                   {avg}h moy.
                 </div>
               );
@@ -288,18 +289,23 @@ export default function RH() {
   const [selected, setSelected] = useState(staff[0]);
   const [activeTab, setActiveTab] = useState<'planning' | 'perf' | 'certs'>('planning');
   const [view, setView] = useState<'grid' | 'planning' | 'gantt'>('grid');
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
 
   return (
     <div className="space-y-6 animate-fade-in-up">
 
       {/* ── Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1"
+        style={isLight ? { background: 'linear-gradient(135deg, #f3f1fb 0%, #eef3fb 100%)' } : undefined}
+      >
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl font-bold tracking-tight" style={{ color: isLight ? '#1e1b2e' : undefined }}>
             Ressources Humaines
             <span className="ml-2 text-xs font-medium bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full border border-cyan-500/30 align-middle">Biomédical</span>
           </h1>
-          <p className="text-sm text-slate-400 mt-1">Gestion des ingénieurs et techniciens · Planning · Compétences · Performance</p>
+          <p className="text-sm mt-1" style={{ color: isLight ? '#5b5876' : 'var(--text-muted)' }}>Gestion des ingénieurs et techniciens · Planning · Compétences · Performance</p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -365,21 +371,21 @@ export default function RH() {
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-semibold text-white truncate">{s.name}</p>
                       {s.onLeave && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">CONGÉ</span>
+                        <span className="text-xs font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">CONGÉ</span>
                       )}
                     </div>
-                    <p className="text-[11px] text-slate-500 truncate">{s.role} · {s.grade}</p>
+                    <p className="text-sm text-slate-500 truncate">{s.role} · {s.grade}</p>
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-sm font-bold text-white">{s.resolved}%</p>
-                    <p className="text-[10px] text-slate-500">Résolution</p>
+                    <p className="text-sm text-slate-500">Résolution</p>
                   </div>
                 </div>
 
                 {/* Load bar */}
                 {!s.onLeave && (
                   <div className="mt-2.5">
-                    <div className="flex justify-between text-[10px] text-slate-500 mb-1">
+                    <div className="flex justify-between text-sm text-slate-500 mb-1">
                       <span>Charge de travail</span>
                       <span className={s.load > 80 ? 'text-rose-400 font-bold' : 'text-slate-400'}>{s.load}%</span>
                     </div>
@@ -414,7 +420,7 @@ export default function RH() {
                     <span className="text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">{selected.grade}</span>
                   </div>
                   <p className="text-sm text-slate-400 mt-0.5">{selected.role} — {selected.dept}</p>
-                  <div className="flex items-center gap-4 mt-2 text-[11px] text-slate-500">
+                  <div className="flex items-center gap-4 mt-2 text-sm text-slate-500">
                     <span className="flex items-center gap-1"><Phone size={11} />{selected.phone}</span>
                     <span className="flex items-center gap-1"><Mail size={11} />{selected.email}</span>
                     <span className="flex items-center gap-1"><Shield size={11} />{selected.id}</span>
@@ -428,7 +434,7 @@ export default function RH() {
                     ))}
                   </div>
                   <p className="text-lg font-bold text-white mt-0.5">{selected.satisfaction}/5</p>
-                  <p className="text-[10px] text-slate-500">Satisfaction patient</p>
+                  <p className="text-sm text-slate-500">Satisfaction patient</p>
                 </div>
               </div>
 
@@ -443,7 +449,7 @@ export default function RH() {
                   <div key={k.label} className="text-center p-2.5 rounded-xl bg-slate-900/40">
                     <k.icon size={14} className={`${k.color} mx-auto mb-1`} />
                     <p className={`text-base font-bold ${k.color}`}>{k.value}</p>
-                    <p className="text-[10px] text-slate-500">{k.label}</p>
+                    <p className="text-sm text-slate-500">{k.label}</p>
                   </div>
                 ))}
               </div>
@@ -476,13 +482,13 @@ export default function RH() {
                   {selected.planning.map((p, i) => (
                     <div key={i} className={`flex items-center gap-3 p-3 rounded-xl border ${taskColors[p.type]}`}>
                       <div className="w-8 text-center">
-                        <p className="text-[10px] font-bold text-slate-400">{p.day}</p>
+                        <p className="text-sm font-bold text-slate-400">{p.day}</p>
                       </div>
                       <div className="flex-1">
                         <p className="text-xs font-semibold text-slate-200">{p.task}</p>
-                        <p className="text-[10px] text-slate-500 mt-0.5">{p.dept}</p>
+                        <p className="text-sm text-slate-500 mt-0.5">{p.dept}</p>
                       </div>
-                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full border shrink-0 uppercase tracking-wide border-current">
+                      <span className="text-xs font-bold px-2 py-0.5 rounded-full border shrink-0 uppercase tracking-wide border-current">
                         {taskLabels[p.type]}
                       </span>
                     </div>
@@ -549,9 +555,9 @@ export default function RH() {
                       </div>
                       <div className="flex-1">
                         <p className="text-xs font-semibold text-slate-200">{c.name}</p>
-                        <p className="text-[10px] text-slate-500 mt-0.5">Expiration : {new Date(c.expiry).toLocaleDateString('fr-FR')}</p>
+                        <p className="text-sm text-slate-500 mt-0.5">Expiration : {new Date(c.expiry).toLocaleDateString('fr-FR')}</p>
                       </div>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                      <span className={`text-sm font-bold px-2 py-0.5 rounded-full border ${
                         c.valid
                           ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
                           : 'bg-rose-500/20 text-rose-400 border-rose-500/30'
@@ -562,7 +568,7 @@ export default function RH() {
                 {selected.certifications.some(c => !c.valid) && (
                   <div className="mt-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2">
                     <AlertCircle size={13} className="text-amber-400 mt-0.5 shrink-0" />
-                    <p className="text-[11px] text-amber-300 leading-relaxed">
+                    <p className="text-sm text-amber-300 leading-relaxed">
                       {selected.certifications.filter(c => !c.valid).length} certification(s) expirée(s). Planifiez un renouvellement urgent pour maintenir la conformité ISO 13485.
                     </p>
                   </div>
@@ -585,11 +591,11 @@ export default function RH() {
               <h2 className="text-base font-semibold text-white">Planning équipe — Semaine 26 (30 juin – 4 juillet 2025)</h2>
               <div className="flex gap-2">
                 {Object.entries(taskLabels).map(([k, v]) => (
-                  <span key={k} className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${taskColors[k]}`}>{v}</span>
+                  <span key={k} className={`text-xs font-bold px-2 py-0.5 rounded-full border ${taskColors[k]}`}>{v}</span>
                 ))}
               </div>
             </div>
-            <table className="w-full min-w-[700px] text-xs">
+            <table className="w-full min-w-[700px] text-sm">
               <thead>
                 <tr>
                   <th className="text-left pb-3 pr-4 text-slate-400 font-semibold w-36">Technicien</th>
@@ -603,20 +609,20 @@ export default function RH() {
                   <tr key={s.id} className="hover:bg-slate-800/20 transition-colors">
                     <td className="py-3 pr-4">
                       <div className="flex items-center gap-2">
-                        <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${s.color} flex items-center justify-center text-white font-bold text-[10px] shrink-0`}>
+                        <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${s.color} flex items-center justify-center text-white font-bold text-sm shrink-0`}>
                           {s.avatar}
                         </div>
                         <div>
                           <p className="font-semibold text-slate-200">{s.name.split(' ')[0]}</p>
-                          <p className="text-[10px] text-slate-500">{s.grade}</p>
+                          <p className="text-sm text-slate-500">{s.grade}</p>
                         </div>
                       </div>
                     </td>
                     {s.planning.map((p, i) => (
                       <td key={i} className="py-2 px-2">
                         <div className={`p-2 rounded-lg border text-center ${taskColors[p.type]}`} style={{ minWidth: 100 }}>
-                          <p className="text-[10px] font-semibold leading-snug line-clamp-2">{p.task}</p>
-                          <p className="text-[9px] mt-1 opacity-70">{p.dept}</p>
+                          <p className="text-sm font-semibold leading-snug line-clamp-2">{p.task}</p>
+                          <p className="text-xs mt-1 opacity-70">{p.dept}</p>
                         </div>
                       </td>
                     ))}
@@ -630,7 +636,7 @@ export default function RH() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="p-5 rounded-2xl glass border border-slate-700/40">
               <h3 className="text-sm font-semibold text-white mb-1">Charge de travail actuelle</h3>
-              <p className="text-[11px] text-slate-500 mb-4">Taux d'occupation par membre de l'équipe</p>
+              <p className="text-sm text-slate-500 mb-4">Taux d'occupation par membre de l'équipe</p>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={workloadData} layout="vertical" barSize={14}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" horizontal={false} />
@@ -651,7 +657,7 @@ export default function RH() {
 
             <div className="p-5 rounded-2xl glass border border-slate-700/40">
               <h3 className="text-sm font-semibold text-white mb-1">KPIs Performance Comparée</h3>
-              <p className="text-[11px] text-slate-500 mb-4">MTTR, taux de résolution et satisfaction client</p>
+              <p className="text-sm text-slate-500 mb-4">MTTR, taux de résolution et satisfaction client</p>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={performanceData} barGap={3}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />

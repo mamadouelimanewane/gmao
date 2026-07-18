@@ -14,6 +14,7 @@ import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid, Cell
 } from 'recharts';
+import { useTheme } from '../contexts/ThemeContext';
 
 // ─────────────────────────────────────────────
 // TYPES & DATA
@@ -128,6 +129,8 @@ export default function MaintenancePlanifiee() {
   const [selectedId, setSelectedId] = useState<string>(pmPlans[0]?.id || '');
   const [filter, setFilter] = useState<Status | 'all'>('all');
   const [activeView, setActiveView] = useState<'list' | 'calendar'>('list');
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
 
   const selected = pmPlans.find(p => p.id === selectedId) || pmPlans[0];
 
@@ -167,13 +170,16 @@ export default function MaintenancePlanifiee() {
     <div className="space-y-6 animate-fade-in-up">
 
       {/* ── Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1"
+        style={isLight ? { background: 'linear-gradient(135deg, #f3f1fb 0%, #eef3fb 100%)' } : undefined}
+      >
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl font-bold tracking-tight" style={{ color: isLight ? '#1e1b2e' : undefined }}>
             Maintenances Planifiées
             <span className="ml-2 text-xs font-medium bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30 align-middle">PPM</span>
           </h1>
-          <p className="text-sm text-slate-400 mt-1">Planned Preventive Maintenance · Checklists · Conformité réglementaire</p>
+          <p className="text-sm mt-1" style={{ color: isLight ? '#5b5876' : 'var(--text-muted)' }}>Planned Preventive Maintenance · Checklists · Conformité réglementaire</p>
         </div>
         <div className="flex items-center gap-2">
           {(['list', 'calendar'] as const).map(v => (
@@ -266,21 +272,21 @@ export default function MaintenancePlanifiee() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-xs font-semibold text-slate-200 truncate">{plan.equipment}</p>
-                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border shrink-0 flex items-center gap-1 ${cfg.color}`}>
+                        <p className="text-sm font-semibold text-slate-200 truncate">{plan.equipment}</p>
+                        <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full border shrink-0 flex items-center gap-1 ${cfg.color}`}>
                           <StatusIcon size={8} /> {cfg.label}
                         </span>
                       </div>
-                      <p className="text-[10px] text-slate-500 mt-0.5">{plan.dept} · {plan.id}</p>
+                      <p className="text-sm text-slate-500 mt-0.5">{plan.dept} · {plan.id}</p>
                       <div className="flex items-center gap-3 mt-2">
-                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${freqColors[plan.frequency]}`}>{plan.frequency}</span>
-                        <span className="text-[10px] text-slate-500 flex items-center gap-1">
+                        <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full border ${freqColors[plan.frequency]}`}>{plan.frequency}</span>
+                        <span className="text-sm text-slate-500 flex items-center gap-1">
                           <Clock size={9} /> {plan.estimatedDuration}
                         </span>
                         {plan.daysLeft <= 0 && plan.status !== 'done' ? (
-                          <span className="text-[10px] text-rose-400 font-bold">{plan.daysLeft === 0 ? "Aujourd'hui" : `${Math.abs(plan.daysLeft)}j retard`}</span>
+                          <span className="text-sm text-rose-400 font-bold">{plan.daysLeft === 0 ? "Aujourd'hui" : `${Math.abs(plan.daysLeft)}j retard`}</span>
                         ) : plan.status !== 'done' ? (
-                          <span className="text-[10px] text-slate-500">Dans {plan.daysLeft}j</span>
+                          <span className="text-sm text-slate-500">Dans {plan.daysLeft}j</span>
                         ) : null}
                       </div>
                     </div>
@@ -302,18 +308,18 @@ export default function MaintenancePlanifiee() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h2 className="text-lg font-bold text-white">{selected.equipment}</h2>
-                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${freqColors[selected.frequency]}`}>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${freqColors[selected.frequency]}`}>
                       {selected.frequency}
                     </span>
                     {(() => { const SelIcon = statusConfig[selected.status].icon; return (
-                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${statusConfig[selected.status].color} flex items-center gap-1`}>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${statusConfig[selected.status].color} flex items-center gap-1`}>
                       <SelIcon size={8} />
                       {statusConfig[selected.status].label}
                     </span>
                     ); })()}
                   </div>
                   <p className="text-sm text-slate-400 mt-0.5">{selected.dept} · {selected.id}</p>
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-[11px] text-slate-500">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-slate-500">
                     <span>Technicien : <strong className="text-slate-300">{selected.technician}</strong></span>
                     <span>Durée estimée : <strong className="text-slate-300">{selected.estimatedDuration}</strong></span>
                     <span>Contrat : <strong className={selected.contractType === 'externe' ? 'text-amber-400' : 'text-emerald-400'}>{selected.contractType === 'externe' ? 'Externe (constructeur)' : 'Interne (équipe)'}</strong></span>
@@ -324,17 +330,17 @@ export default function MaintenancePlanifiee() {
               {/* Dates row */}
               <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-800">
                 <div className="text-center p-2.5 rounded-xl bg-slate-900/50">
-                  <p className="text-[10px] text-slate-500 mb-1">Dernière PM</p>
+                  <p className="text-sm text-slate-500 mb-1">Dernière PM</p>
                   <p className="text-sm font-bold text-slate-200">{new Date(selected.lastDone).toLocaleDateString('fr-FR')}</p>
                 </div>
                 <div className="text-center p-2.5 rounded-xl bg-slate-900/50">
-                  <p className="text-[10px] text-slate-500 mb-1">Prochaine PM</p>
+                  <p className="text-sm text-slate-500 mb-1">Prochaine PM</p>
                   <p className={`text-sm font-bold ${selected.daysLeft < 0 ? 'text-rose-400' : selected.daysLeft <= 3 ? 'text-amber-400' : 'text-slate-200'}`}>
                     {new Date(selected.nextDue).toLocaleDateString('fr-FR')}
                   </p>
                 </div>
                 <div className="text-center p-2.5 rounded-xl bg-slate-900/50">
-                  <p className="text-[10px] text-slate-500 mb-1">Délai</p>
+                  <p className="text-sm text-slate-500 mb-1">Délai</p>
                   <p className={`text-sm font-bold ${selected.daysLeft < 0 ? 'text-rose-400' : selected.daysLeft === 0 ? 'text-amber-400' : 'text-emerald-400'}`}>
                     {selected.daysLeft < 0 ? `${Math.abs(selected.daysLeft)}j dépassé` : selected.daysLeft === 0 ? "Aujourd'hui" : `J-${selected.daysLeft}`}
                   </p>
@@ -350,7 +356,7 @@ export default function MaintenancePlanifiee() {
                     <ClipboardList size={15} className="text-blue-400" />
                     Checklist de maintenance
                   </h3>
-                  <p className="text-[10px] text-slate-500 mt-0.5">{doneChecks} / {checklistState.length} tâches réalisées</p>
+                  <p className="text-sm text-slate-500 mt-0.5">{doneChecks} / {checklistState.length} tâches réalisées</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-24 h-2 bg-slate-800 rounded-full overflow-hidden">
@@ -381,7 +387,7 @@ export default function MaintenancePlanifiee() {
                     }`}>
                       {checklistState[i] && <CheckCircle2 size={12} className="text-white" />}
                     </div>
-                    <span className={`text-xs transition-all ${checklistState[i] ? 'line-through text-slate-500' : 'text-slate-200'}`}>
+                    <span className={`text-sm transition-all ${checklistState[i] ? 'line-through text-slate-500' : 'text-slate-200'}`}>
                       {item.item}
                     </span>
                   </button>
@@ -424,7 +430,7 @@ export default function MaintenancePlanifiee() {
             {/* Day headers */}
             <div className="grid grid-cols-7 mb-2">
               {DAYS.map(d => (
-                <div key={d} className="text-center text-[10px] font-semibold text-slate-500 py-1">{d}</div>
+                <div key={d} className="text-center text-sm font-semibold text-slate-500 py-1">{d}</div>
               ))}
             </div>
 
@@ -460,7 +466,7 @@ export default function MaintenancePlanifiee() {
             {/* Legend */}
             <div className="flex flex-wrap gap-3 mt-4 pt-4 border-t border-slate-800">
               {Object.entries(statusConfig).map(([k, v]) => (
-                <div key={k} className="flex items-center gap-1.5 text-[10px] text-slate-400">
+                <div key={k} className="flex items-center gap-1.5 text-sm text-slate-400">
                   <div className={`w-2 h-2 rounded-full ${
                     k === 'done' ? 'bg-emerald-500' : k === 'late' ? 'bg-rose-500' :
                     k === 'inprogress' ? 'bg-blue-400' : k === 'pending' ? 'bg-amber-400' : 'bg-slate-500'
@@ -476,7 +482,7 @@ export default function MaintenancePlanifiee() {
             {/* Compliance trend */}
             <div className="p-5 rounded-2xl glass border border-slate-700/40">
               <h3 className="text-sm font-semibold text-white mb-1">Taux de conformité PM</h3>
-              <p className="text-[10px] text-slate-500 mb-4">Évolution sur 6 mois · Objectif 95%</p>
+              <p className="text-sm text-slate-500 mb-4">Évolution sur 6 mois · Objectif 95%</p>
               <ResponsiveContainer width="100%" height={130}>
                 <AreaChart data={complianceHistory} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
                   <defs>
@@ -497,7 +503,7 @@ export default function MaintenancePlanifiee() {
             {/* By frequency */}
             <div className="p-5 rounded-2xl glass border border-slate-700/40">
               <h3 className="text-sm font-semibold text-white mb-1">PM par fréquence</h3>
-              <p className="text-[10px] text-slate-500 mb-4">Réalisées vs planifiées</p>
+              <p className="text-sm text-slate-500 mb-4">Réalisées vs planifiées</p>
               <ResponsiveContainer width="100%" height={140}>
                 <BarChart data={byFreq} barGap={3}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
@@ -522,10 +528,10 @@ export default function MaintenancePlanifiee() {
                       p.daysLeft === 0 ? 'bg-amber-400' : p.daysLeft <= 3 ? 'bg-rose-400' : 'bg-blue-400'
                     }`} />
                     <div className="flex-1">
-                      <p className="text-[11px] font-semibold text-slate-200 truncate">{p.equipment}</p>
-                      <p className="text-[10px] text-slate-500">{p.daysLeft === 0 ? "Aujourd'hui" : `Dans ${p.daysLeft} jour${p.daysLeft > 1 ? 's' : ''}`} · {p.technician}</p>
+                      <p className="text-sm font-semibold text-slate-200 truncate">{p.equipment}</p>
+                      <p className="text-sm text-slate-500">{p.daysLeft === 0 ? "Aujourd'hui" : `Dans ${p.daysLeft} jour${p.daysLeft > 1 ? 's' : ''}`} · {p.technician}</p>
                     </div>
-                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${freqColors[p.frequency]}`}>{p.frequency}</span>
+                    <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full border ${freqColors[p.frequency]}`}>{p.frequency}</span>
                   </div>
                 ))}
               </div>

@@ -8,6 +8,7 @@ import { useDataStore } from '../contexts/DataStore';
 import type { PurchaseOrder } from '../contexts/DataStore';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotifications } from '../contexts/NotificationContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 const COLUMNS: { id: PurchaseOrder['status']; title: string; color: string }[] = [
   { id: 'Demande', title: 'Demande', color: 'border-t-slate-500' },
@@ -119,6 +120,8 @@ export default function Achats() {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState('');
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
 
   const handleAdd = (po: PurchaseOrder) => {
     setPurchaseOrders(prev => [po, ...prev]);
@@ -172,16 +175,20 @@ export default function Achats() {
       {showModal && <NewRequestModal onClose={() => setShowModal(false)} onAdd={handleAdd} />}
 
       <div className="space-y-6 animate-fade-in-up">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1"
+          style={isLight ? { background: 'linear-gradient(135deg, #f3f1fb 0%, #eef3fb 100%)' } : undefined}
+        >
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Workflow Achat</h1>
-            <p className="text-sm text-slate-400 mt-1">
+            <h1 className="text-2xl font-bold tracking-tight" style={{ color: isLight ? '#1e1b2e' : undefined }}>Workflow Achat</h1>
+            <p className="text-sm mt-1" style={{ color: isLight ? '#5b5876' : 'var(--text-muted)' }}>
               Demande → Validation → Commande fournisseur → Réception → Mise à jour du stock.
             </p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95"
+            className={`inline-flex items-center gap-2 px-4 py-2 text-white text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95 ${isLight ? '' : 'bg-blue-600 hover:bg-blue-500'}`}
+            style={isLight ? { background: '#4c3fb0' } : undefined}
           >
             <Plus size={16} />
             Nouvelle Demande
@@ -215,43 +222,43 @@ export default function Achats() {
                   {colOrders.map(po => (
                     <div key={po.id} className="p-4 rounded-xl glass border border-slate-800/80 hover:border-slate-700/60 transition-all">
                       <div className="flex justify-between items-start gap-2 mb-2">
-                        <span className="text-[10px] font-mono text-slate-500">{po.id}</span>
+                        <span className="text-sm font-mono text-slate-500">{po.id}</span>
                         {po.linkedTicketId && (
-                          <button onClick={() => navigate('/tickets')} className="flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-emerald-400 transition-colors">
+                          <button onClick={() => navigate('/tickets')} className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-emerald-400 transition-colors">
                             <Wrench size={9} /> {po.linkedTicketId}
                           </button>
                         )}
                       </div>
                       <h4 className="text-sm font-semibold text-slate-200 mb-1">{po.itemName}</h4>
                       <p className="text-xs text-slate-400 mb-2">{po.quantity} {po.unit} · {po.supplierName || 'Fournisseur à définir'}</p>
-                      <p className="text-[10px] text-slate-500 mb-3">Par {po.requestedBy} · {po.requestDate}</p>
-                      {po.notes && <p className="text-[10px] text-slate-500 italic mb-3">{po.notes}</p>}
+                      <p className="text-sm text-slate-500 mb-3">Par {po.requestedBy} · {po.requestDate}</p>
+                      {po.notes && <p className="text-sm text-slate-500 italic mb-3">{po.notes}</p>}
 
                       {po.status === 'Demande' && canValidate(user?.role) && (
                         <div className="flex gap-2">
-                          <button onClick={() => validate(po, true)} className="flex-1 flex items-center justify-center gap-1.5 text-[10px] py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition-colors">
+                          <button onClick={() => validate(po, true)} className="flex-1 flex items-center justify-center gap-1.5 text-sm py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition-colors">
                             <CheckCircle2 size={11} /> Valider
                           </button>
-                          <button onClick={() => validate(po, false)} className="flex-1 flex items-center justify-center gap-1.5 text-[10px] py-1.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-lg hover:bg-rose-500/20 transition-colors">
+                          <button onClick={() => validate(po, false)} className="flex-1 flex items-center justify-center gap-1.5 text-sm py-1.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-lg hover:bg-rose-500/20 transition-colors">
                             <XCircle size={11} /> Rejeter
                           </button>
                         </div>
                       )}
                       {po.status === 'Demande' && !canValidate(user?.role) && (
-                        <p className="text-[10px] text-slate-600 italic">En attente de validation (Directeur/Admin)</p>
+                        <p className="text-sm text-slate-600 italic">En attente de validation (Directeur/Admin)</p>
                       )}
                       {po.status === 'Validé' && (
-                        <button onClick={() => markOrdered(po)} className="w-full flex items-center justify-center gap-1.5 text-[10px] py-1.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-lg hover:bg-amber-500/20 transition-colors">
+                        <button onClick={() => markOrdered(po)} className="w-full flex items-center justify-center gap-1.5 text-sm py-1.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-lg hover:bg-amber-500/20 transition-colors">
                           <Truck size={11} /> Envoyer la commande
                         </button>
                       )}
                       {po.status === 'Commandé' && (
-                        <button onClick={() => markReceived(po)} className="w-full flex items-center justify-center gap-1.5 text-[10px] py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition-colors">
+                        <button onClick={() => markReceived(po)} className="w-full flex items-center justify-center gap-1.5 text-sm py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition-colors">
                           <PackageCheck size={11} /> Réceptionner
                         </button>
                       )}
                       {po.status === 'Reçu' && (
-                        <p className="text-[10px] text-emerald-400 flex items-center gap-1"><PackageCheck size={11} /> Reçu le {po.receivedDate}</p>
+                        <p className="text-sm text-emerald-400 flex items-center gap-1"><PackageCheck size={11} /> Reçu le {po.receivedDate}</p>
                       )}
                     </div>
                   ))}
@@ -274,9 +281,9 @@ export default function Achats() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {rejected.map(po => (
                 <div key={po.id} className="p-3 rounded-xl bg-slate-900/50 border border-slate-800 text-xs">
-                  <p className="font-mono text-slate-500 text-[10px] mb-1">{po.id}</p>
+                  <p className="font-mono text-slate-500 text-sm mb-1">{po.id}</p>
                   <p className="text-slate-300 font-medium">{po.itemName}</p>
-                  <p className="text-slate-500 text-[10px] mt-1">Rejeté par {po.approvedBy}</p>
+                  <p className="text-slate-500 text-sm mt-1">Rejeté par {po.approvedBy}</p>
                 </div>
               ))}
             </div>

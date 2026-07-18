@@ -9,6 +9,7 @@ import { useDataStore, REPAIR_STEPS, repairStepToStatus } from '../contexts/Data
 import type { Ticket, PurchaseOrder } from '../contexts/DataStore';
 import { useNotifications } from '../contexts/NotificationContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 const priorityStyles: Record<string, string> = {
   'Critique': 'bg-rose-500/10 text-rose-400 border border-rose-500/20',
@@ -328,7 +329,7 @@ function WorkflowModal({
             <ClipboardList className="text-emerald-400" size={20} />
             <div>
               <h3 className="text-lg font-bold text-white">Workflow de réparation</h3>
-              <p className="text-[11px] text-slate-500 font-mono">{ticket.id} · {ticket.equipment}</p>
+              <p className="text-sm text-slate-500 font-mono">{ticket.id} · {ticket.equipment}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">
@@ -358,14 +359,14 @@ function WorkflowModal({
           {REPAIR_STEPS.map((step, idx) => (
             <div key={step.id} className="flex items-center flex-1 last:flex-none">
               <div className="flex flex-col items-center gap-1.5">
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold border-2 ${
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold border-2 ${
                   idx < currentIdx ? 'bg-emerald-500 border-emerald-500 text-white' :
                   idx === currentIdx ? 'border-emerald-400 text-emerald-400 bg-emerald-500/10' :
                   'border-slate-700 text-slate-600'
                 }`}>
                   {idx < currentIdx ? '✓' : idx + 1}
                 </div>
-                <span className={`text-[9px] text-center max-w-[64px] leading-tight ${idx === currentIdx ? 'text-emerald-400 font-semibold' : 'text-slate-500'}`}>
+                <span className={`text-xs text-center max-w-[64px] leading-tight ${idx === currentIdx ? 'text-emerald-400 font-semibold' : 'text-slate-500'}`}>
                   {step.label}
                 </span>
               </div>
@@ -461,6 +462,8 @@ export default function Tickets() {
   const [viewSigTicketId, setViewSigTicketId] = useState<string | null>(null);
   const [workflowTicketId, setWorkflowTicketId] = useState<string | null>(null);
   const [prefillEquipment, setPrefillEquipment] = useState<string | undefined>();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
 
   const handleAddTicket = (newTkt: Ticket) => {
     setTickets(prev => [newTkt, ...prev]);
@@ -539,16 +542,20 @@ export default function Tickets() {
 
       <div className="space-y-6 animate-fade-in-up">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1"
+          style={isLight ? { background: 'linear-gradient(135deg, #f3f1fb 0%, #eef3fb 100%)' } : undefined}
+        >
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Interventions</h1>
-            <p className="text-sm text-slate-400 mt-1">
+            <h1 className="text-2xl font-bold tracking-tight" style={{ color: isLight ? '#1e1b2e' : undefined }}>Interventions</h1>
+            <p className="text-sm mt-1" style={{ color: isLight ? '#5b5876' : 'var(--text-muted)' }}>
               Gérez les demandes de dépannage, interventions préventives et curatives. Cliquez sur un ticket pour ouvrir le workflow de réparation.
             </p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-emerald-900/30 hover:shadow-emerald-900/50 active:scale-95"
+            className={`inline-flex items-center gap-2 px-4 py-2 text-white text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95 ${isLight ? '' : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-900/30 hover:shadow-emerald-900/50'}`}
+            style={isLight ? { background: '#4c3fb0' } : undefined}
           >
             <Plus size={16} />
             Créer un Ticket
@@ -614,14 +621,14 @@ export default function Tickets() {
                       }`} />
 
                       <div className="flex justify-between items-start gap-2 mb-2 pl-1.5">
-                        <span className="text-[10px] font-mono text-slate-500">{t.id}</span>
-                        <span className={`text-[9px] uppercase font-semibold px-2 py-0.5 rounded-md ${priorityStyles[t.priority]}`}>
+                        <span className="text-sm font-mono text-slate-500">{t.id}</span>
+                        <span className={`text-xs uppercase font-semibold px-2 py-0.5 rounded-md ${priorityStyles[t.priority]}`}>
                           {t.priority}
                         </span>
                       </div>
 
                       <div className="pl-1.5 mb-1.5">
-                        <span className="inline-flex items-center gap-1 text-[9px] font-semibold px-2 py-0.5 rounded-md bg-slate-800/80 text-slate-400 border border-slate-700/50">
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-800/80 text-slate-400 border border-slate-700/50">
                           <ClipboardList size={9} />
                           {REPAIR_STEPS.find(s => s.id === t.repairStep)?.label || 'Signalement'}
                           {t.contractType === 'externe' && ' · Externe'}
@@ -637,7 +644,7 @@ export default function Tickets() {
                       </p>
 
                       {/* Location & SLA */}
-                      <div className="space-y-1.5 pl-1.5 mb-4 border-l border-slate-800 text-[11px] text-slate-500">
+                      <div className="space-y-1.5 pl-1.5 mb-4 border-l border-slate-800 text-sm text-slate-500">
                         <p>Loc: <span className="text-slate-400 font-medium">{t.location}</span></p>
                         {t.status !== 'Résolu' && (
                           <p className="flex items-center gap-1">
@@ -654,7 +661,7 @@ export default function Tickets() {
                       {t.status === 'Résolu' && t.signature && (
                         <button
                           onClick={e => { e.stopPropagation(); setViewSigTicketId(t.id); }}
-                          className="flex items-center gap-1.5 text-[10px] text-emerald-400 hover:text-emerald-300 mb-3 pl-1.5"
+                          className="flex items-center gap-1.5 text-sm text-emerald-400 hover:text-emerald-300 mb-3 pl-1.5"
                         >
                           <Eye size={11} /> Voir signature
                         </button>
@@ -662,7 +669,7 @@ export default function Tickets() {
                       {t.status === 'En Cours' && (
                         <button
                           onClick={e => { e.stopPropagation(); setSignTicketId(t.id); }}
-                          className="flex items-center gap-1.5 text-[10px] px-2.5 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition-colors mb-3 ml-1.5"
+                          className="flex items-center gap-1.5 text-sm px-2.5 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition-colors mb-3 ml-1.5"
                         >
                           <PenLine size={11} /> Clôturer & Signer
                         </button>
@@ -670,12 +677,12 @@ export default function Tickets() {
 
                       {/* Footer Info */}
                       <div className="flex items-center justify-between pt-3 border-t border-slate-800/60 pl-1.5">
-                        <div className="flex items-center gap-1.5 text-slate-500 text-[10px]">
+                        <div className="flex items-center gap-1.5 text-slate-500 text-sm">
                           <Clock size={12} />
                           <span>{t.date}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center text-[9px] font-bold text-slate-300 ring-1 ring-slate-700">
+                          <div className="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-300 ring-1 ring-slate-700">
                             {t.assignee.charAt(0) || 'N'}
                           </div>
                         </div>

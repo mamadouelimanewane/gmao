@@ -3,6 +3,7 @@ import {
   Users, Search, Plus, Phone, Mail, Award, CheckCircle,
   AlertTriangle, ShieldCheck, ExternalLink, Globe, Star, X
 } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface Supplier {
   id: string;
@@ -227,6 +228,8 @@ export default function Fournisseurs() {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState('Tous');
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
 
   const handleAddSupplier = (newSup: Supplier) => {
     setSuppliers([newSup, ...suppliers]);
@@ -246,16 +249,20 @@ export default function Fournisseurs() {
       
       <div className="space-y-6 animate-fade-in-up">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1"
+          style={isLight ? { background: 'linear-gradient(135deg, #f3f1fb 0%, #eef3fb 100%)' } : undefined}
+        >
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Fournisseurs & Constructeurs</h1>
-            <p className="text-sm text-slate-400 mt-1">
+            <h1 className="text-2xl font-bold tracking-tight" style={{ color: isLight ? '#1e1b2e' : undefined }}>Fournisseurs & Constructeurs</h1>
+            <p className="text-sm mt-1" style={{ color: isLight ? '#5b5876' : 'var(--text-muted)' }}>
               Gérez les relations, contrats de garantie et pièces détachées fournis par vos partenaires.
             </p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-emerald-900/30 active:scale-95"
+            className={`inline-flex items-center gap-2 px-4 py-2 text-white text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95 ${isLight ? '' : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-900/30'}`}
+            style={isLight ? { background: '#4c3fb0' } : undefined}
           >
             <Plus size={16} />
             Ajouter un Fournisseur
@@ -299,7 +306,7 @@ export default function Fournisseurs() {
               <div>
                 {/* Top Badge & Status */}
                 <div className="flex items-center justify-between mb-4">
-                  <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold ${
+                  <span className={`px-2.5 py-0.5 rounded-lg text-sm font-bold ${
                     sup.category === 'Constructeur' ? 'bg-blue-500/10 text-blue-400' :
                     sup.category === 'Distributeur Local' ? 'bg-emerald-500/10 text-emerald-400' :
                     'bg-purple-500/10 text-purple-400'
@@ -348,10 +355,10 @@ export default function Fournisseurs() {
                 {/* Provided parts */}
                 {sup.providedParts.length > 0 && (
                   <div className="mb-4">
-                    <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-1.5">Pièces & consommables clés</p>
+                    <p className="text-sm text-slate-500 uppercase tracking-wider font-bold mb-1.5">Pièces & consommables clés</p>
                     <div className="flex flex-wrap gap-1.5">
                       {sup.providedParts.map((part) => (
-                        <span key={part} className="px-2 py-1 rounded bg-slate-800 text-[10px] text-slate-400 border border-slate-700/50">
+                        <span key={part} className="px-2 py-1 rounded bg-slate-800 text-sm text-slate-400 border border-slate-700/50">
                           {part}
                         </span>
                       ))}

@@ -65,25 +65,28 @@ const GROUPS: AppGroup[] = [
 
 const totalApps = GROUPS.reduce((n, g) => n + g.tiles.length, 0);
 
+// Palette fixe, douce et claire — indépendante du thème sombre/clair
+// du reste de l'app, pour que le portail reste toujours lisible et
+// accueillant (fond blanc cassé, jamais noir).
+const C = {
+  bg: '#f6f7fb',
+  card: '#ffffff',
+  border: '#e7e9f2',
+  borderHover: 'rgba(212,175,55,0.4)',
+  text: '#1e2532',
+  muted: '#6b7280',
+  faint: '#9aa1ae',
+  gold: '#a9821f',
+};
+
 export default function AppsHub() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg-app)', color: 'var(--text-primary)' }}>
-      {/* Motif géométrique de fond, très discret */}
-      <svg className="fixed inset-0 w-full h-full opacity-[0.04] pointer-events-none" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <pattern id="geo-hub" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
-            <polygon points="40,4 76,22 76,58 40,76 4,58 4,22" fill="none" stroke="#d4af37" strokeWidth="0.8" />
-            <circle cx="40" cy="40" r="6" fill="none" stroke="#d4af37" strokeWidth="0.5" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#geo-hub)" />
-      </svg>
-
+    <div className="min-h-screen" style={{ background: C.bg, color: C.text }}>
       {/* Header */}
-      <header className="relative z-10 border-b" style={{ borderColor: 'var(--border-base)' }}>
+      <header className="border-b" style={{ borderColor: C.border, background: C.card }}>
         <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -94,21 +97,21 @@ export default function AppsHub() {
               </svg>
             </div>
             <div>
-              <p className="font-bold text-sm leading-tight" style={{ color: 'var(--text-primary)' }}>Portail GMAO</p>
-              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>Hôpital Ndamatou Touba</p>
+              <p className="font-bold text-sm leading-tight" style={{ color: C.text }}>Portail GMAO</p>
+              <p className="text-[11px]" style={{ color: C.muted }}>Hôpital Ndamatou Touba</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             {user && (
-              <span className="hidden sm:inline text-xs" style={{ color: 'var(--text-muted)' }}>
-                {user.name} · <span className="text-emerald-500 font-medium">{roleLabels[user.role]}</span>
+              <span className="hidden sm:inline text-xs" style={{ color: C.muted }}>
+                {user.name} · <span className="text-emerald-600 font-medium">{roleLabels[user.role]}</span>
               </span>
             )}
             <button
               onClick={() => navigate('/dashboard')}
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-colors border"
-              style={{ color: 'var(--text-muted)', borderColor: 'var(--border-base)', background: 'var(--bg-elevated)' }}
+              style={{ color: C.text, borderColor: C.border, background: '#f9fafc' }}
             >
               <ArrowLeft size={14} /> Tableau de bord classique
             </button>
@@ -117,46 +120,46 @@ export default function AppsHub() {
       </header>
 
       {/* Hero */}
-      <div className="relative z-10 max-w-6xl mx-auto px-6 pt-10 pb-6 text-center">
+      <div className="max-w-6xl mx-auto px-6 pt-10 pb-6 text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border mb-4"
           style={{ borderColor: 'rgba(212,175,55,0.35)', background: 'rgba(212,175,55,0.08)' }}>
-          <LayoutGrid size={13} style={{ color: '#b8912a' }} />
-          <span className="text-[10px] font-bold tracking-[0.15em] uppercase" style={{ color: '#b8912a' }}>Portail d'accès</span>
+          <LayoutGrid size={13} style={{ color: C.gold }} />
+          <span className="text-[10px] font-bold tracking-[0.15em] uppercase" style={{ color: C.gold }}>Portail d'accès</span>
         </div>
-        <h1 className="font-black text-3xl sm:text-4xl tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>
+        <h1 className="font-black text-3xl sm:text-4xl tracking-tight mb-2" style={{ color: C.text }}>
           {totalApps} modules GMAO
         </h1>
-        <p className="text-sm max-w-xl mx-auto" style={{ color: 'var(--text-muted)' }}>
+        <p className="text-sm max-w-xl mx-auto" style={{ color: C.muted }}>
           Un seul écosystème pour la maintenance biomédicale, l'approvisionnement et le pilotage de l'Hôpital Ndamatou Touba.
         </p>
       </div>
 
       {/* Groups */}
-      <div className="relative z-10 max-w-6xl mx-auto px-6 pb-16 space-y-10">
+      <div className="max-w-6xl mx-auto px-6 pb-16 space-y-10">
         {GROUPS.map(group => (
           <section key={group.label}>
             <div className="flex items-baseline gap-3 mb-4">
-              <h2 className="text-sm font-bold uppercase tracking-wide" style={{ color: 'var(--text-primary)' }}>{group.label}</h2>
-              <span className="text-xs" style={{ color: 'var(--text-faint)' }}>{group.hint}</span>
+              <h2 className="text-sm font-bold uppercase tracking-wide" style={{ color: C.text }}>{group.label}</h2>
+              <span className="text-xs" style={{ color: C.faint }}>{group.hint}</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {group.tiles.map(tile => (
                 <button
                   key={tile.name}
                   onClick={() => navigate(tile.href)}
-                  className="glass group flex items-start gap-3.5 p-4 rounded-2xl text-left transition-all hover:-translate-y-0.5"
-                  style={{ borderColor: 'var(--border-soft)' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,175,55,0.45)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-soft)'; }}
+                  className="group flex items-start gap-3.5 p-4 rounded-2xl text-left transition-all hover:-translate-y-0.5 border"
+                  style={{ background: C.card, borderColor: C.border, boxShadow: '0 1px 2px rgba(16,24,40,0.04)' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = C.borderHover; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 14px rgba(16,24,40,0.08)'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = C.border; (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 2px rgba(16,24,40,0.04)'; }}
                 >
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:bg-emerald-500/15 transition-colors">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100 transition-colors">
                     <tile.icon size={18} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{tile.name}</p>
-                    <p className="text-[11px] leading-snug mt-0.5" style={{ color: 'var(--text-muted)' }}>{tile.desc}</p>
+                    <p className="text-sm font-semibold truncate" style={{ color: C.text }}>{tile.name}</p>
+                    <p className="text-[11px] leading-snug mt-0.5" style={{ color: C.muted }}>{tile.desc}</p>
                     <span className="inline-flex items-center gap-1 mt-2 text-[10px] font-bold uppercase tracking-wide"
-                      style={{ color: '#b8912a' }}>
+                      style={{ color: C.gold }}>
                       Ouvrir <ArrowRight size={10} />
                     </span>
                   </div>
@@ -167,8 +170,8 @@ export default function AppsHub() {
         ))}
       </div>
 
-      <footer className="relative z-10 text-center pb-8">
-        <p className="text-[10px]" style={{ color: 'var(--text-faint)' }}>© 2026 GMAO Health · Hôpital Ndamatou Touba, Sénégal</p>
+      <footer className="text-center pb-8">
+        <p className="text-[10px]" style={{ color: C.faint }}>© 2026 GMAO Health · Hôpital Ndamatou Touba, Sénégal</p>
       </footer>
     </div>
   );

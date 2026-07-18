@@ -2,7 +2,7 @@ import type { ElementType } from 'react';
 import {
   LayoutDashboard, Stethoscope, Wrench, ClipboardList, CalendarClock, Network,
   Leaf, Package, ShoppingCart, Users, Coins, UserCog, Sparkles, TrendingUp,
-  FileBarChart, Map, Settings,
+  FileBarChart, Map, Settings, BarChart3,
 } from 'lucide-react';
 
 export type CategoryKey = 'maintenance' | 'supply' | 'pilotage' | 'systeme';
@@ -62,6 +62,7 @@ export const MODULE_GROUPS: AppGroup[] = [
     hint: 'Décision, durabilité et IA',
     tiles: [
       { name: 'Analytics IoT', desc: 'Capteurs et analytique prédictive', href: '/analytics', icon: TrendingUp },
+      { name: 'Statistiques', desc: 'Tous les indicateurs clés regroupés', href: '/statistiques', icon: BarChart3 },
       { name: 'Rapports', desc: 'Audit et conformité réglementaire', href: '/rapports', icon: FileBarChart },
       { name: 'IA Copilot', desc: 'Assistant intelligent de maintenance', href: '/ia', icon: Sparkles },
       { name: 'Énergie & ESG', desc: 'Optimisation énergétique et carbone', href: '/energie', icon: Leaf },

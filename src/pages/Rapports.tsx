@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   FileText, ShieldCheck, Download, Calendar,
-  Lock, Award, CheckCircle2
+  Lock, Award, ArrowRight
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -159,50 +160,31 @@ export default function Rapports() {
         </div>
       </div>
 
-      {/* Compliance cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Score Compliance */}
-        <div className="p-5 rounded-2xl glass border border-slate-700/40 flex flex-col justify-between">
-          <div>
-            <div className="flex justify-between items-start">
-              <h2 className="text-base font-semibold text-white">Score de conformité global</h2>
-              <Award className="text-emerald-400" size={24} />
-            </div>
-            <p className="text-xs text-slate-500 mt-0.5">Moyenne des standards internationaux requis</p>
-          </div>
-          <div className="py-6 text-center">
-            <p className="text-5xl font-black text-white tracking-tight">89.5%</p>
-            <p className="text-xs text-emerald-400 font-semibold mt-2 flex items-center justify-center gap-1">
-              <CheckCircle2 size={12} />
-              +2.3% ce mois-ci
-            </p>
-          </div>
-          <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-            <div className="h-full bg-emerald-500 rounded-full" style={{ width: '89.5%' }} />
-          </div>
+      {/* Audit Compliance list */}
+      <div className="p-5 rounded-2xl glass border border-slate-700/40">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base font-semibold text-white">Standards & Certifications suivis</h2>
+          <Link to="/statistiques" className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-semibold">
+            Score global & statistiques <ArrowRight size={12} />
+          </Link>
         </div>
-
-        {/* Audit Compliance list */}
-        <div className="lg:col-span-2 p-5 rounded-2xl glass border border-slate-700/40">
-          <h2 className="text-base font-semibold text-white mb-4">Standards & Certifications suivis</h2>
-          <div className="space-y-4">
-            {complianceStandards.map((std) => (
-              <div key={std.name}>
-                <div className="flex justify-between text-xs font-semibold mb-1.5">
-                  <span className="text-slate-300">{std.name}</span>
-                  <span className={std.progress >= 85 ? 'text-emerald-400' : 'text-amber-400'}>
-                    {std.progress}% ({std.status})
-                  </span>
-                </div>
-                <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full ${std.progress >= 90 ? 'bg-emerald-500' : std.progress >= 80 ? 'bg-emerald-400' : 'bg-amber-500'}`}
-                    style={{ width: `${std.progress}%` }}
-                  />
-                </div>
+        <div className="space-y-4">
+          {complianceStandards.map((std) => (
+            <div key={std.name}>
+              <div className="flex justify-between text-xs font-semibold mb-1.5">
+                <span className="text-slate-300">{std.name}</span>
+                <span className={std.progress >= 85 ? 'text-emerald-400' : 'text-amber-400'}>
+                  {std.progress}% ({std.status})
+                </span>
               </div>
-            ))}
-          </div>
+              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full ${std.progress >= 90 ? 'bg-emerald-500' : std.progress >= 80 ? 'bg-emerald-400' : 'bg-amber-500'}`}
+                  style={{ width: `${std.progress}%` }}
+                />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

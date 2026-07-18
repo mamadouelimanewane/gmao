@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   CalendarDays, CheckSquare, Clock, AlertTriangle, PlayCircle,
   ChevronLeft, ChevronRight, Plus, Download, Filter,
   Wrench, CheckCircle2, XCircle, Circle, Timer,
   Stethoscope, Cpu, Activity, HeartPulse, Microscope,
   Radio, FlaskConical, BarChart3, Target, TrendingUp,
-  CalendarCheck, RotateCcw, ClipboardList, Zap, Bell
+  RotateCcw, ClipboardList, Zap, Bell, ArrowRight
 } from 'lucide-react';
 import { useDataStore } from '../contexts/DataStore';
 import type { MaintenancePlan as DSMaintenancePlan } from '../contexts/DataStore';
@@ -55,13 +56,6 @@ const byFreq = [
   { name: 'Trim.', total: 6, done: 4 },
   { name: 'Semestr.', total: 4, done: 2 },
   { name: 'Annuel', total: 3, done: 2 },
-];
-
-const kpis = [
-  { label: 'Taux de conformité', value: '76%', sub: 'Objectif : 95% ⚠️', icon: Target, color: 'from-amber-500 to-orange-500', light: 'text-amber-300' },
-  { label: 'PM en retard', value: '2', sub: 'IRM Siemens · Moniteur Mindray', icon: AlertTriangle, color: 'from-rose-500 to-red-600', light: 'text-rose-300' },
-  { label: 'PM cette semaine', value: '5', sub: '3 critiques · 2 élevées', icon: CalendarCheck, color: 'from-blue-500 to-cyan-600', light: 'text-blue-300' },
-  { label: 'Durée moyenne PM', value: '2.1h', sub: 'vs 2.4h objectif ✅', icon: Clock, color: 'from-emerald-500 to-teal-600', light: 'text-emerald-300' },
 ];
 
 // ─────────────────────────────────────────────
@@ -206,20 +200,22 @@ export default function MaintenancePlanifiee() {
         </div>
       </div>
 
-      {/* ── KPI Cards ── */}
-      {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpis.map(k => (
-          <div key={k.label} className="p-4 rounded-2xl glass border border-slate-700/40">
-            <div className={`p-2 rounded-xl bg-gradient-to-br ${k.color} w-fit mb-3`}>
-              <k.icon size={16} className="text-white" />
-            </div>
-            <p className={`text-2xl font-bold ${k.light}`}>{k.value}</p>
-            <p className="text-xs font-semibold text-white mt-0.5">{k.label}</p>
-            <p className="text-[10px] text-slate-500 mt-0.5">{k.sub}</p>
+      {/* Lien vers les statistiques consolidées */}
+      <Link
+        to="/statistiques"
+        className="flex items-center justify-between p-4 rounded-2xl glass border border-slate-700/40 hover:border-blue-500/40 transition-all group"
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-400">
+            <Target size={20} />
           </div>
-        ))}
-      </div>
+          <div>
+            <p className="text-sm font-semibold text-white">Voir les indicateurs de conformité PM</p>
+            <p className="text-xs text-slate-500">Taux de conformité, retards, durée moyenne — page Statistiques</p>
+          </div>
+        </div>
+        <ArrowRight size={16} className="text-slate-500 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
+      </Link>
 
       {/* Status filter bar */}
       <div className="flex flex-wrap gap-2">

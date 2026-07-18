@@ -1,7 +1,4 @@
-import {
-  Activity, AlertTriangle, CheckCircle2, Clock, Wrench,
-  TrendingUp, TrendingDown, ArrowRight
-} from 'lucide-react';
+import { Activity, AlertTriangle, CheckCircle2, ArrowRight } from 'lucide-react';
 import {
   Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip,
   XAxis, YAxis, PieChart, Pie, Cell, BarChart, Bar
@@ -31,20 +28,6 @@ const serviceData = [
   { dept: 'Bloc Op.', uptime: 99 },
   { dept: 'Maternité', uptime: 87 },
 ];
-
-const kpis = [
-  { label: 'Uptime Global', value: '96.4%', delta: '+1.2%', up: true, icon: Activity, color: 'emerald' },
-  { label: 'Tickets Ouverts', value: '12', delta: '-4', up: true, icon: AlertTriangle, color: 'rose' },
-  { label: 'Interventions 24h', value: '28', delta: '+5', up: false, icon: Wrench, color: 'blue' },
-  { label: 'MTTR Moyen', value: '4h 12m', delta: '-30m', up: true, icon: Clock, color: 'purple' },
-];
-
-const colorMap: Record<string, string> = {
-  emerald: 'text-emerald-400 bg-emerald-500/10',
-  rose: 'text-rose-400 bg-rose-500/10',
-  blue: 'text-blue-400 bg-blue-500/10',
-  purple: 'text-purple-400 bg-purple-500/10',
-};
 
 const alerts = [
   { id: 1, equipment: 'IRM Siemens Magnetom', location: 'Radiologie – Salle 2', time: 'Il y a 10 min', status: 'critical' },
@@ -95,33 +78,22 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpis.map((kpi, i) => (
-          <div
-            key={kpi.label}
-            className={`p-5 rounded-2xl glass border border-slate-700/40 group hover:border-slate-600/60 transition-all duration-300 hover:-translate-y-0.5 stagger-${i + 1} animate-fade-in-up`}
-          >
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">{kpi.label}</p>
-                <p className="text-2xl font-bold text-white mt-1.5 tracking-tight">{kpi.value}</p>
-              </div>
-              <div className={`p-2.5 rounded-xl ${colorMap[kpi.color]}`}>
-                <kpi.icon size={20} className={colorMap[kpi.color].split(' ')[0]} />
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5 mt-4">
-              {kpi.up
-                ? <TrendingUp size={13} className="text-emerald-400" />
-                : <TrendingDown size={13} className="text-rose-400" />
-              }
-              <span className={`text-xs font-semibold ${kpi.up ? 'text-emerald-400' : 'text-rose-400'}`}>{kpi.delta}</span>
-              <span className="text-xs text-slate-600">vs semaine passée</span>
-            </div>
+      {/* Lien vers les statistiques consolidées */}
+      <Link
+        to="/statistiques"
+        className="flex items-center justify-between p-4 rounded-2xl glass border border-slate-700/40 hover:border-emerald-500/40 transition-all group"
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400">
+            <Activity size={20} />
           </div>
-        ))}
-      </div>
+          <div>
+            <p className="text-sm font-semibold text-white">Voir tous les indicateurs clés</p>
+            <p className="text-xs text-slate-500">Uptime, tickets, MTTR et bien plus — page Statistiques</p>
+          </div>
+        </div>
+        <ArrowRight size={16} className="text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all" />
+      </Link>
 
       {/* Main grid */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">

@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
-  TrendingUp, CircleDollarSign, ArrowUpRight, ArrowDownRight,
-  TrendingDown, ShoppingBag, ShieldAlert, Sparkles, FileText, CheckCircle2,
-  AlertTriangle, DollarSign, Wallet, X, Plus
+  CircleDollarSign, ArrowUpRight, ArrowDownRight,
+  ShoppingBag, ShieldAlert, Sparkles, FileText, CheckCircle2,
+  AlertTriangle, DollarSign, Wallet, X, Plus, ArrowRight
 } from 'lucide-react';
 import {
   BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -213,45 +214,22 @@ export default function Finances() {
         </button>
       </div>
 
-      {/* KPI Financial Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl glass border border-slate-700/40">
-          <p className="text-xs font-semibold text-slate-500 uppercase">Budget Annuel Alloué</p>
-          <p className="text-2xl font-bold text-white mt-1.5">{formatCurrency(112000000)}</p>
-          <div className="flex items-center gap-1.5 mt-3 text-xs text-slate-500">
-            <Wallet size={12} className="text-emerald-400" />
-            <span>Exécution Q2 : 78%</span>
+      {/* Lien vers les statistiques consolidées */}
+      <Link
+        to="/statistiques"
+        className="flex items-center justify-between p-4 rounded-2xl glass border border-slate-700/40 hover:border-emerald-500/40 transition-all group"
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400">
+            <Wallet size={20} />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-white">Voir les indicateurs financiers</p>
+            <p className="text-xs text-slate-500">Budget, coûts curatif/préventif, alertes RRI — page Statistiques</p>
           </div>
         </div>
-
-        <div className="p-5 rounded-2xl glass border border-slate-700/40">
-          <p className="text-xs font-semibold text-slate-500 uppercase">Coûts Curatif & Pièces</p>
-          <p className="text-2xl font-bold text-rose-400 mt-1.5">{formatCurrency(totalCurative)}</p>
-          <div className="flex items-center gap-1.5 mt-3 text-xs text-rose-400/80">
-            <TrendingUp size={12} />
-            <span>+12% vs trimestre dernier</span>
-          </div>
-        </div>
-
-        <div className="p-5 rounded-2xl glass border border-slate-700/40">
-          <p className="text-xs font-semibold text-slate-500 uppercase">Coûts Préventif & Étalons</p>
-          <p className="text-2xl font-bold text-emerald-400 mt-1.5">{formatCurrency(totalPreventive)}</p>
-          <div className="flex items-center gap-1.5 mt-3 text-xs text-emerald-400/80">
-            <TrendingDown size={12} />
-            <span>-4% (optimisation des cycles)</span>
-          </div>
-        </div>
-
-        {/* Repair vs Replace Alert */}
-        <div className="p-5 rounded-2xl glass border border-slate-700/40">
-          <p className="text-xs font-semibold text-slate-500 uppercase">Alertes Remplacement (RRI)</p>
-          <p className="text-2xl font-bold text-amber-400 mt-1.5">2 Équipements</p>
-          <div className="flex items-center gap-1.5 mt-3 text-xs text-amber-400/80">
-            <AlertTriangle size={12} />
-            <span>Coût maintenance &gt; 50% valeur</span>
-          </div>
-        </div>
-      </div>
+        <ArrowRight size={16} className="text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all" />
+      </Link>
 
       {/* Charts section */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">

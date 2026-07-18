@@ -4,7 +4,7 @@ import {
   Menu, Stethoscope, TrendingUp, FileBarChart, X, ChevronRight,
   Wifi, WifiOff, LogOut, Users, Coins, Sparkles, UserCog,
   CalendarClock, CheckCircle2, AlertTriangle, Info, XCircle,
-  Globe, Shield, Network, Leaf, Sun, Moon, Map, ShoppingCart, ClipboardList, LayoutGrid
+  Globe, Shield, Network, Leaf, Sun, Moon, Map, ShoppingCart, ClipboardList, LayoutGrid, BarChart3
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { cn } from '../lib/utils';
@@ -31,6 +31,7 @@ const buildNav = (t: (k: string) => string) => [
   { name: t('rh'),            href: '/rh',           icon: UserCog,         badge: null  },
   { name: t('ia_copilot'),    href: '/ia',           icon: Sparkles,        badge: 'NEW' },
   { name: t('analytics'),     href: '/analytics',    icon: TrendingUp,      badge: null  },
+  { name: t('statistiques'),  href: '/statistiques', icon: BarChart3,       badge: null  },
   { name: t('rapports'),      href: '/rapports',     icon: FileBarChart,    badge: null  },
   { name: 'Plan Hôpital',    href: '/plan',          icon: Map,             badge: null  },
 ];

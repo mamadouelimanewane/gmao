@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
-  Users, UserCheck, CalendarDays, Award, Star,
+  Users, CalendarDays, Award, Star,
   Clock, ChevronRight, TrendingUp, CheckCircle2, AlertCircle,
   BookOpen, Wrench, Zap, Phone, Mail, Shield, BarChart3,
   Plus, Filter, Download, RefreshCw, Coffee, Target,
-  HeartPulse, Microscope, Radio, Cpu, Activity, Stethoscope
+  HeartPulse, Microscope, Radio, Cpu, Activity, Stethoscope, ArrowRight
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -154,13 +155,6 @@ const radarData = [
   { subject: 'Documentation', Diallo: 85, Ndiaye: 78, Ba: 80 },
   { subject: 'Sécurité', Diallo: 92, Ndiaye: 85, Ba: 74 },
   { subject: 'Communication', Diallo: 80, Ndiaye: 90, Ba: 82 },
-];
-
-const kpiCards = [
-  { label: 'Effectif total', value: '5', sub: '3 techniciens · 2 ingénieurs', icon: Users, color: 'from-violet-500 to-indigo-600', light: 'text-violet-300' },
-  { label: 'Disponibilité équipe', value: '80%', sub: '1 technicien en congé', icon: UserCheck, color: 'from-emerald-500 to-teal-600', light: 'text-emerald-300' },
-  { label: 'MTTR moyen', value: '2.9h', sub: 'Objectif < 4h ✅', icon: Clock, color: 'from-blue-500 to-cyan-600', light: 'text-blue-300' },
-  { label: 'Certifications expirées', value: '3', sub: 'Renouvellement urgent', icon: Award, color: 'from-rose-500 to-orange-500', light: 'text-rose-300' },
 ];
 
 // ─────────────────────────────────────────────
@@ -329,21 +323,22 @@ export default function RH() {
         </div>
       </div>
 
-      {/* ── KPI Cards ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpiCards.map(k => (
-          <div key={k.label} className="p-4 rounded-2xl glass border border-slate-700/40">
-            <div className="flex items-center justify-between mb-3">
-              <div className={`p-2 rounded-xl bg-gradient-to-br ${k.color} bg-opacity-20`}>
-                <k.icon size={16} className="text-white" />
-              </div>
-            </div>
-            <p className={`text-2xl font-bold ${k.light}`}>{k.value}</p>
-            <p className="text-xs font-semibold text-white mt-0.5">{k.label}</p>
-            <p className="text-[10px] text-slate-500 mt-0.5">{k.sub}</p>
+      {/* Lien vers les statistiques consolidées */}
+      <Link
+        to="/statistiques"
+        className="flex items-center justify-between p-4 rounded-2xl glass border border-slate-700/40 hover:border-cyan-500/40 transition-all group"
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400">
+            <Users size={20} />
           </div>
-        ))}
-      </div>
+          <div>
+            <p className="text-sm font-semibold text-white">Voir les indicateurs équipe</p>
+            <p className="text-xs text-slate-500">Effectif, disponibilité, MTTR, certifications — page Statistiques</p>
+          </div>
+        </div>
+        <ArrowRight size={16} className="text-slate-500 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all" />
+      </Link>
 
       {/* ══════════════════════════════ VIEW: ÉQUIPE ══════════════════════════════ */}
       {view === 'grid' && (

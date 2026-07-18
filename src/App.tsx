@@ -22,6 +22,7 @@ import HospitalMap from './pages/HospitalMap';
 import Parametres from './pages/Parametres';
 import Landing from './pages/Landing';
 import AppsHub from './pages/AppsHub';
+import Statistiques from './pages/Statistiques';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -75,6 +76,7 @@ function AppRoutes() {
         <Route path="rapports" element={<Rapports />} />
         <Route path="plan" element={<HospitalMap />} />
         <Route path="settings" element={<Parametres />} />
+        <Route path="statistiques" element={<Statistiques />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

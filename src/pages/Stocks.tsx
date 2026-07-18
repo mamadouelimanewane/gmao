@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
-  Package, Search, Filter, AlertTriangle, ArrowUpRight,
-  Plus, MoreVertical, ShieldAlert, CheckCircle2, ShoppingCart,
-  BrainCircuit, TrendingDown, Clock, Zap, X
+  Package, Search, Filter, AlertTriangle,
+  Plus, MoreVertical, ShoppingCart,
+  BrainCircuit, TrendingDown, Clock, Zap, X, BarChart3
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import jsPDF from 'jspdf';
@@ -288,6 +289,10 @@ export default function Stocks() {
           </p>
         </div>
         <div className="flex gap-3">
+          <Link to="/statistiques" className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-sm font-semibold rounded-xl transition-all">
+            <BarChart3 size={16} />
+            Statistiques
+          </Link>
           <button onClick={() => setShowAddModal(true)} className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-emerald-900/30 active:scale-95">
             <Plus size={16} />
             Ajouter un Article
@@ -370,45 +375,6 @@ export default function Stocks() {
           </div>
         </div>
 
-      </div>
-
-      {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-5 rounded-2xl glass border border-slate-700/40">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase">Valeur du stock</p>
-              <p className="text-2xl font-bold text-white mt-1.5">4 825 000 FCFA</p>
-            </div>
-            <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl"><ArrowUpRight size={18} /></div>
-          </div>
-          <p className="text-xs text-slate-500 mt-3">Mise à jour : aujourd'hui à 12:00</p>
-        </div>
-
-        <div className="p-5 rounded-2xl glass border border-slate-700/40">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase">Articles en alerte</p>
-              <p className="text-2xl font-bold text-rose-400 mt-1.5">2 Articles</p>
-            </div>
-            <div className="p-2 bg-rose-500/10 text-rose-400 rounded-xl"><ShieldAlert size={18} /></div>
-          </div>
-          <p className="text-xs text-rose-500/70 mt-3 flex items-center gap-1">
-            <AlertTriangle size={12} />
-            Sous le seuil minimal de sécurité
-          </p>
-        </div>
-
-        <div className="p-5 rounded-2xl glass border border-slate-700/40">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase">Taux de rotation</p>
-              <p className="text-2xl font-bold text-emerald-400 mt-1.5">85%</p>
-            </div>
-            <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl"><CheckCircle2 size={18} /></div>
-          </div>
-          <p className="text-xs text-slate-500 mt-3">Rotation saine des consommables</p>
-        </div>
       </div>
 
       {/* Filter panel */}

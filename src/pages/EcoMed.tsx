@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Zap, Leaf, Activity, AlertTriangle, TrendingDown,
-  Lightbulb, ThermometerSun, BatteryCharging, X, Download
+  Lightbulb, ThermometerSun, BatteryCharging, X, Download, ArrowRight
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, ReferenceLine } from 'recharts';
 import jsPDF from 'jspdf';
@@ -387,56 +388,22 @@ export default function EcoMed() {
         </div>
       </div>
 
-      {/* Global KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="glass border border-slate-700/40 p-4 rounded-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-10"><Zap size={48} /></div>
-          <p className="text-xs font-medium text-slate-400 mb-1">Consommation du Jour</p>
-          <div className="flex items-baseline gap-2">
-            <p className="text-2xl font-bold text-white">4.2</p>
-            <span className="text-sm text-slate-400">MWh</span>
+      {/* Lien vers les statistiques consolidées */}
+      <Link
+        to="/statistiques"
+        className="flex items-center justify-between p-4 rounded-2xl glass border border-slate-700/40 hover:border-emerald-500/40 transition-all group"
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400">
+            <Leaf size={20} />
           </div>
-          <p className="text-[10px] text-emerald-400 font-medium mt-2 flex items-center gap-1">
-            <TrendingDown size={12} /> -5.2% vs semaine passée
-          </p>
-        </div>
-        
-        <div className="glass border border-slate-700/40 p-4 rounded-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-10"><Leaf size={48} /></div>
-          <p className="text-xs font-medium text-slate-400 mb-1">Empreinte Carbone</p>
-          <div className="flex items-baseline gap-2">
-            <p className="text-2xl font-bold text-white">12.5</p>
-            <span className="text-sm text-slate-400">TCO₂e / mois</span>
-          </div>
-          <p className="text-[10px] text-slate-400 font-medium mt-2">
-            Objectif ISO 14001: <span className="text-emerald-400">En bonne voie</span>
-          </p>
-        </div>
-
-        <div className="glass border border-slate-700/40 p-4 rounded-2xl relative overflow-hidden border-rose-500/30 bg-rose-500/5">
-          <div className="absolute top-0 right-0 p-4 opacity-10 text-rose-500"><AlertTriangle size={48} /></div>
-          <p className="text-xs font-medium text-slate-400 mb-1">Gaspillage Détecté (Est.)</p>
-          <div className="flex items-baseline gap-2">
-            <p className="text-2xl font-bold text-rose-400">145k</p>
-            <span className="text-sm text-rose-400/70">FCFA / semaine</span>
-          </div>
-          <p className="text-[10px] text-rose-400 font-medium mt-2 flex items-center gap-1">
-            Action requise sur l'éclairage des bureaux
-          </p>
-        </div>
-
-        <div className="glass border border-slate-700/40 p-4 rounded-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-10"><Lightbulb size={48} /></div>
-          <p className="text-xs font-medium text-slate-400 mb-1">Score Smart Lighting</p>
-          <div className="flex items-baseline gap-2">
-            <p className="text-2xl font-bold text-emerald-400">68</p>
-            <span className="text-sm text-slate-400">/ 100</span>
-          </div>
-          <div className="w-full h-1.5 bg-slate-800 rounded-full mt-2 overflow-hidden">
-            <div className="w-[68%] h-full bg-emerald-500 rounded-full" />
+          <div>
+            <p className="text-sm font-semibold text-white">Voir les indicateurs énergie & carbone</p>
+            <p className="text-xs text-slate-500">Consommation, empreinte carbone, score éclairage — page Statistiques</p>
           </div>
         </div>
-      </div>
+        <ArrowRight size={16} className="text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all" />
+      </Link>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Chart (Peak Shaving) */}

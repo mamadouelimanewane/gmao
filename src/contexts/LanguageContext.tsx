@@ -22,6 +22,7 @@ const translations = {
     rh:            'Ressources Humaines',
     ia_copilot:    'IA Copilot',
     analytics:     'Analytics IoT',
+    statistiques:  'Statistiques',
     rapports:      'Rapports',
     settings:      'Paramètres',
     // Common
@@ -59,6 +60,7 @@ const translations = {
     rh:            'Human Resources',
     ia_copilot:    'AI Copilot',
     analytics:     'IoT Analytics',
+    statistiques:  'Statistics',
     rapports:      'Reports',
     settings:      'Settings',
     search:        'Search…',
@@ -93,6 +95,7 @@ const translations = {
     rh:            'Àddina Nit',
     ia_copilot:    'IA Copilot',
     analytics:     'Xam-xam IoT',
+    statistiques:  'Ëmb-limu',
     rapports:      'Rapport yi',
     settings:      'Suqali',
     search:        'Saay…',

@@ -1,8 +1,9 @@
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Stethoscope, Wrench, ClipboardList, CalendarClock, Network,
   Leaf, Package, ShoppingCart, Users, Coins, UserCog, Sparkles, TrendingUp,
-  FileBarChart, Map, Settings, ArrowRight, ArrowLeft, LayoutGrid,
+  FileBarChart, Map, Settings, ArrowRight, ArrowLeft, LayoutGrid, Search,
 } from 'lucide-react';
 import { useAuth, roleLabels } from '../contexts/AuthContext';
 
@@ -13,14 +14,25 @@ interface AppTile {
   icon: React.ElementType;
 }
 
+type CategoryKey = 'maintenance' | 'supply' | 'pilotage' | 'systeme';
+
 interface AppGroup {
+  key: CategoryKey;
   label: string;
   hint: string;
   tiles: AppTile[];
 }
 
+const CATEGORY_STYLE: Record<CategoryKey, { color: string; tint: string; ring: string; icon: React.ElementType }> = {
+  maintenance: { color: '#059669', tint: '#ecfdf5', ring: 'rgba(5,150,105,0.35)', icon: Wrench },
+  supply:      { color: '#2563eb', tint: '#eff6ff', ring: 'rgba(37,99,235,0.35)',  icon: Package },
+  pilotage:    { color: '#7c3aed', tint: '#f5f3ff', ring: 'rgba(124,58,237,0.35)', icon: Sparkles },
+  systeme:     { color: '#b8912a', tint: '#fdf8ea', ring: 'rgba(184,145,42,0.35)', icon: Settings },
+};
+
 const GROUPS: AppGroup[] = [
   {
+    key: 'maintenance',
     label: 'Maintenance & Interventions',
     hint: 'Le quotidien biomédical',
     tiles: [
@@ -33,6 +45,7 @@ const GROUPS: AppGroup[] = [
     ],
   },
   {
+    key: 'supply',
     label: 'Approvisionnement & Ressources',
     hint: 'Stocks, achats et partenaires',
     tiles: [
@@ -44,6 +57,7 @@ const GROUPS: AppGroup[] = [
     ],
   },
   {
+    key: 'pilotage',
     label: 'Pilotage & Innovation',
     hint: 'Décision, durabilité et IA',
     tiles: [
@@ -55,6 +69,7 @@ const GROUPS: AppGroup[] = [
     ],
   },
   {
+    key: 'systeme',
     label: 'Système',
     hint: 'Réglages et comptes',
     tiles: [
@@ -65,113 +80,188 @@ const GROUPS: AppGroup[] = [
 
 const totalApps = GROUPS.reduce((n, g) => n + g.tiles.length, 0);
 
-// Palette fixe, douce et claire — indépendante du thème sombre/clair
-// du reste de l'app, pour que le portail reste toujours lisible et
-// accueillant (fond blanc cassé, jamais noir).
-const C = {
-  bg: '#f6f7fb',
-  card: '#ffffff',
-  border: '#e7e9f2',
-  borderHover: 'rgba(212,175,55,0.4)',
-  text: '#1e2532',
-  muted: '#6b7280',
-  faint: '#9aa1ae',
-  gold: '#a9821f',
-};
+const TEXT = '#111827';
+const MUTED = '#5b6472';
+const FAINT = '#8b93a1';
+const PAGE_BG = '#eef1f8';
 
 export default function AppsHub() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [search, setSearch] = useState('');
+
+  const filteredGroups = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return GROUPS;
+    return GROUPS
+      .map(g => ({ ...g, tiles: g.tiles.filter(t => t.name.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q)) }))
+      .filter(g => g.tiles.length > 0);
+  }, [search]);
 
   return (
-    <div className="min-h-screen" style={{ background: C.bg, color: C.text }}>
+    <div className="min-h-screen" style={{ background: PAGE_BG, color: TEXT }}>
+      {/* Barre d'accent multicolore */}
+      <div className="h-1 w-full flex">
+        {(Object.keys(CATEGORY_STYLE) as CategoryKey[]).map(k => (
+          <div key={k} className="flex-1" style={{ background: CATEGORY_STYLE[k].color }} />
+        ))}
+      </div>
+
       {/* Header */}
-      <header className="border-b" style={{ borderColor: C.border, background: C.card }}>
+      <header className="border-b" style={{ borderColor: '#e2e6f0', background: '#ffffff' }}>
         <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm"
               style={{ background: 'linear-gradient(135deg, #d4af37, #f5d769)' }}>
-              <svg width="20" height="20" viewBox="0 0 32 32" fill="none">
+              <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
                 <rect x="12" y="3" width="8" height="26" rx="2" fill="#0a3d2e" />
                 <rect x="3" y="12" width="26" height="8" rx="2" fill="#0a3d2e" />
               </svg>
             </div>
             <div>
-              <p className="font-bold text-base leading-tight" style={{ color: C.text }}>Portail GMAO</p>
-              <p className="text-xs" style={{ color: C.muted }}>Hôpital Ndamatou Touba</p>
+              <p className="font-bold text-base leading-tight" style={{ color: TEXT }}>Portail GMAO</p>
+              <p className="text-xs" style={{ color: MUTED }}>Hôpital Ndamatou Touba</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             {user && (
-              <span className="hidden sm:inline text-sm" style={{ color: C.muted }}>
-                {user.name} · <span className="text-emerald-600 font-medium">{roleLabels[user.role]}</span>
-              </span>
+              <div className="hidden sm:flex items-center gap-2 pr-3 border-r" style={{ borderColor: '#e2e6f0' }}>
+                <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">
+                  {user.avatar}
+                </div>
+                <div className="leading-tight">
+                  <p className="text-sm font-semibold" style={{ color: TEXT }}>{user.name}</p>
+                  <p className="text-[11px] text-emerald-600 font-medium">{roleLabels[user.role]}</p>
+                </div>
+              </div>
             )}
             <button
               onClick={() => navigate('/dashboard')}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-colors border"
-              style={{ color: C.text, borderColor: C.border, background: '#f9fafc' }}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border hover:shadow-sm"
+              style={{ color: TEXT, borderColor: '#dfe3ee', background: '#f8f9fc' }}
             >
-              <ArrowLeft size={14} /> Tableau de bord classique
+              <ArrowLeft size={15} /> Tableau de bord classique
             </button>
           </div>
         </div>
       </header>
 
       {/* Hero */}
-      <div className="max-w-6xl mx-auto px-6 pt-10 pb-6 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border mb-4"
-          style={{ borderColor: 'rgba(212,175,55,0.35)', background: 'rgba(212,175,55,0.08)' }}>
-          <LayoutGrid size={14} style={{ color: C.gold }} />
-          <span className="text-xs font-bold tracking-[0.15em] uppercase" style={{ color: C.gold }}>Portail d'accès</span>
+      <div className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0f2f26 0%, #14432f 45%, #0b2a20 100%)' }}>
+        <svg className="absolute inset-0 w-full h-full opacity-[0.08]" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="geo-hub" x="0" y="0" width="72" height="72" patternUnits="userSpaceOnUse">
+              <polygon points="36,4 68,20 68,52 36,68 4,52 4,20" fill="none" stroke="#f5d769" strokeWidth="0.8" />
+              <circle cx="36" cy="36" r="5" fill="none" stroke="#f5d769" strokeWidth="0.5" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#geo-hub)" />
+        </svg>
+
+        <div className="relative max-w-6xl mx-auto px-6 pt-12 pb-10 text-center">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border mb-5"
+            style={{ borderColor: 'rgba(212,175,55,0.45)', background: 'rgba(212,175,55,0.12)' }}>
+            <LayoutGrid size={14} style={{ color: '#f5d769' }} />
+            <span className="text-xs font-bold tracking-[0.15em] uppercase" style={{ color: '#f5d769' }}>Portail d'accès</span>
+          </div>
+          <h1 className="font-black text-4xl sm:text-5xl tracking-tight mb-3 text-white">
+            {totalApps} modules GMAO
+          </h1>
+          <p className="text-base sm:text-lg max-w-2xl mx-auto mb-8" style={{ color: 'rgba(255,255,255,0.75)' }}>
+            Un seul écosystème pour la maintenance biomédicale, l'approvisionnement et le pilotage de l'Hôpital Ndamatou Touba.
+          </p>
+
+          {/* Stat chips */}
+          <div className="flex items-center justify-center gap-3 flex-wrap mb-8">
+            {GROUPS.map(g => {
+              const style = CATEGORY_STYLE[g.key];
+              return (
+                <div key={g.key} className="flex items-center gap-2 px-3.5 py-2 rounded-xl border"
+                  style={{ borderColor: 'rgba(255,255,255,0.14)', background: 'rgba(255,255,255,0.06)' }}>
+                  <span className="w-2 h-2 rounded-full" style={{ background: style.color }} />
+                  <span className="text-xs font-semibold text-white">{g.tiles.length}</span>
+                  <span className="text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>{g.label.split(' ')[0]}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Search */}
+          <div className="max-w-md mx-auto relative">
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: 'rgba(255,255,255,0.4)' }} />
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Rechercher un module…"
+              className="w-full rounded-xl pl-11 pr-4 py-3 text-sm text-white placeholder-white/40 outline-none transition-all"
+              style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.16)' }}
+              onFocus={e => { e.target.style.background = 'rgba(255,255,255,0.12)'; e.target.style.borderColor = 'rgba(212,175,55,0.5)'; }}
+              onBlur={e => { e.target.style.background = 'rgba(255,255,255,0.08)'; e.target.style.borderColor = 'rgba(255,255,255,0.16)'; }}
+            />
+          </div>
         </div>
-        <h1 className="font-black text-3xl sm:text-4xl tracking-tight mb-2" style={{ color: C.text }}>
-          {totalApps} modules GMAO
-        </h1>
-        <p className="text-base max-w-xl mx-auto" style={{ color: C.muted }}>
-          Un seul écosystème pour la maintenance biomédicale, l'approvisionnement et le pilotage de l'Hôpital Ndamatou Touba.
-        </p>
       </div>
 
       {/* Groups */}
-      <div className="max-w-6xl mx-auto px-6 pb-16 space-y-10">
-        {GROUPS.map(group => (
-          <section key={group.label}>
-            <div className="flex items-baseline gap-3 mb-4">
-              <h2 className="text-base font-bold uppercase tracking-wide" style={{ color: C.text }}>{group.label}</h2>
-              <span className="text-sm" style={{ color: C.faint }}>{group.hint}</span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {group.tiles.map(tile => (
-                <button
-                  key={tile.name}
-                  onClick={() => navigate(tile.href)}
-                  className="group flex items-start gap-3.5 p-4 rounded-2xl text-left transition-all hover:-translate-y-0.5 border"
-                  style={{ background: C.card, borderColor: C.border, boxShadow: '0 1px 2px rgba(16,24,40,0.04)' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = C.borderHover; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 14px rgba(16,24,40,0.08)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = C.border; (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 2px rgba(16,24,40,0.04)'; }}
-                >
-                  <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100 transition-colors">
-                    <tile.icon size={20} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-base font-semibold truncate" style={{ color: C.text }}>{tile.name}</p>
-                    <p className="text-sm leading-snug mt-0.5" style={{ color: C.muted }}>{tile.desc}</p>
-                    <span className="inline-flex items-center gap-1 mt-2 text-xs font-bold uppercase tracking-wide"
-                      style={{ color: C.gold }}>
-                      Ouvrir <ArrowRight size={11} />
+      <div className="max-w-6xl mx-auto px-6 py-12 space-y-12">
+        {filteredGroups.length === 0 && (
+          <p className="text-center py-16" style={{ color: MUTED }}>Aucun module ne correspond à « {search} ».</p>
+        )}
+        {filteredGroups.map(group => {
+          const style = CATEGORY_STYLE[group.key];
+          const CatIcon = style.icon;
+          return (
+            <section key={group.label}>
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: style.tint, color: style.color }}>
+                  <CatIcon size={19} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-bold" style={{ color: TEXT }}>{group.label}</h2>
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: style.tint, color: style.color }}>
+                      {group.tiles.length}
                     </span>
                   </div>
-                </button>
-              ))}
-            </div>
-          </section>
-        ))}
+                  <p className="text-sm" style={{ color: FAINT }}>{group.hint}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {group.tiles.map(tile => (
+                  <button
+                    key={tile.name}
+                    onClick={() => navigate(tile.href)}
+                    className="group relative flex items-start gap-4 p-5 rounded-2xl text-left transition-all hover:-translate-y-1 bg-white border-2"
+                    style={{ borderColor: '#e7eaf3', boxShadow: '0 1px 3px rgba(17,24,39,0.06)' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = style.color; (e.currentTarget as HTMLElement).style.boxShadow = `0 12px 24px -8px ${style.ring}`; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#e7eaf3'; (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 3px rgba(17,24,39,0.06)'; }}
+                  >
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110"
+                      style={{ background: style.tint, color: style.color }}>
+                      <tile.icon size={22} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-base font-bold truncate" style={{ color: TEXT }}>{tile.name}</p>
+                      <p className="text-sm leading-snug mt-1" style={{ color: MUTED }}>{tile.desc}</p>
+                      <div className="inline-flex items-center gap-1 mt-3 text-xs font-bold uppercase tracking-wide"
+                        style={{ color: style.color }}>
+                        Ouvrir <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </section>
+          );
+        })}
       </div>
 
-      <footer className="text-center pb-8">
-        <p className="text-[10px]" style={{ color: C.faint }}>© 2026 GMAO Health · Hôpital Ndamatou Touba, Sénégal</p>
+      <footer className="text-center pb-10">
+        <p className="text-xs" style={{ color: FAINT }}>© 2026 GMAO Health · Hôpital Ndamatou Touba, Sénégal</p>
       </footer>
     </div>
   );

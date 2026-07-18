@@ -85,13 +85,13 @@ export default function AppsHub() {
         </div>
       </header>
 
-      {/* Hero */}
-      <div className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0f2f26 0%, #14432f 45%, #0b2a20 100%)' }}>
-        <svg className="absolute inset-0 w-full h-full opacity-[0.08]" xmlns="http://www.w3.org/2000/svg">
+      {/* Hero — Sable & Or */}
+      <div className="relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #f3d883 0%, #e0b54c 100%)' }}>
+        <svg className="absolute inset-0 w-full h-full opacity-[0.12]" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern id="geo-hub" x="0" y="0" width="72" height="72" patternUnits="userSpaceOnUse">
-              <polygon points="36,4 68,20 68,52 36,68 4,52 4,20" fill="none" stroke="#f5d769" strokeWidth="0.8" />
-              <circle cx="36" cy="36" r="5" fill="none" stroke="#f5d769" strokeWidth="0.5" />
+              <polygon points="36,4 68,20 68,52 36,68 4,52 4,20" fill="none" stroke="#6b4a06" strokeWidth="0.8" />
+              <circle cx="36" cy="36" r="5" fill="none" stroke="#6b4a06" strokeWidth="0.5" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#geo-hub)" />
@@ -99,14 +99,14 @@ export default function AppsHub() {
 
         <div className="relative max-w-6xl mx-auto px-6 pt-12 pb-10 text-center">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border mb-5"
-            style={{ borderColor: 'rgba(212,175,55,0.45)', background: 'rgba(212,175,55,0.12)' }}>
-            <LayoutGrid size={14} style={{ color: '#f5d769' }} />
-            <span className="text-xs font-bold tracking-[0.15em] uppercase" style={{ color: '#f5d769' }}>Portail d'accès</span>
+            style={{ borderColor: 'rgba(107,74,6,0.3)', background: 'rgba(255,255,255,0.5)' }}>
+            <LayoutGrid size={14} style={{ color: '#6b4a06' }} />
+            <span className="text-xs font-bold tracking-[0.15em] uppercase" style={{ color: '#6b4a06' }}>Portail d'accès</span>
           </div>
-          <h1 className="font-black text-4xl sm:text-5xl tracking-tight mb-3 text-white">
+          <h1 className="font-black text-4xl sm:text-5xl tracking-tight mb-3" style={{ color: '#2b1f04' }}>
             {totalModules} modules GMAO
           </h1>
-          <p className="text-base sm:text-lg max-w-2xl mx-auto mb-8" style={{ color: 'rgba(255,255,255,0.75)' }}>
+          <p className="text-base sm:text-lg max-w-2xl mx-auto mb-8" style={{ color: '#5c4408' }}>
             Un seul écosystème pour la maintenance biomédicale, l'approvisionnement et le pilotage de l'Hôpital Ndamatou Touba.
           </p>
 
@@ -116,10 +116,10 @@ export default function AppsHub() {
               const style = CATEGORY_STYLE[g.key];
               return (
                 <div key={g.key} className="flex items-center gap-2 px-3.5 py-2 rounded-xl border"
-                  style={{ borderColor: 'rgba(255,255,255,0.14)', background: 'rgba(255,255,255,0.06)' }}>
+                  style={{ borderColor: 'rgba(107,74,6,0.25)', background: 'rgba(255,255,255,0.5)' }}>
                   <span className="w-2 h-2 rounded-full" style={{ background: style.color }} />
-                  <span className="text-xs font-semibold text-white">{g.tiles.length}</span>
-                  <span className="text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>{g.label.split(' ')[0]}</span>
+                  <span className="text-xs font-semibold" style={{ color: '#4a3505' }}>{g.tiles.length}</span>
+                  <span className="text-xs" style={{ color: '#6b4a06' }}>{g.label.split(' ')[0]}</span>
                 </div>
               );
             })}
@@ -127,16 +127,16 @@ export default function AppsHub() {
 
           {/* Search */}
           <div className="max-w-md mx-auto relative">
-            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: 'rgba(255,255,255,0.4)' }} />
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: '#6b4a06' }} />
             <input
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Rechercher un module…"
-              className="w-full rounded-xl pl-11 pr-4 py-3 text-sm text-white placeholder-white/40 outline-none transition-all"
-              style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.16)' }}
-              onFocus={e => { e.target.style.background = 'rgba(255,255,255,0.12)'; e.target.style.borderColor = 'rgba(212,175,55,0.5)'; }}
-              onBlur={e => { e.target.style.background = 'rgba(255,255,255,0.08)'; e.target.style.borderColor = 'rgba(255,255,255,0.16)'; }}
+              className="w-full rounded-xl pl-11 pr-4 py-3 text-sm outline-none transition-all placeholder-[#6b4a06]/50"
+              style={{ background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(107,74,6,0.3)', color: '#5c4408' }}
+              onFocus={e => { e.target.style.background = 'rgba(255,255,255,0.75)'; e.target.style.borderColor = 'rgba(107,74,6,0.5)'; }}
+              onBlur={e => { e.target.style.background = 'rgba(255,255,255,0.55)'; e.target.style.borderColor = 'rgba(107,74,6,0.3)'; }}
             />
           </div>
         </div>

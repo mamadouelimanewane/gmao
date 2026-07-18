@@ -70,9 +70,9 @@ export default function AppsHub() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen" style={{ background: '#070d1a' }}>
-      {/* Motif géométrique de fond */}
-      <svg className="fixed inset-0 w-full h-full opacity-[0.05] pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+    <div className="min-h-screen" style={{ background: 'var(--bg-app)', color: 'var(--text-primary)' }}>
+      {/* Motif géométrique de fond, très discret */}
+      <svg className="fixed inset-0 w-full h-full opacity-[0.04] pointer-events-none" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <pattern id="geo-hub" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
             <polygon points="40,4 76,22 76,58 40,76 4,58 4,22" fill="none" stroke="#d4af37" strokeWidth="0.8" />
@@ -83,7 +83,7 @@ export default function AppsHub() {
       </svg>
 
       {/* Header */}
-      <header className="relative z-10 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+      <header className="relative z-10 border-b" style={{ borderColor: 'var(--border-base)' }}>
         <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -94,20 +94,21 @@ export default function AppsHub() {
               </svg>
             </div>
             <div>
-              <p className="text-white font-bold text-sm leading-tight">Portail GMAO</p>
-              <p className="text-[11px] text-slate-500">Hôpital Ndamatou Touba</p>
+              <p className="font-bold text-sm leading-tight" style={{ color: 'var(--text-primary)' }}>Portail GMAO</p>
+              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>Hôpital Ndamatou Touba</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             {user && (
-              <span className="hidden sm:inline text-xs text-slate-400">
-                {user.name} · <span className="text-emerald-400">{roleLabels[user.role]}</span>
+              <span className="hidden sm:inline text-xs" style={{ color: 'var(--text-muted)' }}>
+                {user.name} · <span className="text-emerald-500 font-medium">{roleLabels[user.role]}</span>
               </span>
             )}
             <button
               onClick={() => navigate('/dashboard')}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-colors border"
+              style={{ color: 'var(--text-muted)', borderColor: 'var(--border-base)', background: 'var(--bg-elevated)' }}
             >
               <ArrowLeft size={14} /> Tableau de bord classique
             </button>
@@ -118,14 +119,14 @@ export default function AppsHub() {
       {/* Hero */}
       <div className="relative z-10 max-w-6xl mx-auto px-6 pt-10 pb-6 text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border mb-4"
-          style={{ borderColor: 'rgba(212,175,55,0.3)', background: 'rgba(212,175,55,0.06)' }}>
-          <LayoutGrid size={13} style={{ color: '#d4af37' }} />
-          <span className="text-[10px] font-bold tracking-[0.15em] uppercase" style={{ color: '#d4af37' }}>Portail d'accès</span>
+          style={{ borderColor: 'rgba(212,175,55,0.35)', background: 'rgba(212,175,55,0.08)' }}>
+          <LayoutGrid size={13} style={{ color: '#b8912a' }} />
+          <span className="text-[10px] font-bold tracking-[0.15em] uppercase" style={{ color: '#b8912a' }}>Portail d'accès</span>
         </div>
-        <h1 className="font-black text-3xl sm:text-4xl text-white tracking-tight mb-2">
+        <h1 className="font-black text-3xl sm:text-4xl tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>
           {totalApps} modules GMAO
         </h1>
-        <p className="text-sm text-slate-400 max-w-xl mx-auto">
+        <p className="text-sm max-w-xl mx-auto" style={{ color: 'var(--text-muted)' }}>
           Un seul écosystème pour la maintenance biomédicale, l'approvisionnement et le pilotage de l'Hôpital Ndamatou Touba.
         </p>
       </div>
@@ -135,27 +136,27 @@ export default function AppsHub() {
         {GROUPS.map(group => (
           <section key={group.label}>
             <div className="flex items-baseline gap-3 mb-4">
-              <h2 className="text-sm font-bold text-white uppercase tracking-wide">{group.label}</h2>
-              <span className="text-xs text-slate-500">{group.hint}</span>
+              <h2 className="text-sm font-bold uppercase tracking-wide" style={{ color: 'var(--text-primary)' }}>{group.label}</h2>
+              <span className="text-xs" style={{ color: 'var(--text-faint)' }}>{group.hint}</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {group.tiles.map(tile => (
                 <button
                   key={tile.name}
                   onClick={() => navigate(tile.href)}
-                  className="group flex items-start gap-3.5 p-4 rounded-2xl text-left transition-all hover:-translate-y-0.5"
-                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,175,55,0.35)'; (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.07)'; (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.03)'; }}
+                  className="glass group flex items-start gap-3.5 p-4 rounded-2xl text-left transition-all hover:-translate-y-0.5"
+                  style={{ borderColor: 'var(--border-soft)' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,175,55,0.45)'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-soft)'; }}
                 >
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/15 transition-colors">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:bg-emerald-500/15 transition-colors">
                     <tile.icon size={18} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-white truncate">{tile.name}</p>
-                    <p className="text-[11px] text-slate-500 leading-snug mt-0.5">{tile.desc}</p>
+                    <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{tile.name}</p>
+                    <p className="text-[11px] leading-snug mt-0.5" style={{ color: 'var(--text-muted)' }}>{tile.desc}</p>
                     <span className="inline-flex items-center gap-1 mt-2 text-[10px] font-bold uppercase tracking-wide"
-                      style={{ color: '#d4af37' }}>
+                      style={{ color: '#b8912a' }}>
                       Ouvrir <ArrowRight size={10} />
                     </span>
                   </div>
@@ -167,7 +168,7 @@ export default function AppsHub() {
       </div>
 
       <footer className="relative z-10 text-center pb-8">
-        <p className="text-[10px] text-slate-600">© 2026 GMAO Health · Hôpital Ndamatou Touba, Sénégal</p>
+        <p className="text-[10px]" style={{ color: 'var(--text-faint)' }}>© 2026 GMAO Health · Hôpital Ndamatou Touba, Sénégal</p>
       </footer>
     </div>
   );

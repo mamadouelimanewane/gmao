@@ -4,7 +4,7 @@ import {
   Menu, Stethoscope, TrendingUp, FileBarChart, X, ChevronRight,
   Wifi, WifiOff, LogOut, Users, Coins, Sparkles, UserCog,
   CalendarClock, CheckCircle2, AlertTriangle, Info, XCircle,
-  Globe, Shield, Network, Leaf, Sun, Moon, Map, ShoppingCart, ClipboardList
+  Globe, Shield, Network, Leaf, Sun, Moon, Map, ShoppingCart, ClipboardList, LayoutGrid
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { cn } from '../lib/utils';
@@ -265,6 +265,18 @@ export default function Layout() {
           </div>
 
           <div className="flex items-center gap-1">
+
+            {/* Portail des applications */}
+            <button
+              onClick={() => navigate('/apps')}
+              title="Portail des applications"
+              className="p-2 rounded-xl transition-colors hidden sm:flex"
+              style={{ color: 'var(--text-muted)' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = ''; }}
+            >
+              <LayoutGrid size={17} />
+            </button>
 
             {/* Theme Toggle — pill switch */}
             <button

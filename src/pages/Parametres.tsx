@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth, roleLabels, roleColors } from '../contexts/AuthContext';
 import type { UserRole } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -9,7 +10,7 @@ import { createUser, updateUser, deleteUser } from '../lib/adminApi';
 import {
   User, Bell, Palette, Database, Info, Save,
   RotateCcw, Download, CheckCircle2, Shield, Moon, Sun,
-  Users, Plus, Trash2, X, KeyRound
+  Users, Plus, Trash2, X, KeyRound, LayoutGrid, LayoutDashboard
 } from 'lucide-react';
 
 interface Profile {
@@ -143,6 +144,21 @@ export default function Parametres() {
   const { theme, toggleTheme } = useTheme();
   const { lang, setLang } = useLang();
   const { push } = useNotifications();
+  const navigate = useNavigate();
+
+  const [homeView, setHomeView] = useState<'classic' | 'apps'>(() =>
+    (localStorage.getItem('gmao_home_view') as 'apps' | null) === 'apps' ? 'apps' : 'classic'
+  );
+
+  const changeHomeView = (v: 'classic' | 'apps') => {
+    setHomeView(v);
+    localStorage.setItem('gmao_home_view', v);
+    push({
+      type: 'info',
+      title: 'Page d\'accueil mise à jour',
+      message: v === 'apps' ? 'Le portail en boîtes s\'ouvrira à la prochaine connexion.' : 'Le tableau de bord classique est restauré.',
+    });
+  };
 
   const [prefs, setPrefs] = useState<NotifPrefs>(() => {
     try {
@@ -455,7 +471,7 @@ export default function Parametres() {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between py-2">
+              <div className="flex items-center justify-between py-2 border-b border-slate-800">
                 <div>
                   <p className="text-sm text-slate-300">Langue</p>
                   <p className="text-xs text-slate-500">Langue de l'interface</p>
@@ -471,6 +487,47 @@ export default function Parametres() {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              <div className="py-2">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <p className="text-sm text-slate-300">Page d'accueil</p>
+                    <p className="text-xs text-slate-500">Vue affichée après connexion — réversible à tout moment</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    onClick={() => changeHomeView('classic')}
+                    className={`flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all ${homeView === 'classic' ? 'bg-emerald-500/10 border-emerald-500/40' : 'bg-slate-800/40 border-slate-700 hover:border-slate-600'}`}
+                  >
+                    <div className={`p-2 rounded-lg ${homeView === 'classic' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'}`}>
+                      <LayoutDashboard size={17} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-200">Tableau de bord classique</p>
+                      <p className="text-[11px] text-slate-500">Vue actuelle, KPIs et alertes</p>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => changeHomeView('apps')}
+                    className={`flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all ${homeView === 'apps' ? 'bg-emerald-500/10 border-emerald-500/40' : 'bg-slate-800/40 border-slate-700 hover:border-slate-600'}`}
+                  >
+                    <div className={`p-2 rounded-lg ${homeView === 'apps' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'}`}>
+                      <LayoutGrid size={17} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-200">Portail des applications</p>
+                      <p className="text-[11px] text-slate-500">Modules présentés en boîtes</p>
+                    </div>
+                  </button>
+                </div>
+                <button
+                  onClick={() => navigate('/apps')}
+                  className="mt-3 text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
+                >
+                  Aperçu du portail →
+                </button>
               </div>
             </div>
           )}

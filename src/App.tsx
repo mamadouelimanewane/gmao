@@ -21,10 +21,18 @@ import EcoMed from './pages/EcoMed';
 import HospitalMap from './pages/HospitalMap';
 import Parametres from './pages/Parametres';
 import Landing from './pages/Landing';
+import AppsHub from './pages/AppsHub';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+}
+
+// Vue d'accueil choisie par l'utilisateur (Paramètres > Apparence) :
+// 'classic' = tableau de bord habituel, 'apps' = portail en boîtes.
+// Réversible à tout moment — ne modifie aucune page existante.
+export function getHomePath(): string {
+  return localStorage.getItem('gmao_home_view') === 'apps' ? '/apps' : '/dashboard';
 }
 
 function AppRoutes() {
@@ -43,13 +51,14 @@ function AppRoutes() {
       <Route path="/accueil" element={<Landing />} />
       <Route
         path="/login"
-        element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />}
+        element={isAuthenticated ? <Navigate to={getHomePath()} replace /> : <Login />}
       />
+      <Route path="/apps" element={<PrivateRoute><AppsHub /></PrivateRoute>} />
       <Route
         path="/"
         element={isAuthenticated ? <PrivateRoute><Layout /></PrivateRoute> : <Landing />}
       >
-        <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route index element={<Navigate to={getHomePath()} replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="equipements" element={<Equipments />} />
         <Route path="tickets" element={<Tickets />} />

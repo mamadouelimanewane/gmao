@@ -29,25 +29,27 @@
   --shadow-card:  0 4px 24px rgba(0,0,0,0.4);
 }
 
-/* ══ CSS VARIABLES — light ════════════════════════════════════ */
+/* ══ CSS VARIABLES — light ════════════════════════════════════
+   Palette chaude (base "stone") plutôt que bleu-gris froid,
+   pour un rendu plus doux et moins clinique.                   */
 [data-theme="light"] {
-  --bg-app:      #f0f4f8;
+  --bg-app:      #faf9f6;
   --bg-sidebar:  #ffffff;
   --bg-topbar:   rgba(255,255,255,0.92);
   --bg-surface:  #ffffff;
-  --bg-elevated: #f1f5f9;
-  --bg-hover:    rgba(15,23,42,0.06);
-  --bg-input:    #f8fafc;
+  --bg-elevated: #f3f1ec;
+  --bg-hover:    rgba(28,25,23,0.05);
+  --bg-input:    #fbfaf8;
   --bg-card:     #ffffff;
 
-  --text-primary:   #020617;
-  --text-secondary: #0f172a;
-  --text-muted:     #475569;
-  --text-faint:     #64748b;
+  --text-primary:   #1c1917;
+  --text-secondary: #292524;
+  --text-muted:     #57534e;
+  --text-faint:     #78716c;
 
-  --border-base:  #cbd5e1;
-  --border-soft:  #e2e8f0;
-  --shadow-card:  0 2px 16px rgba(15,23,42,0.10), 0 1px 4px rgba(15,23,42,0.06);
+  --border-base:  #e7e2d8;
+  --border-soft:  #f0ece3;
+  --shadow-card:  0 1px 2px rgba(28,25,23,0.04), 0 8px 20px -4px rgba(28,25,23,0.10);
 }
 
 /* ══ BASE ════════════════════════════════════════════════════ */
@@ -88,7 +90,7 @@
 [data-theme="light"] [class*="bg-slate-800"] { background-color: var(--bg-elevated) !important; }
 
 [data-theme="light"] .bg-slate-700,
-[data-theme="light"] [class*="bg-slate-700"] { background-color: #e2e8f0 !important; }
+[data-theme="light"] [class*="bg-slate-700"] { background-color: #e7e2d8 !important; }
 
 /* — Textes — */
 [data-theme="light"] .text-white         { color: var(--text-primary)   !important; }
@@ -105,6 +107,37 @@
 [data-theme="light"] .border-slate-700,
 [data-theme="light"] [class*="border-slate-7"] { border-color: var(--border-base) !important; }
 [data-theme="light"] .border-slate-600          { border-color: #94a3b8            !important; }
+
+/* — Couleurs d'accent (badges, deltas, liens, icônes) —
+   Les teintes -300/-400/-500 sont calibrées pour ressortir sur fond
+   sombre ; sur fond clair leur contraste tombe sous le seuil
+   d'accessibilité (~2,5:1). On les fonce vers des -600/-700/-800
+   qui gardent le code couleur tout en restant lisibles (~4.5:1+).  */
+[data-theme="light"] .text-emerald-300,
+[data-theme="light"] .text-emerald-400 { color: #047857 !important; }
+[data-theme="light"] .text-emerald-500 { color: #059669 !important; }
+
+[data-theme="light"] .text-rose-300,
+[data-theme="light"] .text-rose-400   { color: #be123c !important; }
+[data-theme="light"] .text-rose-500   { color: #e11d48 !important; }
+
+[data-theme="light"] .text-amber-300  { color: #92400e !important; }
+[data-theme="light"] .text-amber-400,
+[data-theme="light"] .text-amber-500  { color: #b45309 !important; }
+
+[data-theme="light"] .text-blue-300,
+[data-theme="light"] .text-blue-400   { color: #1d4ed8 !important; }
+[data-theme="light"] .text-blue-500   { color: #2563eb !important; }
+
+[data-theme="light"] .text-violet-300,
+[data-theme="light"] .text-violet-400 { color: #6d28d9 !important; }
+
+[data-theme="light"] .text-purple-400 { color: #7e22ce !important; }
+
+[data-theme="light"] .text-cyan-300,
+[data-theme="light"] .text-cyan-400   { color: #0e7490 !important; }
+
+[data-theme="light"] .text-orange-400 { color: #c2410c !important; }
 
 /* — Inputs — */
 [data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
@@ -128,12 +161,12 @@
 
 /* — Glassmorphism light — */
 [data-theme="light"] .glass {
-  background:   rgba(255,255,255,0.85) !important;
-  border-color: rgba(203,213,225,0.8)  !important;
+  background:   rgba(255,255,255,0.9)  !important;
+  border-color: rgba(231,226,216,0.9)  !important;
 }
 [data-theme="light"] .glass-strong {
-  background:   rgba(255,255,255,0.95) !important;
-  border-color: rgba(203,213,225,0.9)  !important;
+  background:   rgba(255,255,255,0.97) !important;
+  border-color: rgba(231,226,216,1)    !important;
 }
 
 /* — Cards & panels avec shadow — */

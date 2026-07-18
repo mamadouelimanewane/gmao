@@ -14,6 +14,7 @@ import { useLang, langMeta } from '../contexts/LanguageContext';
 import type { Lang } from '../contexts/LanguageContext';
 import { useNotifications, toastIconColors } from '../contexts/NotificationContext';
 import type { Notification } from '../contexts/NotificationContext';
+import { getActiveCategory, clearActiveCategory, MODULE_GROUPS, CATEGORY_STYLE } from '../lib/appModules';
 
 const buildNav = (t: (k: string) => string) => [
   { name: t('dashboard'),     href: '/',            icon: LayoutDashboard, badge: null  },
@@ -85,12 +86,29 @@ export default function Layout() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const navigation = buildNav((k) => t(k as Parameters<typeof t>[0]));
-  const currentPage = navigation.find(n => n.href === location.pathname)?.name || t('dashboard');
+  const allNavigation = buildNav((k) => t(k as Parameters<typeof t>[0]));
+
+  // Si on est arrivé via une boîte du portail (/apps), la barre latérale ne
+  // montre que les modules de cette catégorie — Dashboard et Paramètres
+  // restent toujours accessibles.
+  const activeCategory = getActiveCategory();
+  const activeGroup = activeCategory ? MODULE_GROUPS.find(g => g.key === activeCategory) : null;
+  const pinnedHrefs = new Set(['/', '/settings']);
+  const categoryHrefs = activeGroup ? new Set(activeGroup.tiles.map(tl => tl.href)) : null;
+  const navigation = categoryHrefs
+    ? allNavigation.filter(n => pinnedHrefs.has(n.href) || categoryHrefs.has(n.href))
+    : allNavigation;
+
+  const currentPage = allNavigation.find(n => n.href === location.pathname)?.name || t('dashboard');
 
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const showAllModules = () => {
+    clearActiveCategory();
+    navigate('/apps');
   };
 
   const isLight = theme === 'light';
@@ -142,6 +160,23 @@ export default function Layout() {
           {online ? <Wifi size={13} /> : <WifiOff size={13} />}
           {online ? t('online') + ' · Synchronisé' : t('offline') + ' · Mode cache'}
         </div>
+
+        {/* Vue filtrée par catégorie (arrivée depuis le portail /apps) */}
+        {activeGroup && (
+          <div className="mx-3 mt-3 mb-1 p-3 rounded-lg border" style={{ borderColor: CATEGORY_STYLE[activeGroup.key].color + '40', background: CATEGORY_STYLE[activeGroup.key].tint }}>
+            <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: CATEGORY_STYLE[activeGroup.key].color }}>
+              Vue filtrée
+            </p>
+            <p className="text-xs font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>{activeGroup.label}</p>
+            <button
+              onClick={showAllModules}
+              className="text-[11px] font-semibold underline"
+              style={{ color: CATEGORY_STYLE[activeGroup.key].color }}
+            >
+              Voir tous les modules →
+            </button>
+          </div>
+        )}
 
         {/* Navigation */}
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">

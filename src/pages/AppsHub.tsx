@@ -1,84 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  LayoutDashboard, Stethoscope, Wrench, ClipboardList, CalendarClock, Network,
-  Leaf, Package, ShoppingCart, Users, Coins, UserCog, Sparkles, TrendingUp,
-  FileBarChart, Map, Settings, ArrowRight, ArrowLeft, LayoutGrid, Search,
-} from 'lucide-react';
+import { ArrowRight, ArrowLeft, LayoutGrid, Search } from 'lucide-react';
 import { useAuth, roleLabels } from '../contexts/AuthContext';
-
-interface AppTile {
-  name: string;
-  desc: string;
-  href: string;
-  icon: React.ElementType;
-}
-
-type CategoryKey = 'maintenance' | 'supply' | 'pilotage' | 'systeme';
-
-interface AppGroup {
-  key: CategoryKey;
-  label: string;
-  hint: string;
-  tiles: AppTile[];
-}
-
-const CATEGORY_STYLE: Record<CategoryKey, { color: string; tint: string; ring: string; icon: React.ElementType }> = {
-  maintenance: { color: '#059669', tint: '#ecfdf5', ring: 'rgba(5,150,105,0.35)', icon: Wrench },
-  supply:      { color: '#2563eb', tint: '#eff6ff', ring: 'rgba(37,99,235,0.35)',  icon: Package },
-  pilotage:    { color: '#7c3aed', tint: '#f5f3ff', ring: 'rgba(124,58,237,0.35)', icon: Sparkles },
-  systeme:     { color: '#b8912a', tint: '#fdf8ea', ring: 'rgba(184,145,42,0.35)', icon: Settings },
-};
-
-const GROUPS: AppGroup[] = [
-  {
-    key: 'maintenance',
-    label: 'Maintenance & Interventions',
-    hint: 'Le quotidien biomédical',
-    tiles: [
-      { name: 'Dashboard', desc: 'Vue temps réel du parc et des alertes', href: '/dashboard', icon: LayoutDashboard },
-      { name: 'Équipements', desc: 'Inventaire, criticité, historique', href: '/equipements', icon: Stethoscope },
-      { name: 'Interventions', desc: 'Tickets de dépannage et curatif', href: '/tickets', icon: Wrench },
-      { name: 'Workflow Réparation', desc: 'Signalement → diagnostic → clôture', href: '/tickets', icon: ClipboardList },
-      { name: 'PM Planifiées', desc: 'Maintenance préventive programmée', href: '/pm', icon: CalendarClock },
-      { name: 'MedPool', desc: 'Réseau d\'entraide inter-hospitalière', href: '/medpool', icon: Network },
-    ],
-  },
-  {
-    key: 'supply',
-    label: 'Approvisionnement & Ressources',
-    hint: 'Stocks, achats et partenaires',
-    tiles: [
-      { name: 'Stocks & Achats', desc: 'Consommables et prévisions IA', href: '/stocks', icon: Package },
-      { name: 'Workflow Achat', desc: 'Demande → validation → réception', href: '/achats', icon: ShoppingCart },
-      { name: 'Fournisseurs', desc: 'Contrats, contacts, réactivité SLA', href: '/fournisseurs', icon: Users },
-      { name: 'Coûts & TCO', desc: 'Budgets et coût total de possession', href: '/finances', icon: Coins },
-      { name: 'Ressources Humaines', desc: 'Planning et équipe biomédicale', href: '/rh', icon: UserCog },
-    ],
-  },
-  {
-    key: 'pilotage',
-    label: 'Pilotage & Innovation',
-    hint: 'Décision, durabilité et IA',
-    tiles: [
-      { name: 'Analytics IoT', desc: 'Capteurs et analytique prédictive', href: '/analytics', icon: TrendingUp },
-      { name: 'Rapports', desc: 'Audit et conformité réglementaire', href: '/rapports', icon: FileBarChart },
-      { name: 'IA Copilot', desc: 'Assistant intelligent de maintenance', href: '/ia', icon: Sparkles },
-      { name: 'Énergie & ESG', desc: 'Optimisation énergétique et carbone', href: '/energie', icon: Leaf },
-      { name: 'Plan Hôpital', desc: 'Cartographie interactive des services', href: '/plan', icon: Map },
-    ],
-  },
-  {
-    key: 'systeme',
-    label: 'Système',
-    hint: 'Réglages et comptes',
-    tiles: [
-      { name: 'Paramètres', desc: 'Profil, utilisateurs, apparence', href: '/settings', icon: Settings },
-    ],
-  },
-];
-
-const totalApps = GROUPS.reduce((n, g) => n + g.tiles.length, 0);
+import {
+  MODULE_GROUPS, CATEGORY_STYLE, totalModules, setActiveCategory, clearActiveCategory,
+} from '../lib/appModules';
+import type { CategoryKey } from '../lib/appModules';
 
 const TEXT = '#111827';
 const MUTED = '#5b6472';
@@ -92,11 +19,22 @@ export default function AppsHub() {
 
   const filteredGroups = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return GROUPS;
-    return GROUPS
+    if (!q) return MODULE_GROUPS;
+    return MODULE_GROUPS
       .map(g => ({ ...g, tiles: g.tiles.filter(t => t.name.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q)) }))
       .filter(g => g.tiles.length > 0);
   }, [search]);
+
+  const openTile = (categoryKey: CategoryKey, href: string) => {
+    // La barre latérale ne montrera que les modules de cette catégorie.
+    setActiveCategory(categoryKey);
+    navigate(href);
+  };
+
+  const goClassic = () => {
+    clearActiveCategory();
+    navigate('/dashboard');
+  };
 
   return (
     <div className="min-h-screen" style={{ background: PAGE_BG, color: TEXT }}>
@@ -137,7 +75,7 @@ export default function AppsHub() {
               </div>
             )}
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={goClassic}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border hover:shadow-sm"
               style={{ color: TEXT, borderColor: '#dfe3ee', background: '#f8f9fc' }}
             >
@@ -166,7 +104,7 @@ export default function AppsHub() {
             <span className="text-xs font-bold tracking-[0.15em] uppercase" style={{ color: '#f5d769' }}>Portail d'accès</span>
           </div>
           <h1 className="font-black text-4xl sm:text-5xl tracking-tight mb-3 text-white">
-            {totalApps} modules GMAO
+            {totalModules} modules GMAO
           </h1>
           <p className="text-base sm:text-lg max-w-2xl mx-auto mb-8" style={{ color: 'rgba(255,255,255,0.75)' }}>
             Un seul écosystème pour la maintenance biomédicale, l'approvisionnement et le pilotage de l'Hôpital Ndamatou Touba.
@@ -174,7 +112,7 @@ export default function AppsHub() {
 
           {/* Stat chips */}
           <div className="flex items-center justify-center gap-3 flex-wrap mb-8">
-            {GROUPS.map(g => {
+            {MODULE_GROUPS.map(g => {
               const style = CATEGORY_STYLE[g.key];
               return (
                 <div key={g.key} className="flex items-center gap-2 px-3.5 py-2 rounded-xl border"
@@ -234,7 +172,7 @@ export default function AppsHub() {
                 {group.tiles.map(tile => (
                   <button
                     key={tile.name}
-                    onClick={() => navigate(tile.href)}
+                    onClick={() => openTile(group.key, tile.href)}
                     className="group relative flex items-start gap-4 p-5 rounded-2xl text-left transition-all hover:-translate-y-1 bg-white border-2"
                     style={{ borderColor: '#e7eaf3', boxShadow: '0 1px 3px rgba(17,24,39,0.06)' }}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = style.color; (e.currentTarget as HTMLElement).style.boxShadow = `0 12px 24px -8px ${style.ring}`; }}

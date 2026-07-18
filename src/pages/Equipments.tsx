@@ -10,6 +10,7 @@ import {
 } from 'recharts';
 import { useDataStore } from '../contexts/DataStore';
 import type { Equipment } from '../contexts/DataStore';
+import { useTheme } from '../contexts/ThemeContext';
 
 const categories = ['Tous', 'Imagerie', 'Réanimation', 'Urgence', 'Chirurgie', 'Laboratoire'];
 const statusFilters = ['Tous', 'Opérationnel', 'En Maintenance', 'En Panne'];
@@ -25,6 +26,22 @@ const critStyle: Record<string, string> = {
   'Haute': 'bg-orange-500/10 text-orange-400',
   'Moyenne': 'bg-blue-500/10 text-blue-400',
   'Basse': 'bg-slate-700/50 text-slate-400',
+};
+
+// ── Piste "Confort clair" — bandeau lavande, liseré coloré par état,
+//    étiquettes de catégorie teintées (choisie après comparatif) ──────
+const CATEGORY_TAG: Record<string, { bg: string; text: string; bgDark: string; textDark: string }> = {
+  'Imagerie':    { bg: '#e9edfc', text: '#2451d6', bgDark: 'rgba(96,165,250,0.14)',  textDark: '#93c5fd' },
+  'Réanimation': { bg: '#f3e8fd', text: '#7c3aed', bgDark: 'rgba(167,139,250,0.14)', textDark: '#c4b5fd' },
+  'Urgence':     { bg: '#fde2e7', text: '#b1123b', bgDark: 'rgba(251,113,133,0.14)', textDark: '#fda4af' },
+  'Chirurgie':   { bg: '#fdedd6', text: '#8a4c07', bgDark: 'rgba(251,191,36,0.14)',  textDark: '#fcd34d' },
+  'Laboratoire': { bg: '#dcf5f0', text: '#0d6b5c', bgDark: 'rgba(45,212,191,0.14)',  textDark: '#5eead4' },
+};
+
+const ROW_STRIPE: Record<string, { light: string; dark: string }> = {
+  'Opérationnel':   { light: '#047857', dark: '#10b981' },
+  'En Panne':       { light: '#e11d48', dark: '#f43f5e' },
+  'En Maintenance': { light: '#b45309', dark: '#f59e0b' },
 };
 
 // ── Add Equipment Modal ──────────────────────────────────────────────────────
@@ -365,6 +382,8 @@ function CompareModal({ equipments: eqs, onClose }: { equipments: Equipment[]; o
 export default function Equipments() {
   const { equipments, setEquipments, tickets } = useDataStore();
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   const [activeCategory, setActiveCategory] = useState('Tous');
   const [activeStatus, setActiveStatus] = useState('Tous');
   const [search, setSearch] = useState('');
@@ -418,12 +437,15 @@ export default function Equipments() {
       )}
 
       <div className="space-y-6 animate-fade-in-up">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        {/* Header — bandeau lavande en thème clair */}
+        <div
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1"
+          style={isLight ? { background: 'linear-gradient(135deg, #f3f1fb 0%, #eef3fb 100%)' } : undefined}
+        >
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Équipements</h1>
-            <p className="text-sm text-slate-400 mt-1">
-              <span className="text-white font-medium">{filtered.length}</span> équipements · Cycle de vie complet
+            <h1 className="text-2xl font-bold tracking-tight" style={{ color: isLight ? '#1e1b2e' : undefined }}>Équipements</h1>
+            <p className="text-sm mt-1" style={{ color: isLight ? '#5b5876' : 'var(--text-muted)' }}>
+              <span className="font-semibold" style={{ color: isLight ? '#211e33' : 'var(--text-primary)' }}>{filtered.length}</span> équipements · Cycle de vie complet
             </p>
           </div>
           <div className="flex gap-3">
@@ -433,7 +455,10 @@ export default function Equipments() {
             </button>
             <button
               onClick={() => setShowModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-emerald-900/30 active:scale-95"
+              className={`inline-flex items-center gap-2 px-4 py-2 text-white text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95 ${
+                isLight ? '' : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-900/30'
+              }`}
+              style={isLight ? { background: '#4c3fb0' } : undefined}
             >
               <Plus size={16} />
               Nouvel Équipement
@@ -447,7 +472,7 @@ export default function Equipments() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              className={`flex-shrink-0 px-3.5 py-2 rounded-lg text-sm font-medium transition-all ${
                 activeCategory === cat
                   ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
                   : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:border-slate-600'
@@ -467,17 +492,17 @@ export default function Equipments() {
               placeholder="Rechercher par nom, ID, localisation..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-9 pr-4 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors"
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-9 pr-4 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors"
             />
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <Filter size={14} className="text-slate-500" />
-            <span className="text-xs text-slate-500">Statut:</span>
+            <span className="text-sm text-slate-500">Statut:</span>
             {statusFilters.map((st) => (
               <button
                 key={st}
                 onClick={() => setActiveStatus(st)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                   activeStatus === st
                     ? 'bg-slate-700 text-slate-200'
                     : 'text-slate-500 hover:text-slate-300'
@@ -488,17 +513,20 @@ export default function Equipments() {
             ))}
           </div>
           {compareList.length > 0 && (
-            <span className="text-xs text-slate-400">
+            <span className="text-sm text-slate-400">
               {compareList.length}/3 sélectionnés pour comparaison
             </span>
           )}
         </div>
 
-        {/* Equipment Table */}
+        {/* Equipment Table — liseré coloré par état, étiquettes de catégorie teintées */}
         <div className="rounded-2xl glass border border-slate-700/40 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="text-[11px] uppercase tracking-wider text-slate-500 border-b border-slate-700/50 bg-slate-900/30">
+            <table className="w-full text-base text-left" style={isLight ? { background: '#fbfaff' } : undefined}>
+              <thead
+                className="text-xs uppercase tracking-wider border-b"
+                style={isLight ? { color: '#6b6790', background: '#f3f1fb', borderColor: '#e6e3f5' } : { color: 'var(--text-muted)', borderColor: 'var(--border-base)' }}
+              >
                 <tr>
                   <th className="px-4 py-3 font-semibold w-8">
                     <CheckSquare2 size={13} className="text-slate-600" />
@@ -515,8 +543,16 @@ export default function Equipments() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60">
-                {filtered.map((eq) => (
-                  <tr key={eq.id} className="hover:bg-slate-800/30 transition-colors group">
+                {filtered.map((eq) => {
+                  const stripe = ROW_STRIPE[eq.status];
+                  const stripeColor = stripe ? (isLight ? stripe.light : stripe.dark) : 'transparent';
+                  const catTag = CATEGORY_TAG[eq.category];
+                  return (
+                  <tr
+                    key={eq.id}
+                    className="hover:bg-slate-800/30 transition-colors group"
+                    style={{ boxShadow: `inset 4px 0 0 ${stripeColor}` }}
+                  >
                     <td className="px-4 py-4">
                       <input
                         type="checkbox"
@@ -531,26 +567,35 @@ export default function Equipments() {
                           <Stethoscope size={15} className="text-emerald-400" />
                         </div>
                         <div>
-                          <p className="font-medium text-slate-200">{eq.name}</p>
-                          <p className="text-xs text-slate-500 font-mono">{eq.id}</p>
+                          <p className="font-semibold text-base text-slate-200">{eq.name}</p>
+                          <p className="text-sm text-slate-500 font-mono">{eq.id}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-slate-400 text-xs">{eq.category}</td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-1.5 text-slate-400 text-xs">
+                      {catTag && (
+                        <span
+                          className="inline-flex items-center px-2.5 py-1 rounded-lg text-sm font-medium"
+                          style={{ background: isLight ? catTag.bg : catTag.bgDark, color: isLight ? catTag.text : catTag.textDark }}
+                        >
+                          {eq.category}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1.5 text-slate-400 text-sm">
                         <MapPin size={12} />
                         {eq.location}
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium ${statusStyle[eq.status]}`}>
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-sm font-medium ${statusStyle[eq.status]}`}>
                         <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${eq.status === 'Opérationnel' ? 'bg-emerald-400' : eq.status === 'En Panne' ? 'bg-rose-400' : 'bg-amber-400'}`} />
                         {eq.status}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ${critStyle[eq.criticality] || 'bg-slate-700/50 text-slate-400'}`}>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-sm font-medium ${critStyle[eq.criticality] || 'bg-slate-700/50 text-slate-400'}`}>
                         {eq.criticality}
                       </span>
                     </td>
@@ -562,7 +607,7 @@ export default function Equipments() {
                             style={{ width: `${eq.pss}%` }}
                           />
                         </div>
-                        <span className={`text-xs font-bold ${eq.pss >= 80 ? 'text-rose-400' : eq.pss >= 50 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                        <span className={`text-sm font-bold ${eq.pss >= 80 ? 'text-rose-400' : eq.pss >= 50 ? 'text-amber-400' : 'text-emerald-400'}`}>
                           {eq.pss}
                         </span>
                       </div>
@@ -575,11 +620,11 @@ export default function Equipments() {
                             style={{ width: `${eq.uptime}%` }}
                           />
                         </div>
-                        <span className="text-xs text-slate-400">{eq.uptime}%</span>
+                        <span className="text-sm text-slate-400">{eq.uptime}%</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                      <div className="flex items-center gap-1.5 text-sm text-slate-400">
                         <Calendar size={12} />
                         {eq.nextMaintenance}
                       </div>
@@ -603,7 +648,8 @@ export default function Equipments() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

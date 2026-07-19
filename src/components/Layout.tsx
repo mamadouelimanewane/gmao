@@ -314,19 +314,21 @@ export default function Layout() {
               <LayoutGrid size={17} />
             </button>
 
-            {/* Theme Toggle — pill switch */}
+            {/* Theme Toggle — pill switch. Le libellé reflète le thème
+                ACTUELLEMENT actif (pas la destination du clic), pour éviter
+                toute confusion sur l'état réel de l'interface. */}
             <button
               onClick={toggleTheme}
-              title={isLight ? 'Passer en mode sombre' : 'Passer en mode clair'}
+              title={isLight ? 'Thème clair actif — cliquer pour passer en sombre' : 'Thème sombre actif — cliquer pour passer en clair'}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
               style={{
-                background: isLight ? '#0f172a' : '#f1f5f9',
-                color: isLight ? '#f8fafc' : '#0f172a',
+                background: isLight ? '#f1f5f9' : '#0f172a',
+                color: isLight ? '#0f172a' : '#f8fafc',
                 border: '1px solid var(--border-base)',
               }}
             >
-              {isLight ? <Moon size={14} /> : <Sun size={14} />}
-              <span className="hidden sm:inline">{isLight ? 'Sombre' : 'Clair'}</span>
+              {isLight ? <Sun size={14} /> : <Moon size={14} />}
+              <span className="hidden sm:inline">{isLight ? 'Clair' : 'Sombre'}</span>
             </button>
 
             {/* Language Switcher */}

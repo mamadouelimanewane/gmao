@@ -13,9 +13,18 @@ const ThemeContext = createContext<ThemeContextType | null>(null);
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
     try {
-      return (localStorage.getItem('gmao_theme') as Theme) || 'dark';
+      // Migration unique : le bouton de bascule affichait jusqu'ici le
+      // libellé de la DESTINATION du clic (ex: "Clair" alors que le thème
+      // actif était sombre), ce qui a bloqué de nombreux navigateurs sur un
+      // thème sombre choisi par erreur. On les repasse une fois en clair.
+      if (!localStorage.getItem('gmao_theme_migrated_v1')) {
+        localStorage.setItem('gmao_theme_migrated_v1', '1');
+        localStorage.setItem('gmao_theme', 'light');
+        return 'light';
+      }
+      return (localStorage.getItem('gmao_theme') as Theme) || 'light';
     } catch {
-      return 'dark';
+      return 'light';
     }
   });
 

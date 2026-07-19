@@ -407,6 +407,42 @@ export function DataStoreProvider({ children }: { children: ReactNode }) {
 
       setSupabaseReady(true);
       syncing.current = false;
+      setupRealtime();
+    };
+
+    let realtimeChannel: ReturnType<typeof supabase.channel> | null = null;
+    const setupRealtime = () => {
+      if (realtimeChannel) return;
+      const handleRealtime = <T extends { id: string }>(
+        payload: any,
+        setter: React.Dispatch<React.SetStateAction<T[]>>,
+        lsKey: string
+      ) => {
+        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+          setter(prev => {
+            const exists = prev.some(item => item.id === payload.new.id);
+            const next = exists
+              ? prev.map(item => item.id === payload.new.id ? payload.new as T : item)
+              : [...prev, payload.new as T];
+            lsSet(lsKey, next);
+            return next;
+          });
+        } else if (payload.eventType === 'DELETE') {
+          setter(prev => {
+            const next = prev.filter(item => item.id !== payload.old.id);
+            lsSet(lsKey, next);
+            return next;
+          });
+        }
+      };
+
+      realtimeChannel = supabase.channel('gmao-realtime')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'tickets' }, p => handleRealtime(p, _setTickets, 'gmao_tickets'))
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'equipments' }, p => handleRealtime(p, _setEquipments, 'gmao_equipments'))
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'pm_plans' }, p => handleRealtime(p, _setPmPlans, 'gmao_pm'))
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'stocks' }, p => handleRealtime(p, _setStocks, 'gmao_stocks'))
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'purchase_orders' }, p => handleRealtime(p, _setPurchaseOrders, 'gmao_purchase_orders'))
+        .subscribe();
     };
 
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -417,7 +453,10 @@ export function DataStoreProvider({ children }: { children: ReactNode }) {
       if (event === 'SIGNED_IN') syncFromSupabase();
     });
 
-    return () => sub.subscription.unsubscribe();
+    return () => {
+      sub.subscription.unsubscribe();
+      if (realtimeChannel) supabase.removeChannel(realtimeChannel);
+    };
   }, []);
 
   // Wrapped setters: update state + localStorage + Supabase

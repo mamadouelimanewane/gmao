@@ -8,6 +8,8 @@ import {
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   Radar, ResponsiveContainer, Tooltip
 } from 'recharts';
+import { jsPDF } from 'jspdf';
+import QRCode from 'qrcode';
 import { useDataStore } from '../contexts/DataStore';
 import type { Equipment } from '../contexts/DataStore';
 
@@ -722,6 +724,67 @@ export default function Equipments() {
     setShowQRScanner(false);
   };
 
+  const generateQRPDF = async () => {
+    try {
+      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+      const selectedEqs = equipments.filter(e => compareList.includes(e.id));
+      
+      doc.setFontSize(16);
+      doc.text('GMAO Health - Étiquettes QR', 105, 15, { align: 'center' });
+      
+      // Configuration de la grille (planche A4)
+      const cols = 3;
+      const margin = 10;
+      const labelW = (210 - margin * 2) / cols;
+      const labelH = 40;
+      let x = margin;
+      let y = 25;
+      
+      doc.setFontSize(8);
+      
+      for (let i = 0; i < selectedEqs.length; i++) {
+        const eq = selectedEqs[i];
+        
+        // Générer le QR Code en Base64
+        const qrDataUrl = await QRCode.toDataURL(eq.id, { margin: 1, width: 100 });
+        
+        // Bordure de l'étiquette
+        doc.setDrawColor(200);
+        doc.rect(x, y, labelW - 5, labelH - 5);
+        
+        // Image QR
+        doc.addImage(qrDataUrl, 'PNG', x + 2, y + 2, 30, 30);
+        
+        // Textes
+        doc.setFont('helvetica', 'bold');
+        doc.text(eq.id, x + 35, y + 10);
+        
+        doc.setFont('helvetica', 'normal');
+        const nameLines = doc.splitTextToSize(eq.name, labelW - 42);
+        doc.text(nameLines, x + 35, y + 17);
+        
+        doc.setTextColor(100);
+        doc.text(eq.location, x + 35, y + 25);
+        doc.setTextColor(0);
+        
+        x += labelW;
+        if ((i + 1) % cols === 0) {
+          x = margin;
+          y += labelH;
+          if (y > 270) {
+            doc.addPage();
+            y = 15;
+          }
+        }
+      }
+      
+      doc.save(`etiquettes-qr-${new Date().toISOString().split('T')[0]}.pdf`);
+    } catch (e) {
+      console.error(e);
+      alert('Erreur lors de la génération du PDF');
+    }
+  };
+
   return (
     <>
       {showModal && (
@@ -981,15 +1044,26 @@ export default function Equipments() {
         </div>
       </div>
 
-      {/* Compare FAB */}
-      {compareList.length >= 2 && (
-        <button
-          onClick={() => setShowCompare(true)}
-          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white text-sm font-bold rounded-2xl shadow-2xl shadow-blue-900/50 transition-all active:scale-95 animate-fade-in-up"
-        >
-          <BarChart2 size={16} />
-          Comparer ({compareList.length} équipements)
-        </button>
+      {/* Compare & QR Action FABs */}
+      {compareList.length > 0 && (
+        <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3 animate-fade-in-up">
+          {compareList.length >= 2 && (
+            <button
+              onClick={() => setShowCompare(true)}
+              className="flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white text-sm font-bold rounded-2xl shadow-2xl shadow-blue-900/50 transition-all active:scale-95"
+            >
+              <BarChart2 size={16} />
+              Comparer ({compareList.length})
+            </button>
+          )}
+          <button
+            onClick={generateQRPDF}
+            className="flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-sm font-bold rounded-2xl shadow-2xl shadow-emerald-900/50 transition-all active:scale-95"
+          >
+            <QrCode size={16} />
+            Étiquettes QR ({compareList.length})
+          </button>
+        </div>
       )}
     </>
   );

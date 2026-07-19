@@ -181,7 +181,7 @@ export default function Layout() {
         )}
 
         {/* Navigation */}
-        <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
+        <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto lg:overflow-visible">
           <p className="text-[10px] font-semibold uppercase tracking-widest px-3 py-2"
             style={{ color: '#64748b' }}>Principal</p>
           {navigation.map((item) => {
@@ -258,7 +258,7 @@ export default function Layout() {
       </aside>
 
       {/* ── MAIN ── */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden lg:overflow-visible">
 
         {/* Topbar */}
         <header className="h-16 sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 backdrop-blur-xl"
@@ -447,7 +447,7 @@ export default function Layout() {
         )}
 
         {/* Page content */}
-        <main className="flex-1 overflow-auto" style={{ background: 'var(--bg-app)' }}>
+        <main className="flex-1 overflow-y-auto lg:overflow-visible" style={{ background: 'var(--bg-app)' }}>
           <div className="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
             <Outlet />
           </div>

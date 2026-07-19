@@ -11,7 +11,6 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   CartesianGrid, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts';
-import { useTheme } from '../contexts/ThemeContext';
 
 // ─────────────────────────────────────────────
 // DATA
@@ -289,23 +288,18 @@ export default function RH() {
   const [selected, setSelected] = useState(staff[0]);
   const [activeTab, setActiveTab] = useState<'planning' | 'perf' | 'certs'>('planning');
   const [view, setView] = useState<'grid' | 'planning' | 'gantt'>('grid');
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
 
   return (
     <div className="space-y-6 animate-fade-in-up">
 
-      {/* ── Header ── */}
-      <div
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1"
-        style={isLight ? { background: 'linear-gradient(135deg, #f3f1fb 0%, #eef3fb 100%)' } : undefined}
-      >
+      {/* ── Header — poste de contrôle : navy + liseré rouge ── */}
+      <div className="uc-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight" style={{ color: isLight ? '#1e1b2e' : undefined }}>
+          <h1 className="uc-title text-2xl font-bold tracking-tight">
             Ressources Humaines
             <span className="ml-2 text-xs font-medium bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full border border-cyan-500/30 align-middle">Biomédical</span>
           </h1>
-          <p className="text-sm mt-1" style={{ color: isLight ? '#5b5876' : 'var(--text-muted)' }}>Gestion des ingénieurs et techniciens · Planning · Compétences · Performance</p>
+          <p className="uc-subtitle text-sm mt-1">Gestion des ingénieurs et techniciens · Planning · Compétences · Performance</p>
         </div>
         <div className="flex items-center gap-2">
           <button

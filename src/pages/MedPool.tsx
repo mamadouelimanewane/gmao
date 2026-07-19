@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Network, Search, Filter, MapPin, ShieldCheck, Clock, ExternalLink, X, Plus, Tag } from 'lucide-react';
 import { useNotifications } from '../contexts/NotificationContext';
-import { useTheme } from '../contexts/ThemeContext';
 
 const mockParts = [
   {
@@ -208,8 +207,6 @@ export default function MedPool() {
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('Tous');
   const [showProposer, setShowProposer] = useState(false);
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
 
   const filtered = parts.filter(p => {
     const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) || 
@@ -224,27 +221,23 @@ export default function MedPool() {
     <div className="space-y-6 animate-fade-in-up">
       {showProposer && <ProposerModal onClose={() => setShowProposer(false)} onAdd={p => setParts(prev => [p as typeof prev[0], ...prev])} />}
 
-      {/* Header */}
-      <div
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1"
-        style={isLight ? { background: 'linear-gradient(135deg, #f3f1fb 0%, #eef3fb 100%)' } : undefined}
-      >
+      {/* Header — poste de contrôle : navy + liseré rouge */}
+      <div className="uc-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight" style={{ color: isLight ? '#1e1b2e' : undefined }}>MedPool</h1>
+            <h1 className="uc-title text-2xl font-bold tracking-tight">MedPool</h1>
             <span className="px-2 py-0.5 rounded text-xs font-bold bg-violet-500/20 text-violet-400 border border-violet-500/30">
               RÉSEAU PARTENAIRE
             </span>
           </div>
-          <p className="text-sm mt-1" style={{ color: isLight ? '#5b5876' : 'var(--text-muted)' }}>
+          <p className="uc-subtitle text-sm mt-1">
             Marketplace d'entraide inter-hospitalière pour pièces détachées et consommables.
           </p>
         </div>
         <div className="flex gap-3">
           <button
             onClick={() => setShowProposer(true)}
-            className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95 ${isLight ? 'text-white' : 'bg-slate-800 hover:bg-slate-700 text-white'}`}
-            style={isLight ? { background: '#4c3fb0' } : undefined}
+            className="uc-btn-primary inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95"
           >
             <Network size={16} />
             Proposer une pièce

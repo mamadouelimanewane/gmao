@@ -7,7 +7,6 @@ import {
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, ReferenceLine } from 'recharts';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { useTheme } from '../contexts/ThemeContext';
 
 const energyData = [
   { time: '00:00', cons: 120, baseline: 110, peak: false },
@@ -360,8 +359,6 @@ export default function EcoMed() {
   const [showDetecteurs, setShowDetecteurs] = useState(false);
   const [showExtinction, setShowExtinction] = useState(false);
   const [showSimuFinance, setShowSimuFinance] = useState(false);
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
 
   return (
     <div className="space-y-6 animate-fade-in-up">
@@ -370,29 +367,25 @@ export default function EcoMed() {
       {showExtinction && <ExtinctionModal onClose={() => setShowExtinction(false)} />}
       {showSimuFinance && <SimuFinanciereModal onClose={() => setShowSimuFinance(false)} />}
 
-      {/* Header */}
-      <div
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1"
-        style={isLight ? { background: 'linear-gradient(135deg, #f3f1fb 0%, #eef3fb 100%)' } : undefined}
-      >
+      {/* Header — poste de contrôle : navy + liseré rouge */}
+      <div className="uc-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight" style={{ color: isLight ? '#1e1b2e' : undefined }}>EcoMed</h1>
+            <h1 className="uc-title text-2xl font-bold tracking-tight">EcoMed</h1>
             <span className="px-2 py-0.5 rounded text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
               ÉNERGIE & ESG
             </span>
           </div>
-          <p className="text-sm mt-1" style={{ color: isLight ? '#5b5876' : 'var(--text-muted)' }}>
+          <p className="uc-subtitle text-sm mt-1">
             Optimisation énergétique, éclairage intelligent et bilan carbone hospitalier.
           </p>
         </div>
         <div className="flex gap-3">
           <button
             onClick={() => setShowBilan(true)}
-            className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95 ${isLight ? 'text-white' : 'bg-slate-800 hover:bg-slate-700 text-white'}`}
-            style={isLight ? { background: '#4c3fb0' } : undefined}
+            className="uc-btn-primary inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95"
           >
-            <Leaf size={16} className={isLight ? 'text-white' : 'text-emerald-400'} />
+            <Leaf size={16} />
             Générer Bilan Carbone
           </button>
         </div>

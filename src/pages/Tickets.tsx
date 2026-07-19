@@ -9,7 +9,6 @@ import { useDataStore, REPAIR_STEPS, repairStepToStatus } from '../contexts/Data
 import type { Ticket, PurchaseOrder } from '../contexts/DataStore';
 import { useNotifications } from '../contexts/NotificationContext';
 import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../contexts/ThemeContext';
 
 const priorityStyles: Record<string, string> = {
   'Critique': 'bg-rose-500/10 text-rose-400 border border-rose-500/20',
@@ -462,8 +461,6 @@ export default function Tickets() {
   const [viewSigTicketId, setViewSigTicketId] = useState<string | null>(null);
   const [workflowTicketId, setWorkflowTicketId] = useState<string | null>(null);
   const [prefillEquipment, setPrefillEquipment] = useState<string | undefined>();
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
 
   const handleAddTicket = (newTkt: Ticket) => {
     setTickets(prev => [newTkt, ...prev]);
@@ -541,21 +538,17 @@ export default function Tickets() {
       )}
 
       <div className="space-y-6 animate-fade-in-up">
-        {/* Header */}
-        <div
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1"
-          style={isLight ? { background: 'linear-gradient(135deg, #f3f1fb 0%, #eef3fb 100%)' } : undefined}
-        >
+        {/* Header — poste de contrôle : navy + liseré rouge */}
+        <div className="uc-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight" style={{ color: isLight ? '#1e1b2e' : undefined }}>Interventions</h1>
-            <p className="text-sm mt-1" style={{ color: isLight ? '#5b5876' : 'var(--text-muted)' }}>
+            <h1 className="uc-title text-2xl font-bold tracking-tight">Interventions</h1>
+            <p className="uc-subtitle text-sm mt-1">
               Gérez les demandes de dépannage, interventions préventives et curatives. Cliquez sur un ticket pour ouvrir le workflow de réparation.
             </p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className={`inline-flex items-center gap-2 px-4 py-2 text-white text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95 ${isLight ? '' : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-900/30 hover:shadow-emerald-900/50'}`}
-            style={isLight ? { background: '#4c3fb0' } : undefined}
+            className="uc-btn-primary inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95"
           >
             <Plus size={16} />
             Créer un Ticket

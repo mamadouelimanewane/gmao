@@ -8,7 +8,6 @@ import { useDataStore } from '../contexts/DataStore';
 import type { PurchaseOrder } from '../contexts/DataStore';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotifications } from '../contexts/NotificationContext';
-import { useTheme } from '../contexts/ThemeContext';
 
 const COLUMNS: { id: PurchaseOrder['status']; title: string; color: string }[] = [
   { id: 'Demande', title: 'Demande', color: 'border-t-slate-500' },
@@ -120,8 +119,6 @@ export default function Achats() {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState('');
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
 
   const handleAdd = (po: PurchaseOrder) => {
     setPurchaseOrders(prev => [po, ...prev]);
@@ -175,20 +172,16 @@ export default function Achats() {
       {showModal && <NewRequestModal onClose={() => setShowModal(false)} onAdd={handleAdd} />}
 
       <div className="space-y-6 animate-fade-in-up">
-        <div
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1"
-          style={isLight ? { background: 'linear-gradient(135deg, #f3f1fb 0%, #eef3fb 100%)' } : undefined}
-        >
+        <div className="uc-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight" style={{ color: isLight ? '#1e1b2e' : undefined }}>Workflow Achat</h1>
-            <p className="text-sm mt-1" style={{ color: isLight ? '#5b5876' : 'var(--text-muted)' }}>
+            <h1 className="uc-title text-2xl font-bold tracking-tight">Workflow Achat</h1>
+            <p className="uc-subtitle text-sm mt-1">
               Demande → Validation → Commande fournisseur → Réception → Mise à jour du stock.
             </p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className={`inline-flex items-center gap-2 px-4 py-2 text-white text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95 ${isLight ? '' : 'bg-blue-600 hover:bg-blue-500'}`}
-            style={isLight ? { background: '#4c3fb0' } : undefined}
+            className="uc-btn-primary inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95"
           >
             <Plus size={16} />
             Nouvelle Demande

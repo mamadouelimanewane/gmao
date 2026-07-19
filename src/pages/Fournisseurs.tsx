@@ -3,7 +3,6 @@ import {
   Users, Search, Plus, Phone, Mail, Award, CheckCircle,
   AlertTriangle, ShieldCheck, ExternalLink, Globe, Star, X
 } from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
 
 interface Supplier {
   id: string;
@@ -228,8 +227,6 @@ export default function Fournisseurs() {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState('Tous');
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
 
   const handleAddSupplier = (newSup: Supplier) => {
     setSuppliers([newSup, ...suppliers]);
@@ -248,21 +245,17 @@ export default function Fournisseurs() {
       {showModal && <AddSupplierModal onClose={() => setShowModal(false)} onAdd={handleAddSupplier} />}
       
       <div className="space-y-6 animate-fade-in-up">
-        {/* Header */}
-        <div
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1"
-          style={isLight ? { background: 'linear-gradient(135deg, #f3f1fb 0%, #eef3fb 100%)' } : undefined}
-        >
+        {/* Header — poste de contrôle : navy + liseré rouge */}
+        <div className="uc-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight" style={{ color: isLight ? '#1e1b2e' : undefined }}>Fournisseurs & Constructeurs</h1>
-            <p className="text-sm mt-1" style={{ color: isLight ? '#5b5876' : 'var(--text-muted)' }}>
+            <h1 className="uc-title text-2xl font-bold tracking-tight">Fournisseurs & Constructeurs</h1>
+            <p className="uc-subtitle text-sm mt-1">
               Gérez les relations, contrats de garantie et pièces détachées fournis par vos partenaires.
             </p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className={`inline-flex items-center gap-2 px-4 py-2 text-white text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95 ${isLight ? '' : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-900/30'}`}
-            style={isLight ? { background: '#4c3fb0' } : undefined}
+            className="uc-btn-primary inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95"
           >
             <Plus size={16} />
             Ajouter un Fournisseur

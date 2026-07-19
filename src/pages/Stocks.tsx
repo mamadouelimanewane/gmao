@@ -10,20 +10,25 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useDataStore } from '../contexts/DataStore';
 import type { StockItem } from '../contexts/DataStore';
-import { useTheme } from '../contexts/ThemeContext';
 
-// ── Piste "Confort clair" (cf. Équipements) — pastilles catégorie + liseré statut ──
-const STOCK_CAT_TAG: Record<string, { bg: string; text: string; bgDark: string; textDark: string }> = {
-  'Consommables':      { bg: '#e9edfc', text: '#2451d6', bgDark: 'rgba(96,165,250,0.14)',  textDark: '#93c5fd' },
-  'Pièces Détachées':  { bg: '#fdedd6', text: '#8a4c07', bgDark: 'rgba(251,191,36,0.14)',  textDark: '#fcd34d' },
-  'Batteries':         { bg: '#f3e8fd', text: '#7c3aed', bgDark: 'rgba(167,139,250,0.14)', textDark: '#c4b5fd' },
-  'Énergie':           { bg: '#dcf5f0', text: '#0d6b5c', bgDark: 'rgba(45,212,191,0.14)',  textDark: '#5eead4' },
+// ── Piste "Urgence Contrôlée" — badges pleins saturés (cf. index.css .uc-*) ──
+const STOCK_CAT_TAG: Record<string, string> = {
+  'Consommables':      'uc-tag-blue',
+  'Pièces Détachées':  'uc-tag-amber',
+  'Batteries':         'uc-tag-purple',
+  'Énergie':           'uc-tag-teal',
 };
 
-const STOCK_ROW_STRIPE: Record<string, { light: string; dark: string }> = {
-  'Normal':   { light: '#047857', dark: '#10b981' },
-  'Critique': { light: '#e11d48', dark: '#f43f5e' },
-  'Surstock': { light: '#2451d6', dark: '#60a5fa' },
+const STOCK_STATUS_BADGE: Record<string, string> = {
+  'Normal':   'uc-badge-ok',
+  'Critique': 'uc-badge-danger',
+  'Surstock': 'uc-tag-blue',
+};
+
+const STOCK_ROW_STRIPE: Record<string, string> = {
+  'Normal':   '#16a34a',
+  'Critique': '#dc2626',
+  'Surstock': '#2563eb',
 };
 
 const forecastData = [
@@ -161,7 +166,7 @@ function AddArticleModal({ onClose, onAdd }: { onClose: () => void; onAdd: (item
 
         <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-800">
           <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white bg-slate-800 rounded-xl transition-colors">Annuler</button>
-          <button type="submit" className="px-5 py-2 text-sm font-semibold text-white bg-emerald-500 hover:bg-emerald-600 rounded-xl transition-all shadow-lg shadow-emerald-900/30 active:scale-95">
+          <button type="submit" className="uc-btn-primary px-5 py-2 text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95">
             Enregistrer
           </button>
         </div>
@@ -274,8 +279,6 @@ export default function Stocks() {
   const [categoryFilter, setCategoryFilter] = useState('Tous');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showCommandeModal, setShowCommandeModal] = useState(false);
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
 
   const filtered = stocks.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -292,19 +295,16 @@ export default function Stocks() {
       {showAddModal && <AddArticleModal onClose={() => setShowAddModal(false)} onAdd={item => setStocks(s => [item, ...s])} />}
       {showCommandeModal && <BonCommandeModal stocks={stocks} onClose={() => setShowCommandeModal(false)} />}
 
-      {/* Header */}
-      <div
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1"
-        style={isLight ? { background: 'linear-gradient(135deg, #f3f1fb 0%, #eef3fb 100%)' } : undefined}
-      >
+      {/* Header — poste de contrôle : navy + liseré rouge */}
+      <div className="uc-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight" style={{ color: isLight ? '#1e1b2e' : undefined }}>Stocks & Supply Chain IA</h1>
+            <h1 className="uc-title text-2xl font-bold tracking-tight">Stocks & Supply Chain IA</h1>
             <span className="px-2 py-0.5 rounded text-xs font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">
               PRÉDICTION
             </span>
           </div>
-          <p className="text-sm mt-1" style={{ color: isLight ? '#5b5876' : 'var(--text-muted)' }}>
+          <p className="uc-subtitle text-sm mt-1">
             Suivi des consommables et prévisions d'approvisionnement assistées par IA.
           </p>
         </div>
@@ -315,8 +315,7 @@ export default function Stocks() {
           </Link>
           <button
             onClick={() => setShowAddModal(true)}
-            className={`inline-flex items-center gap-2 px-4 py-2 text-white text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95 ${isLight ? '' : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-900/30'}`}
-            style={isLight ? { background: '#4c3fb0' } : undefined}
+            className="uc-btn-primary inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95"
           >
             <Plus size={16} />
             Ajouter un Article
@@ -435,11 +434,8 @@ export default function Stocks() {
       {/* Stock Table — liseré coloré par statut, pastille catégorie */}
       <div className="rounded-2xl glass border border-slate-700/40 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-base text-left" style={isLight ? { background: '#fbfaff' } : undefined}>
-            <thead
-              className="text-xs uppercase tracking-wider border-b"
-              style={isLight ? { color: '#6b6790', background: '#f3f1fb', borderColor: '#e6e3f5' } : { color: 'var(--text-muted)', borderColor: 'var(--border-base)' }}
-            >
+          <table className="w-full text-base text-left">
+            <thead className="uc-thead text-xs uppercase tracking-wider border-b">
               <tr>
                 <th className="px-6 py-3.5 font-semibold">Désignation</th>
                 <th className="px-6 py-3.5 font-semibold">Catégorie</th>
@@ -451,8 +447,7 @@ export default function Stocks() {
             </thead>
             <tbody className="divide-y divide-slate-800/60">
               {filtered.map((item) => {
-                const stripe = STOCK_ROW_STRIPE[item.status];
-                const stripeColor = stripe ? (isLight ? stripe.light : stripe.dark) : 'transparent';
+                const stripeColor = STOCK_ROW_STRIPE[item.status] || 'transparent';
                 const catTag = STOCK_CAT_TAG[item.category];
                 return (
                 <tr
@@ -473,10 +468,7 @@ export default function Stocks() {
                   </td>
                   <td className="px-6 py-4">
                     {catTag && (
-                      <span
-                        className="inline-flex items-center px-2.5 py-1 rounded-lg text-sm font-medium"
-                        style={{ background: isLight ? catTag.bg : catTag.bgDark, color: isLight ? catTag.text : catTag.textDark }}
-                      >
+                      <span className={`uc-badge ${catTag}`}>
                         {item.category}
                       </span>
                     )}
@@ -498,11 +490,7 @@ export default function Stocks() {
                   </td>
                   <td className="px-6 py-4 text-slate-400 text-sm">{item.supplier}</td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-sm font-bold ${
-                      item.status === 'Normal' ? 'bg-emerald-500/10 text-emerald-400' :
-                      item.status === 'Critique' ? 'bg-rose-500/10 text-rose-400' :
-                      'bg-blue-500/10 text-blue-400'
-                    }`}>
+                    <span className={`uc-badge ${STOCK_STATUS_BADGE[item.status] || 'uc-badge-neutral'}`}>
                       {item.status}
                     </span>
                   </td>

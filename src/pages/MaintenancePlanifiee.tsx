@@ -14,7 +14,6 @@ import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid, Cell
 } from 'recharts';
-import { useTheme } from '../contexts/ThemeContext';
 
 // ─────────────────────────────────────────────
 // TYPES & DATA
@@ -129,8 +128,6 @@ export default function MaintenancePlanifiee() {
   const [selectedId, setSelectedId] = useState<string>(pmPlans[0]?.id || '');
   const [filter, setFilter] = useState<Status | 'all'>('all');
   const [activeView, setActiveView] = useState<'list' | 'calendar'>('list');
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
 
   const selected = pmPlans.find(p => p.id === selectedId) || pmPlans[0];
 
@@ -169,17 +166,14 @@ export default function MaintenancePlanifiee() {
   return (
     <div className="space-y-6 animate-fade-in-up">
 
-      {/* ── Header ── */}
-      <div
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1"
-        style={isLight ? { background: 'linear-gradient(135deg, #f3f1fb 0%, #eef3fb 100%)' } : undefined}
-      >
+      {/* ── Header — poste de contrôle : navy + liseré rouge ── */}
+      <div className="uc-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight" style={{ color: isLight ? '#1e1b2e' : undefined }}>
+          <h1 className="uc-title text-2xl font-bold tracking-tight">
             Maintenances Planifiées
             <span className="ml-2 text-xs font-medium bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30 align-middle">PPM</span>
           </h1>
-          <p className="text-sm mt-1" style={{ color: isLight ? '#5b5876' : 'var(--text-muted)' }}>Planned Preventive Maintenance · Checklists · Conformité réglementaire</p>
+          <p className="uc-subtitle text-sm mt-1">Planned Preventive Maintenance · Checklists · Conformité réglementaire</p>
         </div>
         <div className="flex items-center gap-2">
           {(['list', 'calendar'] as const).map(v => (

@@ -54,39 +54,39 @@ export default function AppsHub() {
         ))}
       </div>
 
-      {/* Header */}
-      <header className="border-b" style={{ borderColor: '#e2e6f0', background: '#ffffff' }}>
+      {/* Header — poste de contrôle : navy + liseré rouge */}
+      <header className="uc-header">
         <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm"
-              style={{ background: 'linear-gradient(135deg, #d4af37, #f5d769)' }}>
+              style={{ background: '#dc2626' }}>
               <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
-                <rect x="12" y="3" width="8" height="26" rx="2" fill="#0a3d2e" />
-                <rect x="3" y="12" width="26" height="8" rx="2" fill="#0a3d2e" />
+                <rect x="12" y="3" width="8" height="26" rx="2" fill="#ffffff" />
+                <rect x="3" y="12" width="26" height="8" rx="2" fill="#ffffff" />
               </svg>
             </div>
             <div>
-              <p className="font-bold text-base leading-tight" style={{ color: TEXT }}>Portail GMAO</p>
-              <p className="text-xs" style={{ color: MUTED }}>Hôpital Ndamatou Touba</p>
+              <p className="uc-title font-bold text-base leading-tight">Portail GMAO</p>
+              <p className="uc-subtitle text-xs">Hôpital Ndamatou Touba</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             {user && (
-              <div className="hidden sm:flex items-center gap-2 pr-3 border-r" style={{ borderColor: '#e2e6f0' }}>
-                <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">
+              <div className="hidden sm:flex items-center gap-2 pr-3 border-r" style={{ borderColor: 'rgba(255,255,255,0.15)' }}>
+                <div className="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center text-xs font-bold">
                   {user.avatar}
                 </div>
                 <div className="leading-tight">
-                  <p className="text-sm font-semibold" style={{ color: TEXT }}>{user.name}</p>
-                  <p className="text-[11px] text-emerald-600 font-medium">{roleLabels[user.role]}</p>
+                  <p className="uc-title text-sm font-semibold">{user.name}</p>
+                  <p className="text-[11px] font-medium" style={{ color: '#fca5a5' }}>{roleLabels[user.role]}</p>
                 </div>
               </div>
             )}
             <button
               onClick={goClassic}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border hover:shadow-sm"
-              style={{ color: TEXT, borderColor: '#dfe3ee', background: '#f8f9fc' }}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border hover:bg-white/5"
+              style={{ color: '#e2e8f0', borderColor: 'rgba(255,255,255,0.18)', background: 'transparent' }}
             >
               <ArrowLeft size={15} /> Tableau de bord classique
             </button>
@@ -94,13 +94,13 @@ export default function AppsHub() {
         </div>
       </header>
 
-      {/* Hero — Sable & Or */}
-      <div className="relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #f3d883 0%, #e0b54c 100%)' }}>
-        <svg className="absolute inset-0 w-full h-full opacity-[0.12]" xmlns="http://www.w3.org/2000/svg">
+      {/* Hero — poste de contrôle navy, liseré rouge d'alerte */}
+      <div className="relative overflow-hidden" style={{ background: '#0f172a', borderBottom: '4px solid #dc2626' }}>
+        <svg className="absolute inset-0 w-full h-full opacity-[0.08]" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern id="geo-hub" x="0" y="0" width="72" height="72" patternUnits="userSpaceOnUse">
-              <polygon points="36,4 68,20 68,52 36,68 4,52 4,20" fill="none" stroke="#6b4a06" strokeWidth="0.8" />
-              <circle cx="36" cy="36" r="5" fill="none" stroke="#6b4a06" strokeWidth="0.5" />
+              <polygon points="36,4 68,20 68,52 36,68 4,52 4,20" fill="none" stroke="#ffffff" strokeWidth="0.8" />
+              <circle cx="36" cy="36" r="5" fill="none" stroke="#ffffff" strokeWidth="0.5" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#geo-hub)" />
@@ -108,14 +108,14 @@ export default function AppsHub() {
 
         <div className="relative max-w-6xl mx-auto px-6 pt-12 pb-10 text-center">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border mb-5"
-            style={{ borderColor: 'rgba(107,74,6,0.3)', background: 'rgba(255,255,255,0.5)' }}>
-            <LayoutGrid size={14} style={{ color: '#6b4a06' }} />
-            <span className="text-xs font-bold tracking-[0.15em] uppercase" style={{ color: '#6b4a06' }}>Portail d'accès</span>
+            style={{ borderColor: '#dc2626', background: 'rgba(220,38,38,0.15)' }}>
+            <LayoutGrid size={14} style={{ color: '#fca5a5' }} />
+            <span className="text-xs font-bold tracking-[0.15em] uppercase" style={{ color: '#fca5a5' }}>Portail d'accès</span>
           </div>
-          <h1 className="font-black text-4xl sm:text-5xl tracking-tight mb-3" style={{ color: '#2b1f04' }}>
+          <h1 className="font-black text-4xl sm:text-5xl tracking-tight mb-3" style={{ color: '#ffffff' }}>
             {totalModules} modules GMAO
           </h1>
-          <p className="text-base sm:text-lg max-w-2xl mx-auto mb-8" style={{ color: '#5c4408' }}>
+          <p className="text-base sm:text-lg max-w-2xl mx-auto mb-8" style={{ color: '#94a3b8' }}>
             Un seul écosystème pour la maintenance biomédicale, l'approvisionnement et le pilotage de l'Hôpital Ndamatou Touba.
           </p>
 
@@ -125,10 +125,10 @@ export default function AppsHub() {
               const style = CATEGORY_STYLE[g.key];
               return (
                 <div key={g.key} className="flex items-center gap-2 px-3.5 py-2 rounded-xl border"
-                  style={{ borderColor: 'rgba(107,74,6,0.25)', background: 'rgba(255,255,255,0.5)' }}>
+                  style={{ borderColor: 'rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.06)' }}>
                   <span className="w-2 h-2 rounded-full" style={{ background: style.color }} />
-                  <span className="text-xs font-semibold" style={{ color: '#4a3505' }}>{g.tiles.length}</span>
-                  <span className="text-xs" style={{ color: '#6b4a06' }}>{g.label.split(' ')[0]}</span>
+                  <span className="text-xs font-semibold" style={{ color: '#ffffff' }}>{g.tiles.length}</span>
+                  <span className="text-xs" style={{ color: '#94a3b8' }}>{g.label.split(' ')[0]}</span>
                 </div>
               );
             })}
@@ -136,16 +136,16 @@ export default function AppsHub() {
 
           {/* Search */}
           <div className="max-w-md mx-auto relative">
-            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: '#6b4a06' }} />
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: '#94a3b8' }} />
             <input
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Rechercher un module…"
-              className="w-full rounded-xl pl-11 pr-4 py-3 text-sm outline-none transition-all placeholder-[#6b4a06]/50"
-              style={{ background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(107,74,6,0.3)', color: '#5c4408' }}
-              onFocus={e => { e.target.style.background = 'rgba(255,255,255,0.75)'; e.target.style.borderColor = 'rgba(107,74,6,0.5)'; }}
-              onBlur={e => { e.target.style.background = 'rgba(255,255,255,0.55)'; e.target.style.borderColor = 'rgba(107,74,6,0.3)'; }}
+              className="w-full rounded-xl pl-11 pr-4 py-3 text-sm outline-none transition-all"
+              style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)', color: '#ffffff' }}
+              onFocus={e => { e.target.style.background = 'rgba(255,255,255,0.12)'; e.target.style.borderColor = '#dc2626'; }}
+              onBlur={e => { e.target.style.background = 'rgba(255,255,255,0.08)'; e.target.style.borderColor = 'rgba(255,255,255,0.18)'; }}
             />
           </div>
         </div>

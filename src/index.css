@@ -176,6 +176,53 @@
   box-shadow: var(--shadow-card) !important;
 }
 
+/* ══ IDENTITÉ "URGENCE CONTRÔLÉE" ═════════════════════════════
+   Poste de contrôle hospitalier : navy dense + rouge d'alerte,
+   badges pleins saturés. Volontairement identique en clair et en
+   sombre (élément "console" fixe, pas une surface de thème).      */
+.uc-header {
+  background: #0f172a;
+  border-bottom: 4px solid #dc2626;
+}
+.uc-header .uc-title { color: #ffffff !important; }
+.uc-header .uc-subtitle { color: #94a3b8 !important; }
+
+.uc-thead {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #1e293b !important;
+}
+.uc-thead th { color: #ffffff !important; }
+
+.uc-btn-primary {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  transition: background-color .15s ease;
+}
+.uc-btn-primary:hover { background: #1e293b !important; }
+
+/* Badges pleins — statut / criticité / type. Toujours saturés,
+   jamais de version pastel : c'est la signature de cette piste.   */
+.uc-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 11px; border-radius: 999px;
+  font-size: 12px; font-weight: 700; white-space: nowrap;
+}
+.uc-badge .uc-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; opacity: .9; }
+
+.uc-badge-ok      { background: #16a34a; color: #ffffff; }
+.uc-badge-warn    { background: #f59e0b; color: #1c1917; }
+.uc-badge-danger  { background: #dc2626; color: #ffffff; }
+.uc-badge-neutral { background: #64748b; color: #ffffff; }
+
+/* Pastilles catégorie / type — une teinte pleine par famille,
+   partagée par toutes les pages (équipements, stocks, finances…). */
+.uc-tag-blue    { background: #1e3a8a; color: #ffffff; }
+.uc-tag-purple  { background: #581c87; color: #ffffff; }
+.uc-tag-rose    { background: #9f1239; color: #ffffff; }
+.uc-tag-amber   { background: #92400e; color: #ffffff; }
+.uc-tag-teal    { background: #115e59; color: #ffffff; }
+
 /* ══ UTILITAIRES ════════════════════════════════════════════ */
 @layer utilities {
   .glass {

@@ -7,11 +7,15 @@ import {
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useDataStore } from '../contexts/DataStore';
-import { useTheme } from '../contexts/ThemeContext';
 
-const AUDIT_ROW_STRIPE: Record<string, { light: string; dark: string }> = {
-  'Succès': { light: '#047857', dark: '#10b981' },
-  'Échec':  { light: '#e11d48', dark: '#f43f5e' },
+const AUDIT_ROW_STRIPE: Record<string, string> = {
+  'Succès': '#16a34a',
+  'Échec':  '#dc2626',
+};
+
+const AUDIT_STATUS_BADGE: Record<string, string> = {
+  'Succès': 'uc-badge-ok',
+  'Échec':  'uc-badge-danger',
 };
 
 interface AuditLog {
@@ -34,8 +38,6 @@ const auditLogs: AuditLog[] = [
 export default function Rapports() {
   const [logs] = useState<AuditLog[]>(auditLogs);
   const { tickets } = useDataStore();
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
 
   const generatePDF = () => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -152,14 +154,11 @@ export default function Rapports() {
 
   return (
     <div className="space-y-6 animate-fade-in-up">
-      {/* Header */}
-      <div
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1"
-        style={isLight ? { background: 'linear-gradient(135deg, #f3f1fb 0%, #eef3fb 100%)' } : undefined}
-      >
+      {/* Header — poste de contrôle : navy + liseré rouge */}
+      <div className="uc-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight" style={{ color: isLight ? '#1e1b2e' : undefined }}>Rapports & Audit de Conformité</h1>
-          <p className="text-sm mt-1" style={{ color: isLight ? '#5b5876' : 'var(--text-muted)' }}>
+          <h1 className="uc-title text-2xl font-bold tracking-tight">Rapports & Audit de Conformité</h1>
+          <p className="uc-subtitle text-sm mt-1">
             Garantissez la traçabilité à 100% de toutes les interventions pour les certifications hospitalières.
           </p>
         </div>
@@ -238,11 +237,8 @@ export default function Rapports() {
         <div className="xl:col-span-2 p-5 rounded-2xl glass border border-slate-700/40">
           <h2 className="text-base font-semibold text-white mb-4">Audit Logs (Chiffrement W3C)</h2>
           <div className="overflow-x-auto">
-            <table className="w-full text-base text-left" style={isLight ? { background: '#fbfaff' } : undefined}>
-              <thead
-                className="text-xs uppercase tracking-wider border-b"
-                style={isLight ? { color: '#6b6790', background: '#f3f1fb', borderColor: '#e6e3f5' } : { color: 'var(--text-muted)', borderColor: 'var(--border-base)' }}
-              >
+            <table className="w-full text-base text-left">
+              <thead className="uc-thead text-xs uppercase tracking-wider border-b">
                 <tr>
                   <th className="px-4 py-3 font-semibold">Horodatage</th>
                   <th className="px-4 py-3 font-semibold">Utilisateur</th>
@@ -253,8 +249,7 @@ export default function Rapports() {
               </thead>
               <tbody className="divide-y divide-slate-800/40 text-slate-300">
                 {logs.map((log) => {
-                  const stripe = AUDIT_ROW_STRIPE[log.status];
-                  const stripeColor = stripe ? (isLight ? stripe.light : stripe.dark) : 'transparent';
+                  const stripeColor = AUDIT_ROW_STRIPE[log.status] || 'transparent';
                   return (
                   <tr
                     key={log.id}
@@ -266,9 +261,7 @@ export default function Rapports() {
                     <td className="px-4 py-3 text-sm text-slate-400 font-semibold">{log.action}</td>
                     <td className="px-4 py-3 text-sm text-slate-500">{log.details}</td>
                     <td className="px-4 py-3 text-right">
-                      <span className={`inline-flex px-2.5 py-1 rounded text-sm font-bold ${
-                        log.status === 'Succès' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'
-                      }`}>
+                      <span className={`uc-badge ${AUDIT_STATUS_BADGE[log.status] || 'uc-badge-neutral'}`}>
                         {log.status}
                       </span>
                     </td>

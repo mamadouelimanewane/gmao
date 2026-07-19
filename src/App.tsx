@@ -1,28 +1,42 @@
+import { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import Layout from './components/Layout';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import Equipments from './pages/Equipments';
-import Tickets from './pages/Tickets';
-import Stocks from './pages/Stocks';
-import Achats from './pages/Achats';
-import Analytics from './pages/Analytics';
-import Rapports from './pages/Rapports';
-import Fournisseurs from './pages/Fournisseurs';
-import Finances from './pages/Finances';
-import AICopilot from './pages/AICopilot';
-import RH from './pages/RH';
-import MaintenancePlanifiee from './pages/MaintenancePlanifiee';
-import MedPool from './pages/MedPool';
-import EcoMed from './pages/EcoMed';
-import HospitalMap from './pages/HospitalMap';
-import Parametres from './pages/Parametres';
-import Landing from './pages/Landing';
-import AppsHub from './pages/AppsHub';
-import Statistiques from './pages/Statistiques';
+
+// Chaque page ne charge son propre code (et ses dépendances lourdes —
+// recharts, jsPDF, html2canvas, qrcode…) qu'au moment où elle est
+// effectivement visitée, au lieu de tout empaqueter dans un seul gros
+// fichier téléchargé dès l'écran de connexion.
+const Login = lazy(() => import('./pages/Login'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Equipments = lazy(() => import('./pages/Equipments'));
+const Tickets = lazy(() => import('./pages/Tickets'));
+const Stocks = lazy(() => import('./pages/Stocks'));
+const Achats = lazy(() => import('./pages/Achats'));
+const Analytics = lazy(() => import('./pages/Analytics'));
+const Rapports = lazy(() => import('./pages/Rapports'));
+const Fournisseurs = lazy(() => import('./pages/Fournisseurs'));
+const Finances = lazy(() => import('./pages/Finances'));
+const AICopilot = lazy(() => import('./pages/AICopilot'));
+const RH = lazy(() => import('./pages/RH'));
+const MaintenancePlanifiee = lazy(() => import('./pages/MaintenancePlanifiee'));
+const MedPool = lazy(() => import('./pages/MedPool'));
+const EcoMed = lazy(() => import('./pages/EcoMed'));
+const HospitalMap = lazy(() => import('./pages/HospitalMap'));
+const Parametres = lazy(() => import('./pages/Parametres'));
+const Landing = lazy(() => import('./pages/Landing'));
+const AppsHub = lazy(() => import('./pages/AppsHub'));
+const Statistiques = lazy(() => import('./pages/Statistiques'));
+
+function PageLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-app, #0f172a)' }}>
+      <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+}
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -48,6 +62,7 @@ function AppRoutes() {
   }
 
   return (
+    <Suspense fallback={<PageLoader />}>
     <Routes>
       <Route path="/accueil" element={<Landing />} />
       <Route
@@ -80,6 +95,7 @@ function AppRoutes() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
+    </Suspense>
   );
 }
 

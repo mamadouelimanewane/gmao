@@ -1,6 +1,6 @@
 import type { ElementType } from 'react';
 import {
-  LayoutDashboard, Stethoscope, Wrench, ClipboardList, CalendarClock, Network,
+  Stethoscope, Wrench, ClipboardList, CalendarClock, Network,
   Leaf, Package, ShoppingCart, Users, Coins, UserCog, Sparkles, TrendingUp,
   FileBarChart, Map, Settings, BarChart3,
 } from 'lucide-react';
@@ -36,7 +36,6 @@ export const MODULE_GROUPS: AppGroup[] = [
     label: 'Maintenance & Interventions',
     hint: 'Le quotidien biomédical',
     tiles: [
-      { name: 'Dashboard', desc: 'Vue temps réel du parc et des alertes', href: '/dashboard', icon: LayoutDashboard },
       { name: 'Équipements', desc: 'Inventaire, criticité, historique', href: '/equipements', icon: Stethoscope },
       { name: 'Interventions', desc: 'Tickets de dépannage et curatif', href: '/tickets', icon: Wrench },
       { name: 'Workflow Réparation', desc: 'Signalement → diagnostic → clôture', href: '/tickets', icon: ClipboardList },

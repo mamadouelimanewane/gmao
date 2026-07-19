@@ -147,7 +147,7 @@ export default function Parametres() {
   const navigate = useNavigate();
 
   const [homeView, setHomeView] = useState<'classic' | 'apps'>(() =>
-    (localStorage.getItem('gmao_home_view') as 'apps' | null) === 'apps' ? 'apps' : 'classic'
+    localStorage.getItem('gmao_home_view') === 'classic' ? 'classic' : 'apps'
   );
 
   const changeHomeView = (v: 'classic' | 'apps') => {
@@ -506,7 +506,7 @@ export default function Parametres() {
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-slate-200">Tableau de bord classique</p>
-                      <p className="text-[11px] text-slate-500">Vue actuelle, KPIs et alertes</p>
+                      <p className="text-[11px] text-slate-500">Désactivé par défaut — à activer ici</p>
                     </div>
                   </button>
                   <button

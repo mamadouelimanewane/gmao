@@ -4,6 +4,7 @@ import {
   XAxis, YAxis, PieChart, Pie, Cell, BarChart, Bar
 } from 'recharts';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
 
 const weeklyData = [
   { day: 'Lun', pannes: 4, resolus: 3, preventif: 2 },
@@ -56,13 +57,18 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   return (
     <div className="space-y-6 animate-fade-in-up">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl p-5 -mx-1"
+        style={isLight ? { background: 'linear-gradient(135deg, #f3f1fb 0%, #eef3fb 100%)' } : undefined}
+      >
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Tableau de bord</h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <h1 className="text-2xl font-bold tracking-tight" style={{ color: isLight ? '#1e1b2e' : undefined }}>Tableau de bord</h1>
+          <p className="text-sm mt-1" style={{ color: isLight ? '#5b5876' : 'var(--text-muted)' }}>
             Vue temps réel · <span className="text-emerald-400">Hôpital Ndamatou Touba</span>
           </p>
         </div>
@@ -71,7 +77,11 @@ export default function Dashboard() {
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-xs font-medium text-emerald-400">Live · Mis à jour il y a 5s</span>
           </div>
-          <button onClick={() => navigate('/rapports')} className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-emerald-900/40 hover:shadow-emerald-900/60 active:scale-95">
+          <button
+            onClick={() => navigate('/rapports')}
+            className={`inline-flex items-center gap-2 px-4 py-2 text-white text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95 ${isLight ? '' : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-900/40 hover:shadow-emerald-900/60'}`}
+            style={isLight ? { background: '#4c3fb0' } : undefined}
+          >
             <CheckCircle2 size={16} />
             Générer Rapport
           </button>

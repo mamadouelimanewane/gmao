@@ -29,11 +29,11 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 }
 
-// Vue d'accueil choisie par l'utilisateur (Paramètres > Apparence) :
-// 'classic' = tableau de bord habituel, 'apps' = portail en boîtes.
-// Réversible à tout moment — ne modifie aucune page existante.
+// Le portail en boîtes est la page d'accueil par défaut. Le tableau de bord
+// classique reste disponible mais doit être activé explicitement dans
+// Paramètres > Apparence (désactivé par défaut).
 export function getHomePath(): string {
-  return localStorage.getItem('gmao_home_view') === 'apps' ? '/apps' : '/dashboard';
+  return localStorage.getItem('gmao_home_view') === 'classic' ? '/dashboard' : '/apps';
 }
 
 function AppRoutes() {

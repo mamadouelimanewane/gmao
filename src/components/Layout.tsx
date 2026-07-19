@@ -1,6 +1,6 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Wrench, Package, Settings, Bell, Search,
+  Wrench, Package, Settings, Bell, Search,
   Menu, Stethoscope, TrendingUp, FileBarChart, X, ChevronRight,
   Wifi, WifiOff, LogOut, Users, Coins, Sparkles, UserCog,
   CalendarClock, CheckCircle2, AlertTriangle, Info, XCircle,
@@ -17,7 +17,7 @@ import type { Notification } from '../contexts/NotificationContext';
 import { getActiveCategory, clearActiveCategory, MODULE_GROUPS, CATEGORY_STYLE } from '../lib/appModules';
 
 const buildNav = (t: (k: string) => string) => [
-  { name: t('dashboard'),     href: '/',            icon: LayoutDashboard, badge: null  },
+  { name: t('dashboard'),     href: '/apps',        icon: LayoutGrid,      badge: null  },
   { name: t('equipements'),   href: '/equipements', icon: Stethoscope,     badge: null  },
   { name: t('interventions'), href: '/tickets',      icon: Wrench,          badge: '5'   },
   { name: t('reparation'),    href: '/tickets',      icon: ClipboardList,   badge: null  },
@@ -94,13 +94,13 @@ export default function Layout() {
   // restent toujours accessibles.
   const activeCategory = getActiveCategory();
   const activeGroup = activeCategory ? MODULE_GROUPS.find(g => g.key === activeCategory) : null;
-  const pinnedHrefs = new Set(['/', '/settings']);
+  const pinnedHrefs = new Set(['/apps', '/settings']);
   const categoryHrefs = activeGroup ? new Set(activeGroup.tiles.map(tl => tl.href)) : null;
   const navigation = categoryHrefs
     ? allNavigation.filter(n => pinnedHrefs.has(n.href) || categoryHrefs.has(n.href))
     : allNavigation;
 
-  const currentPage = allNavigation.find(n => n.href === location.pathname)?.name || t('dashboard');
+  const currentPage = allNavigation.find(n => n.href === location.pathname)?.name || t('statistiques');
 
   const handleLogout = () => {
     logout();
@@ -137,7 +137,7 @@ export default function Layout() {
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-5"
           style={{ borderBottom: '1px solid var(--border-base)' }}>
-          <div className="flex items-center gap-2.5">
+          <Link to="/apps" className="flex items-center gap-2.5" title="Retour au portail des applications">
             <div className="p-1.5 rounded-lg bg-emerald-500/10">
               <Stethoscope size={22} className="text-emerald-500" />
             </div>
@@ -145,7 +145,7 @@ export default function Layout() {
               <span className="text-sm font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>GMAO Health</span>
               <div className="text-[10px] leading-none" style={{ color: 'var(--text-muted)' }}>v3.0 · Ndamatou</div>
             </div>
-          </div>
+          </Link>
           <button onClick={() => setSidebarOpen(false)}
             className="p-1 rounded lg:hidden transition-colors"
             style={{ color: 'var(--text-muted)' }}>
@@ -184,7 +184,7 @@ export default function Layout() {
           <p className="text-[10px] font-semibold uppercase tracking-widest px-3 py-2"
             style={{ color: 'var(--text-faint)' }}>Principal</p>
           {navigation.map((item) => {
-            const isActive = location.pathname === item.href || (item.href === '/' && location.pathname === '/dashboard');
+            const isActive = location.pathname === item.href;
             return (
               <Link
                 key={item.name}

@@ -4,6 +4,60 @@ import {
   ArrowUpRight, ShieldAlert, CheckCircle2, Zap, Leaf, Lightbulb, Wallet,
   Users, UserCheck, Award, Target, CalendarCheck,
 } from 'lucide-react';
+import {
+  Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip,
+  XAxis, YAxis, PieChart, Pie, Cell, BarChart, Bar,
+} from 'recharts';
+
+// ── Contenu de l'ancien Dashboard, désormais regroupé ici ──────────────────
+const weeklyActivity = [
+  { day: 'Lun', pannes: 4, resolus: 3, preventif: 2 },
+  { day: 'Mar', pannes: 3, resolus: 4, preventif: 3 },
+  { day: 'Mer', pannes: 2, resolus: 2, preventif: 5 },
+  { day: 'Jeu', pannes: 6, resolus: 4, preventif: 1 },
+  { day: 'Ven', pannes: 5, resolus: 6, preventif: 4 },
+  { day: 'Sam', pannes: 1, resolus: 2, preventif: 0 },
+  { day: 'Dim', pannes: 2, resolus: 3, preventif: 0 },
+];
+
+const fleetStatus = [
+  { name: 'Opérationnel', value: 68, color: '#10b981' },
+  { name: 'En Maintenance', value: 18, color: '#f59e0b' },
+  { name: 'En Panne', value: 14, color: '#f43f5e' },
+];
+
+const serviceUptime = [
+  { dept: 'Radiologie', uptime: 92 },
+  { dept: 'Urgences', uptime: 98 },
+  { dept: 'Réanimation', uptime: 95 },
+  { dept: 'Bloc Op.', uptime: 99 },
+  { dept: 'Maternité', uptime: 87 },
+];
+
+const activeAlerts = [
+  { id: 1, equipment: 'IRM Siemens Magnetom', location: 'Radiologie – Salle 2', time: 'Il y a 10 min', status: 'critical' },
+  { id: 2, equipment: 'Scanner GE Optima CT660', location: 'Urgences', time: 'Il y a 45 min', status: 'warning' },
+  { id: 3, equipment: 'Moniteur Philips IntelliVue', location: 'Réanimation – Lit 4', time: 'Il y a 2h', status: 'warning' },
+  { id: 4, equipment: 'Respirateur Dräger Evita', location: 'Bloc Opératoire 2', time: 'Il y a 3h', status: 'info' },
+];
+
+const ChartTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-slate-800 border border-slate-700 rounded-xl p-3 shadow-xl text-xs">
+        <p className="font-semibold text-slate-200 mb-2">{label}</p>
+        {payload.map((entry: any) => (
+          <div key={entry.name} className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full" style={{ background: entry.color }} />
+            <span className="text-slate-400 capitalize">{entry.name}:</span>
+            <span className="font-medium text-slate-200">{entry.value}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
 
 const colorMap: Record<string, string> = {
   emerald: 'text-emerald-400 bg-emerald-500/10',
@@ -52,16 +106,18 @@ const financeKpis = [
   { label: 'Alertes Remplacement (RRI)', value: '2 Équipements', sub: 'Coût maintenance > 50% valeur', color: 'text-amber-400' },
 ];
 
-function SectionHeader({ title, hint, href }: { title: string; hint: string; href: string }) {
+function SectionHeader({ title, hint, href }: { title: string; hint: string; href?: string }) {
   return (
     <div className="flex items-center justify-between mb-4">
       <div>
         <h2 className="text-base font-bold text-white">{title}</h2>
         <p className="text-xs text-slate-500 mt-0.5">{hint}</p>
       </div>
-      <Link to={href} className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-semibold flex-shrink-0">
-        Voir la page <ArrowRight size={12} />
-      </Link>
+      {href && (
+        <Link to={href} className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-semibold flex-shrink-0">
+          Voir la page <ArrowRight size={12} />
+        </Link>
+      )}
     </div>
   );
 }
@@ -77,10 +133,10 @@ export default function Statistiques() {
         </p>
       </div>
 
-      {/* Maintenance & Interventions */}
+      {/* Maintenance & Interventions (ex-Dashboard) */}
       <section>
-        <SectionHeader title="Maintenance & Interventions" hint="Indicateurs du tableau de bord" href="/dashboard" />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <SectionHeader title="Maintenance & Interventions" hint="Vue temps réel du parc et des alertes · Hôpital Ndamatou Touba" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {maintenanceKpis.map((kpi) => (
             <div key={kpi.label} className="p-5 rounded-2xl glass border border-slate-700/40">
               <div className="flex items-start justify-between">
@@ -99,6 +155,141 @@ export default function Statistiques() {
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
+          {/* Area Chart */}
+          <div className="xl:col-span-2 p-5 rounded-2xl glass border border-slate-700/40">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h3 className="text-sm font-semibold text-white">Activité de la semaine</h3>
+                <p className="text-xs text-slate-500 mt-0.5">Pannes, interventions résolues et maintenance préventive</p>
+              </div>
+              <div className="flex items-center gap-4 text-xs">
+                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-rose-500" /><span className="text-slate-400">Pannes</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-slate-400">Résolus</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-blue-500" /><span className="text-slate-400">Préventif</span></div>
+              </div>
+            </div>
+            <ResponsiveContainer width="100%" height={260}>
+              <AreaChart data={weeklyActivity} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="gPannes" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#f43f5e" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="gResolus" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="gPreventif" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                <XAxis dataKey="day" stroke="#475569" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke="#475569" fontSize={11} tickLine={false} axisLine={false} />
+                <Tooltip content={<ChartTooltip />} />
+                <Area type="monotone" dataKey="pannes" stroke="#f43f5e" strokeWidth={2} fill="url(#gPannes)" dot={false} activeDot={{ r: 4, fill: '#f43f5e' }} />
+                <Area type="monotone" dataKey="resolus" stroke="#10b981" strokeWidth={2} fill="url(#gResolus)" dot={false} activeDot={{ r: 4, fill: '#10b981' }} />
+                <Area type="monotone" dataKey="preventif" stroke="#3b82f6" strokeWidth={2} fill="url(#gPreventif)" dot={false} activeDot={{ r: 4, fill: '#3b82f6' }} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Pie + Uptime */}
+          <div className="flex flex-col gap-4">
+            <div className="p-5 rounded-2xl glass border border-slate-700/40 flex-1">
+              <h3 className="text-sm font-semibold text-white mb-4">État du parc (347 équipements)</h3>
+              <div className="flex items-center gap-4">
+                <PieChart width={110} height={110}>
+                  <Pie data={fleetStatus} cx={50} cy={50} innerRadius={32} outerRadius={50} paddingAngle={3} dataKey="value" strokeWidth={0}>
+                    {fleetStatus.map((entry) => <Cell key={entry.name} fill={entry.color} />)}
+                  </Pie>
+                </PieChart>
+                <div className="space-y-2 flex-1">
+                  {fleetStatus.map((item) => (
+                    <div key={item.name} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full" style={{ background: item.color }} />
+                        <span className="text-xs text-slate-400">{item.name}</span>
+                      </div>
+                      <span className="text-xs font-bold text-slate-200">{item.value}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-5 rounded-2xl glass border border-slate-700/40">
+              <h3 className="text-sm font-semibold text-white mb-4">Uptime par service</h3>
+              <div className="space-y-3">
+                {serviceUptime.map((s) => (
+                  <div key={s.dept}>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-slate-400">{s.dept}</span>
+                      <span className={`font-semibold ${s.uptime >= 95 ? 'text-emerald-400' : s.uptime >= 90 ? 'text-amber-400' : 'text-rose-400'}`}>{s.uptime}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-700 ${s.uptime >= 95 ? 'bg-emerald-500' : s.uptime >= 90 ? 'bg-amber-500' : 'bg-rose-500'}`}
+                        style={{ width: `${s.uptime}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Alerts */}
+          <div className="p-5 rounded-2xl glass border border-slate-700/40">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                <h3 className="text-sm font-semibold text-white">Alertes actives</h3>
+              </div>
+              <Link to="/tickets" className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">Voir tout <ArrowRight size={12} /></Link>
+            </div>
+            <div className="space-y-2">
+              {activeAlerts.map((alert) => (
+                <div key={alert.id} className="flex items-start gap-3 p-3 rounded-xl bg-slate-900/50 hover:bg-slate-800/50 border border-slate-800/50 hover:border-slate-700/50 transition-all cursor-pointer group">
+                  <div className={`mt-0.5 p-1.5 rounded-lg flex-shrink-0 ${
+                    alert.status === 'critical' ? 'bg-rose-500/15 text-rose-400' :
+                    alert.status === 'warning' ? 'bg-amber-500/15 text-amber-400' :
+                    'bg-blue-500/15 text-blue-400'
+                  }`}>
+                    <AlertTriangle size={13} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-200 truncate">{alert.equipment}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{alert.location} · {alert.time}</p>
+                  </div>
+                  <ArrowRight size={14} className="text-slate-600 group-hover:text-slate-400 transition-colors mt-1 flex-shrink-0" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Tickets par département */}
+          <div className="p-5 rounded-2xl glass border border-slate-700/40">
+            <h3 className="text-sm font-semibold text-white mb-1">Tickets par département</h3>
+            <p className="text-xs text-slate-500 mb-4">Répartition des interventions ce mois</p>
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={serviceUptime} margin={{ top: 0, right: 0, left: -25, bottom: 0 }} barCategoryGap="35%">
+                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                <XAxis dataKey="dept" fontSize={10} stroke="#475569" tickLine={false} axisLine={false} />
+                <YAxis fontSize={10} stroke="#475569" tickLine={false} axisLine={false} domain={[80, 100]} />
+                <Tooltip content={<ChartTooltip />} />
+                <Bar dataKey="uptime" fill="#10b981" radius={[4, 4, 0, 0]}
+                  label={{ position: 'top', fontSize: 10, fill: '#64748b' }}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </section>
 

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, ArrowLeft, LayoutGrid, Search } from 'lucide-react';
 import { useAuth, roleLabels } from '../contexts/AuthContext';
@@ -17,6 +17,12 @@ export default function AppsHub() {
   const { user } = useAuth();
   const [search, setSearch] = useState('');
 
+  // Le portail est l'unique page d'accueil : chaque retour ici efface le
+  // filtrage par catégorie hérité d'une visite précédente d'un module.
+  useEffect(() => {
+    clearActiveCategory();
+  }, []);
+
   const filteredGroups = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return MODULE_GROUPS;
@@ -31,6 +37,9 @@ export default function AppsHub() {
     navigate(href);
   };
 
+  // Accès optionnel à l'ancien tableau de bord — désactivé par défaut,
+  // le portail restant la page d'accueil tant que ce n'est pas ce qui est
+  // choisi explicitement dans Paramètres > Apparence.
   const goClassic = () => {
     clearActiveCategory();
     navigate('/dashboard');

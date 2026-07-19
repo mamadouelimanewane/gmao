@@ -8,7 +8,7 @@ export type Lang = 'fr' | 'wo' | 'en';
 const translations = {
   fr: {
     // Nav
-    dashboard:     'Dashboard',
+    dashboard:     'Portail',
     equipements:   'Équipements',
     interventions: 'Interventions',
     reparation:    'Workflow Réparation',
@@ -46,7 +46,7 @@ const translations = {
     mark_read:     'Tout marquer lu',
   },
   en: {
-    dashboard:     'Dashboard',
+    dashboard:     'Portal',
     equipements:   'Equipment',
     interventions: 'Work Orders',
     reparation:    'Repair Workflow',

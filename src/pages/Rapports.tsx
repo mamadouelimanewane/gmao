@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   FileText, ShieldCheck, Download, Calendar,
-  Lock, Award, ArrowRight
+  Lock, Award, ArrowRight, FileSpreadsheet
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -37,7 +37,51 @@ const auditLogs: AuditLog[] = [
 
 export default function Rapports() {
   const [logs] = useState<AuditLog[]>(auditLogs);
-  const { tickets } = useDataStore();
+  const { tickets, equipments } = useDataStore();
+
+  // ── Helpers CSV ────────────────────────────────────────────────────────────
+  const downloadCSV = (filename: string, rows: string[][], headers: string[]) => {
+    const BOM = '\uFEFF'; // UTF-8 BOM for Excel
+    const csvContent = BOM + [headers, ...rows]
+      .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(';'))
+      .join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const generateJCICSV = () => {
+    const headers = ['Standard JCI', 'Score', 'Statut', 'Date d\'audit'];
+    const rows = [
+      ['ISO 13485 (Dispositifs Médicaux)', '95%', 'Conforme', new Date().toLocaleDateString('fr-FR')],
+      ['Joint Commission International (JCI)', '88%', 'Conforme', new Date().toLocaleDateString('fr-FR')],
+      ['Loi Sénégalaise Protection Données', '100%', 'Excellence', new Date().toLocaleDateString('fr-FR')],
+      ['NFPA 99 (Hôpitaux & Énergies)', '75%', 'Action requise', new Date().toLocaleDateString('fr-FR')],
+    ];
+    downloadCSV(`registre-jci-${new Date().getFullYear()}.csv`, rows, headers);
+  };
+
+  const generateAuditCSV = () => {
+    const headers = ['ID', 'Horodatage', 'Utilisateur', 'Action', 'Détails', 'Statut'];
+    const rows = logs.map(log => [
+      log.id, log.timestamp, log.user, log.action, log.details, log.status,
+    ]);
+    downloadCSV(`audit-logs-${new Date().getFullYear()}.csv`, rows, headers);
+  };
+
+  const generateEquipmentsCSV = () => {
+    const headers = ['ID', 'Nom', 'Catégorie', 'Statut', 'Localisation', 'Criticité', 'Uptime (%)', 'PSS', 'Fournisseur', 'Prochaine Maintenance'];
+    const rows = equipments.map(eq => [
+      eq.id, eq.name, eq.category, eq.status, eq.location,
+      eq.criticality, String(eq.uptime), String(eq.pss),
+      eq.supplier || '', eq.nextMaintenance,
+    ]);
+    downloadCSV(`inventaire-equipements-${new Date().getFullYear()}.csv`, rows, headers);
+  };
 
   const generatePDF = () => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -214,12 +258,25 @@ export default function Rapports() {
                 <span className="flex items-center gap-2"><FileText size={14} className="text-emerald-400" />Télécharger Rapport PDF</span>
                 <Download size={14} className="text-emerald-400" />
               </button>
-              <button className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-900/50 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition-all text-xs font-medium text-slate-200">
-                <span className="flex items-center gap-2"><Award size={14} className="text-blue-400" />Registre de sécurité JCI</span>
-                <Download size={14} className="text-slate-500" />
+              <button
+                onClick={generateEquipmentsCSV}
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 hover:border-blue-500/50 transition-all text-xs font-medium text-blue-300"
+              >
+                <span className="flex items-center gap-2"><FileSpreadsheet size={14} className="text-blue-400" />Inventaire Équipements (CSV)</span>
+                <Download size={14} className="text-blue-400" />
               </button>
-              <button className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-900/50 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition-all text-xs font-medium text-slate-200">
-                <span className="flex items-center gap-2"><ShieldCheck size={14} className="text-purple-400" />Historique d'audit (Logs)</span>
+              <button
+                onClick={generateJCICSV}
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/30 hover:border-violet-500/50 transition-all text-xs font-medium text-violet-300"
+              >
+                <span className="flex items-center gap-2"><Award size={14} className="text-violet-400" />Registre de sécurité JCI (CSV)</span>
+                <Download size={14} className="text-violet-400" />
+              </button>
+              <button
+                onClick={generateAuditCSV}
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-900/50 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition-all text-xs font-medium text-slate-200"
+              >
+                <span className="flex items-center gap-2"><ShieldCheck size={14} className="text-purple-400" />Historique d'audit complet (CSV)</span>
                 <Download size={14} className="text-slate-500" />
               </button>
             </div>

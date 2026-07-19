@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Search, Filter, Plus, Stethoscope, Eye, Pencil, Trash2,
-  QrCode, MapPin, Calendar, X, CheckSquare2, BarChart2
+  QrCode, MapPin, Calendar, X, CheckSquare2, BarChart2, Camera, ScanLine
 } from 'lucide-react';
 import {
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
@@ -160,6 +160,301 @@ function AddEquipmentModal({ onClose, onAdd }: { onClose: () => void; onAdd: (eq
           </button>
         </div>
       </form>
+    </div>
+  );
+}
+
+// ── Edit Equipment Modal ──────────────────────────────────────────────────────
+
+function EditEquipmentModal({ equipment, onClose, onSave }: {
+  equipment: Equipment;
+  onClose: () => void;
+  onSave: (updated: Equipment) => void;
+}) {
+  const [name, setName] = useState(equipment.name);
+  const [serialNumber, setSerialNumber] = useState(equipment.serialNumber || '');
+  const [category, setCategory] = useState(equipment.category);
+  const [criticality, setCriticality] = useState(equipment.criticality);
+  const [location, setLocation] = useState(equipment.location);
+  const [supplier, setSupplier] = useState(equipment.supplier || '');
+  const [acquisitionDate, setAcquisitionDate] = useState(equipment.acquisitionDate || '');
+  const [status, setStatus] = useState(equipment.status);
+  const [uptime, setUptime] = useState(String(equipment.uptime));
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validate = () => {
+    const e: Record<string, string> = {};
+    if (!name.trim()) e.name = 'Le nom est requis';
+    if (!serialNumber.trim()) e.serialNumber = 'Le numéro de série est requis';
+    const u = Number(uptime);
+    if (isNaN(u) || u < 0 || u > 100) e.uptime = 'Uptime entre 0 et 100';
+    return e;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const errs = validate();
+    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+    onSave({
+      ...equipment,
+      name: name.trim(),
+      serialNumber: serialNumber.trim(),
+      category,
+      criticality,
+      location: location || 'À définir',
+      supplier: supplier.trim(),
+      acquisitionDate,
+      status: status as Equipment['status'],
+      uptime: Number(uptime),
+    });
+    onClose();
+  };
+
+  const inputClass = (field: string) =>
+    `w-full bg-slate-800 border rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none transition-colors ${
+      errors[field] ? 'border-rose-500' : 'border-slate-700 focus:border-emerald-500'
+    }`;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <form onSubmit={handleSubmit} className="relative w-full max-w-lg glass-strong rounded-2xl p-6 shadow-2xl border border-slate-700/50 z-10 animate-fade-in-up max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-xl bg-blue-500/15">
+              <Pencil size={16} className="text-blue-400" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-white">Modifier l'équipement</h3>
+              <p className="text-xs text-slate-500 font-mono">{equipment.id}</p>
+            </div>
+          </div>
+          <button type="button" onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {/* Nom + Série */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5">Nom de l'équipement *</label>
+              <input type="text" value={name}
+                onChange={e => { setName(e.target.value); setErrors(p => ({ ...p, name: '' })); }}
+                className={inputClass('name')} />
+              {errors.name && <p className="text-xs text-rose-400 mt-1">{errors.name}</p>}
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5">Numéro de série *</label>
+              <input type="text" value={serialNumber}
+                onChange={e => { setSerialNumber(e.target.value); setErrors(p => ({ ...p, serialNumber: '' })); }}
+                className={inputClass('serialNumber')} />
+              {errors.serialNumber && <p className="text-xs text-rose-400 mt-1">{errors.serialNumber}</p>}
+            </div>
+          </div>
+
+          {/* Catégorie + Criticité */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5">Catégorie</label>
+              <select value={category} onChange={e => setCategory(e.target.value)}
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors">
+                {categories.slice(1).map(c => <option key={c}>{c}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5">Criticité</label>
+              <select value={criticality} onChange={e => setCriticality(e.target.value)}
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors">
+                <option>Critique</option><option>Haute</option><option>Moyenne</option><option>Basse</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Statut + Uptime */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5">Statut</label>
+              <select value={status} onChange={e => setStatus(e.target.value as Equipment['status'])}
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors">
+                <option>Opérationnel</option><option>En Maintenance</option><option>En Panne</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5">Uptime (%)</label>
+              <input type="number" min="0" max="100" value={uptime}
+                onChange={e => { setUptime(e.target.value); setErrors(p => ({ ...p, uptime: '' })); }}
+                className={inputClass('uptime')} />
+              {errors.uptime && <p className="text-xs text-rose-400 mt-1">{errors.uptime}</p>}
+            </div>
+          </div>
+
+          {/* Localisation */}
+          <div>
+            <label className="block text-xs font-medium text-slate-400 mb-1.5">Localisation</label>
+            <input type="text" value={location} onChange={e => setLocation(e.target.value)}
+              placeholder="ex: Radiologie – Salle 2"
+              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors" />
+          </div>
+
+          {/* Fournisseur + Date */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5">Fournisseur</label>
+              <input type="text" value={supplier} onChange={e => setSupplier(e.target.value)}
+                placeholder="Siemens, GE, Philips..."
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5">Date d'acquisition</label>
+              <input type="date" value={acquisitionDate} onChange={e => setAcquisitionDate(e.target.value)}
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors" />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-800">
+          <button type="button" onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white bg-slate-800 rounded-xl transition-colors">
+            Annuler
+          </button>
+          <button type="submit"
+            className="uc-btn-primary px-5 py-2 text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95 flex items-center gap-2">
+            <Pencil size={14} /> Enregistrer les modifications
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+// ── QR Scanner Modal ───────────────────────────────────────────────────────────
+
+function QRScannerModal({ onClose, onFound }: {
+  onClose: () => void;
+  onFound: (id: string) => void;
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [scanResult, setScanResult] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [scanning, setScanning] = useState(false);
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setScanning(true);
+    setError(null);
+    setScanResult(null);
+    try {
+      const BarcodeDetector = (window as any).BarcodeDetector;
+      if (!BarcodeDetector) {
+        // Fallback: show instructions
+        setError('BarcodeDetector non supporté sur ce navigateur. Utilisez Chrome 83+ ou Edge 83+. Veuillez saisir l\'ID manuellement.');
+        setScanning(false);
+        return;
+      }
+      const detector = new BarcodeDetector({ formats: ['qr_code', 'code_128', 'code_39'] });
+      const bitmap = await createImageBitmap(file);
+      const results = await detector.detect(bitmap);
+      if (results.length > 0) {
+        const value = results[0].rawValue;
+        setScanResult(value);
+        onFound(value);
+      } else {
+        setError('Aucun QR code détecté dans cette image. Réessayez avec une photo plus nette.');
+      }
+    } catch {
+      setError('Erreur lors de la lecture. Vérifiez que l\'image contient bien un QR code.');
+    } finally {
+      setScanning(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative z-10 w-full max-w-md glass-strong rounded-2xl p-6 shadow-2xl border border-slate-700/50 animate-fade-in-up">
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-xl bg-emerald-500/15">
+              <QrCode size={18} className="text-emerald-400" />
+            </div>
+            <h3 className="text-lg font-bold text-white">Scanner QR Code</h3>
+          </div>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {/* Scanner zone */}
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="flex flex-col items-center justify-center gap-3 p-8 rounded-2xl border-2 border-dashed border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/60 transition-all cursor-pointer group"
+          >
+            {scanning ? (
+              <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <>
+                <div className="relative">
+                  <Camera size={40} className="text-emerald-400/60 group-hover:text-emerald-400 transition-colors" />
+                  <ScanLine size={20} className="absolute -bottom-1 -right-1 text-emerald-300" />
+                </div>
+                <p className="text-sm font-semibold text-emerald-300 text-center">Appuyer pour ouvrir la caméra</p>
+                <p className="text-xs text-slate-500 text-center">Prenez une photo du QR code ou choisissez une image depuis la galerie</p>
+              </>
+            )}
+          </div>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={handleFile}
+          />
+
+          {/* Result */}
+          {scanResult && (
+            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-3">
+              <QrCode size={16} className="text-emerald-400 flex-shrink-0" />
+              <div>
+                <p className="text-xs text-emerald-300 font-semibold">QR code détecté !</p>
+                <p className="text-xs font-mono text-slate-300">{scanResult}</p>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30">
+              <p className="text-xs text-rose-300">{error}</p>
+            </div>
+          )}
+
+          {/* Manuel fallback */}
+          <div className="pt-2">
+            <p className="text-xs text-slate-500 mb-2">Ou saisissez l'ID manuellement :</p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="EQ-2026-XXX"
+                id="qr-manual-input"
+                className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
+              />
+              <button
+                onClick={() => {
+                  const val = (document.getElementById('qr-manual-input') as HTMLInputElement)?.value;
+                  if (val?.trim()) { onFound(val.trim()); onClose(); }
+                }}
+                className="uc-btn-primary px-4 py-2 text-sm font-semibold rounded-xl transition-all"
+              >
+                Rechercher
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -385,6 +680,8 @@ export default function Equipments() {
   const [activeStatus, setActiveStatus] = useState('Tous');
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [editEq, setEditEq] = useState<Equipment | null>(null);
+  const [showQRScanner, setShowQRScanner] = useState(false);
   const [selectedEq, setSelectedEq] = useState<Equipment | null>(null);
   const [compareList, setCompareList] = useState<string[]>([]);
   const [showCompare, setShowCompare] = useState(false);
@@ -410,12 +707,42 @@ export default function Equipments() {
 
   const compareEquipments = equipments.filter(e => compareList.includes(e.id));
 
+  // QR scan result: highlight the matching equipment
+  const handleQRFound = (value: string) => {
+    const match = equipments.find(
+      eq => eq.id.toLowerCase() === value.toLowerCase() ||
+            eq.serialNumber?.toLowerCase() === value.toLowerCase()
+    );
+    if (match) {
+      setSelectedEq(match);
+      setSearch(match.id);
+    } else {
+      setSearch(value);
+    }
+    setShowQRScanner(false);
+  };
+
   return (
     <>
       {showModal && (
         <AddEquipmentModal
           onClose={() => setShowModal(false)}
           onAdd={eq => setEquipments(prev => [...prev, eq])}
+        />
+      )}
+      {editEq && (
+        <EditEquipmentModal
+          equipment={editEq}
+          onClose={() => setEditEq(null)}
+          onSave={updated =>
+            setEquipments(prev => prev.map(e => e.id === updated.id ? updated : e))
+          }
+        />
+      )}
+      {showQRScanner && (
+        <QRScannerModal
+          onClose={() => setShowQRScanner(false)}
+          onFound={handleQRFound}
         />
       )}
       {selectedEq && (
@@ -443,7 +770,10 @@ export default function Equipments() {
             </p>
           </div>
           <div className="flex gap-3">
-            <button className="inline-flex items-center gap-2 px-3 py-2 bg-slate-800 border border-slate-700 hover:border-slate-600 text-slate-300 text-sm font-medium rounded-xl transition-colors">
+            <button
+              onClick={() => setShowQRScanner(true)}
+              className="inline-flex items-center gap-2 px-3 py-2 bg-slate-800 border border-slate-700 hover:border-emerald-500/50 hover:text-emerald-300 text-slate-300 text-sm font-medium rounded-xl transition-colors"
+            >
               <QrCode size={16} />
               <span className="hidden sm:inline">Scanner QR</span>
             </button>
@@ -622,7 +952,11 @@ export default function Equipments() {
                         >
                           <Eye size={14} />
                         </button>
-                        <button className="p-1.5 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all"><Pencil size={14} /></button>
+                        <button
+                          onClick={() => setEditEq(eq)}
+                          className="p-1.5 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all"
+                          title="Modifier"
+                        ><Pencil size={14} /></button>
                         <button
                           onClick={() => setEquipments(prev => prev.filter(e => e.id !== eq.id))}
                           className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all"

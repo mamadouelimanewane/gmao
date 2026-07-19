@@ -22,6 +22,7 @@ export interface Ticket {
   diagnosticNotes?: string;
   devisMontant?: number;
   devisValide?: boolean;
+  created_at?: string;
 }
 
 export interface Equipment {
@@ -38,6 +39,7 @@ export interface Equipment {
   serialNumber?: string;
   supplier?: string;
   acquisitionDate?: string;
+  created_at?: string;
 }
 
 export interface ChecklistItem {
@@ -60,6 +62,7 @@ export interface MaintenancePlan {
   checklist: ChecklistItem[];
   priority: 'critical' | 'high' | 'medium' | 'low';
   contractType: 'interne' | 'externe';
+  created_at?: string;
 }
 
 export interface StockItem {
@@ -75,6 +78,7 @@ export interface StockItem {
   location: string;
   leadTimeWeeks: number;
   consumptionPerWeek: number;
+  created_at?: string;
 }
 
 // ── Workflow Achat ───────────────────────────────────────────────────────
@@ -94,6 +98,7 @@ export interface PurchaseOrder {
   notes?: string;
   linkedTicketId?: string;
   linkedStockId?: string;
+  created_at?: string;
 }
 
 // ── Repair workflow helpers ──────────────────────────────────────────────
@@ -288,11 +293,16 @@ async function sbFetch<T>(table: string): Promise<T[] | null> {
 }
 
 // Upsert all + delete removed rows
-async function sbSync<T extends { id: string }>(table: string, rows: T[]) {
+async function sbSync<T extends { id: string; created_at?: string }>(table: string, rows: T[]) {
   if (!rows.length) return;
   try {
+    // "created_at" est NOT NULL côté Supabase sans valeur par défaut fiable :
+    // un seul enregistrement créé côté client sans cette valeur fait échouer
+    // l'upsert groupé en entier (et donc la synchro de TOUTE la table). On la
+    // garantit ici pour ne plus jamais perdre de données en silence.
+    const safeRows = rows.map(r => r.created_at ? r : { ...r, created_at: new Date().toISOString() });
     // upsert all current rows
-    const { error: upsertErr } = await supabase.from(table).upsert(rows, { onConflict: 'id' });
+    const { error: upsertErr } = await supabase.from(table).upsert(safeRows, { onConflict: 'id' });
     if (upsertErr) throw upsertErr;
 
     // delete rows no longer present

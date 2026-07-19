@@ -89,9 +89,9 @@ function AddEquipmentModal({ onClose, onAdd }: { onClose: () => void; onAdd: (eq
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <form onSubmit={handleSubmit} className="relative w-full max-w-lg glass-strong rounded-2xl p-6 shadow-2xl border border-slate-700/50 z-10 animate-fade-in-up">
+      <form onSubmit={handleSubmit} className="relative w-full sm:max-w-lg glass-strong sm:rounded-2xl rounded-t-2xl p-6 shadow-2xl border border-slate-700/50 z-10 animate-fade-in-up max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-lg font-bold text-white">Nouvel Équipement</h3>
           <button type="button" onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">
@@ -845,7 +845,8 @@ export default function Equipments() {
               className="uc-btn-primary inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all shadow-lg active:scale-95"
             >
               <Plus size={16} />
-              Nouvel Équipement
+              <span className="hidden sm:inline">Nouvel Équipement</span>
+              <span className="sm:hidden">Ajouter</span>
             </button>
           </div>
         </div>
@@ -903,8 +904,63 @@ export default function Equipments() {
           )}
         </div>
 
-        {/* Equipment Table — liseré coloré par état, étiquettes de catégorie teintées */}
-        <div className="rounded-2xl glass border border-slate-700/40 overflow-hidden">
+        {/* Vue Mobile (Cartes) */}
+        <div className="md:hidden space-y-4">
+          {filtered.map(eq => (
+            <div key={eq.id} className="glass rounded-xl p-4 border border-slate-700/40">
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex items-start gap-2">
+                  <input
+                    type="checkbox"
+                    checked={compareList.includes(eq.id)}
+                    onChange={() => toggleCompare(eq.id)}
+                    className="mt-1 w-4 h-4 rounded border-slate-600 bg-slate-800 accent-emerald-500"
+                  />
+                  <div>
+                    <p className="font-bold text-slate-200">{eq.name}</p>
+                    <p className="text-xs text-slate-500 font-mono">{eq.id}</p>
+                  </div>
+                </div>
+                <span className={`uc-badge ${statusBadge[eq.status]} text-[10px] px-1.5 py-0.5 whitespace-nowrap ml-2`}>
+                  {eq.status}
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2 text-xs mb-3">
+                <div>
+                  <span className="text-slate-500 block mb-0.5">Catégorie</span>
+                  <span className={`uc-badge ${CATEGORY_TAG[eq.category] || 'uc-badge-neutral'} text-[9px]`}>{eq.category}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block mb-0.5">Localisation</span>
+                  <p className="text-slate-300 flex items-center gap-1"><MapPin size={10}/> {eq.location}</p>
+                </div>
+                <div>
+                  <span className="text-slate-500 block mb-0.5">Patient Safety Score</span>
+                  <p className={`font-bold ${eq.pss >= 80 ? 'text-rose-400' : eq.pss >= 50 ? 'text-amber-400' : 'text-emerald-400'}`}>{eq.pss}</p>
+                </div>
+                <div>
+                  <span className="text-slate-500 block mb-0.5">Uptime</span>
+                  <p className="text-slate-300">{eq.uptime}%</p>
+                </div>
+              </div>
+              
+              <div className="flex justify-end gap-2 border-t border-slate-800/60 pt-3">
+                <button onClick={() => setSelectedEq(eq)} className="px-3 py-1.5 bg-slate-800 rounded-lg text-emerald-400 text-xs font-medium flex items-center gap-1"><Eye size={12}/> Détails</button>
+                <button onClick={() => setEditEq(eq)} className="px-3 py-1.5 bg-slate-800 rounded-lg text-blue-400 text-xs font-medium flex items-center gap-1"><Pencil size={12}/> Modifier</button>
+              </div>
+            </div>
+          ))}
+          {filtered.length === 0 && (
+            <div className="text-center py-8 text-slate-500 glass rounded-xl border border-slate-700/40">
+              <Stethoscope size={30} className="mx-auto mb-2 text-slate-700" />
+              <p className="font-medium text-slate-400 text-sm">Aucun équipement</p>
+            </div>
+          )}
+        </div>
+
+        {/* Vue Desktop (Tableau) — masquée sur mobile */}
+        <div className="hidden md:block rounded-2xl glass border border-slate-700/40 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-base text-left">
               <thead className="uc-thead text-xs uppercase tracking-wider border-b">

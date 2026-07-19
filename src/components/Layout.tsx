@@ -448,11 +448,42 @@ export default function Layout() {
 
         {/* Page content */}
         <main className="flex-1 overflow-y-auto lg:overflow-visible" style={{ background: 'var(--bg-app)' }}>
-          <div className="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
+          <div className="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto pb-24 lg:pb-8">
             <Outlet />
           </div>
         </main>
       </div>
+
+      {/* ── BOTTOM NAVIGATION (Mobile only) ── */}
+      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 flex items-center justify-around border-t backdrop-blur-xl safe-area-bottom"
+        style={{
+          background: 'var(--bg-topbar)',
+          borderColor: 'var(--border-base)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+          height: '64px',
+        }}
+      >
+        {[
+          { href: '/apps',        icon: LayoutGrid,  label: 'Accueil' },
+          { href: '/equipements', icon: Stethoscope, label: 'Équipements' },
+          { href: '/tickets',     icon: Wrench,      label: 'Tickets' },
+          { href: '/stocks',      icon: Package,     label: 'Stocks' },
+          { href: '/statistiques',icon: BarChart3,   label: 'Stats' },
+        ].map(item => {
+          const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + '/');
+          return (
+            <Link
+              key={item.href}
+              to={item.href}
+              className="flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-colors"
+              style={{ color: isActive ? 'var(--accent)' : 'var(--text-muted)' }}
+            >
+              <item.icon size={20} strokeWidth={isActive ? 2.5 : 1.75} />
+              <span className="text-[10px] font-medium truncate">{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }

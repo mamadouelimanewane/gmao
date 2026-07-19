@@ -431,8 +431,62 @@ export default function Stocks() {
         </div>
       </div>
 
-      {/* Stock Table — liseré coloré par statut, pastille catégorie */}
-      <div className="rounded-2xl glass border border-slate-700/40 overflow-hidden">
+      {/* Vue Mobile (Cartes) */}
+      <div className="md:hidden space-y-4">
+        {filtered.map(item => (
+          <div key={item.id} className="glass rounded-xl p-4 border border-slate-700/40">
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-slate-800 rounded-lg flex-shrink-0 mt-1">
+                  <Package size={15} className="text-emerald-400" />
+                </div>
+                <div>
+                  <p className="font-bold text-slate-200">{item.name}</p>
+                  <p className="text-xs text-slate-500 font-mono">{item.id} · {item.location}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2 text-xs mb-3">
+              <div>
+                <span className="text-slate-500 block mb-0.5">Catégorie</span>
+                <span className={`uc-badge ${STOCK_CAT_TAG[item.category] || 'uc-badge-neutral'} text-[9px]`}>{item.category}</span>
+              </div>
+              <div>
+                <span className="text-slate-500 block mb-0.5">Statut</span>
+                <span className={`uc-badge ${STOCK_STATUS_BADGE[item.status] || 'uc-badge-neutral'} text-[9px]`}>{item.status}</span>
+              </div>
+              <div>
+                <span className="text-slate-500 block mb-0.5">Quantité</span>
+                <p className={`font-bold ${item.status === 'Critique' ? 'text-rose-400' : 'text-slate-200'}`}>{item.quantity} {item.unit} <span className="text-[10px] text-slate-500 font-normal">/ {item.minThreshold}</span></p>
+              </div>
+              <div>
+                <span className="text-slate-500 block mb-0.5">Fournisseur</span>
+                <p className="text-slate-300 truncate">{item.supplier}</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between border-t border-slate-800/60 pt-3">
+              <div className="flex items-center gap-3 text-slate-400 text-[10px]">
+                <span className="flex items-center gap-1"><TrendingDown size={10} /> {item.consumptionPerWeek}/sem</span>
+                <span className="flex items-center gap-1"><Clock size={10} /> {item.leadTimeWeeks} sem</span>
+              </div>
+              <button className="p-1.5 text-slate-400 hover:text-white rounded transition-colors bg-slate-800">
+                <MoreVertical size={14} />
+              </button>
+            </div>
+          </div>
+        ))}
+        {filtered.length === 0 && (
+          <div className="text-center py-8 text-slate-500 glass rounded-xl border border-slate-700/40">
+            <Package size={30} className="mx-auto mb-2 text-slate-700" />
+            <p className="font-medium text-slate-400 text-sm">Aucun article</p>
+          </div>
+        )}
+      </div>
+
+      {/* Stock Table — liseré coloré par statut, pastille catégorie (Vue Desktop) */}
+      <div className="hidden md:block rounded-2xl glass border border-slate-700/40 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-base text-left">
             <thead className="uc-thead text-xs uppercase tracking-wider border-b">

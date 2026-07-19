@@ -72,9 +72,9 @@ function SignatureModal({ onClose, onValidate }: { onClose: () => void; onValida
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-10 bg-slate-900 border border-slate-700/50 rounded-2xl p-6 shadow-2xl animate-fade-in-up w-full max-w-md">
+      <div className="relative z-10 bg-slate-900 border border-slate-700/50 sm:rounded-2xl rounded-t-2xl p-6 shadow-2xl animate-fade-in-up w-full sm:max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <PenLine className="text-emerald-400" size={18} />
@@ -112,9 +112,9 @@ function SignatureModal({ onClose, onValidate }: { onClose: () => void; onValida
 
 function ViewSignatureModal({ signature, onClose }: { signature: string; onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-10 bg-slate-900 border border-slate-700/50 rounded-2xl p-6 shadow-2xl animate-fade-in-up w-full max-w-md">
+      <div className="relative z-10 bg-slate-900 border border-slate-700/50 sm:rounded-2xl rounded-t-2xl p-6 shadow-2xl animate-fade-in-up w-full sm:max-w-md">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-base font-bold text-white">Signature enregistrée</h3>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">
@@ -178,9 +178,9 @@ function AddTicketModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <form onSubmit={handleSubmit} className="relative w-full max-w-lg glass-strong rounded-2xl p-6 shadow-2xl border border-slate-700/50 z-10 animate-fade-in-up">
+      <form onSubmit={handleSubmit} className="relative w-full sm:max-w-lg glass-strong sm:rounded-2xl rounded-t-2xl p-6 shadow-2xl border border-slate-700/50 z-10 animate-fade-in-up max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
             <Wrench className="text-emerald-400" size={20} />
@@ -320,9 +320,9 @@ function WorkflowModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-xl glass-strong rounded-2xl p-6 shadow-2xl border border-slate-700/50 z-10 animate-fade-in-up max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full sm:max-w-xl glass-strong sm:rounded-2xl rounded-t-2xl p-6 shadow-2xl border border-slate-700/50 z-10 animate-fade-in-up max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
             <ClipboardList className="text-emerald-400" size={20} />

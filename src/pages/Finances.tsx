@@ -328,7 +328,42 @@ export default function Finances() {
         {/* Financial Ledger */}
         <div className="xl:col-span-2 p-5 rounded-2xl glass border border-slate-700/40">
           <h2 className="text-base font-semibold text-white mb-4">Grand Livre des dépenses de maintenance</h2>
-          <div className="overflow-x-auto">
+          
+          {/* Vue Mobile (Cartes) */}
+          <div className="md:hidden space-y-4">
+            {costsList.map(item => (
+              <div key={item.id} className="glass rounded-xl p-4 border border-slate-700/40">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono text-slate-500">{item.id}</span>
+                  </div>
+                  <span className={`uc-badge ${FIN_STATUS_BADGE[item.status] || 'uc-badge-neutral'} text-[10px]`}>
+                    {item.status}
+                  </span>
+                </div>
+                <p className="font-bold text-slate-200 mb-1">{item.equipment}</p>
+                <div className="grid grid-cols-2 gap-2 text-xs mb-3">
+                  <div>
+                    <span className="text-slate-500 block mb-0.5">Département</span>
+                    <span className="text-slate-300">{item.department}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block mb-0.5">Type de frais</span>
+                    {FIN_TYPE_TAG[item.maintenanceType] && (
+                      <span className={`uc-badge ${FIN_TYPE_TAG[item.maintenanceType]} text-[9px]`}>{item.maintenanceType}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex justify-between items-center border-t border-slate-800/60 pt-3">
+                  <span className="text-xs text-slate-400">{item.date}</span>
+                  <span className="font-bold text-emerald-400">{formatCurrency(item.cost)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Vue Desktop (Tableau) */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-base text-left">
               <thead className="uc-thead text-xs uppercase tracking-wider border-b">
                 <tr>
@@ -374,6 +409,7 @@ export default function Finances() {
               </tbody>
             </table>
           </div>
+          {/* End Vue Desktop */}
         </div>
       </div>
 

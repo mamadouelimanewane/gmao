@@ -399,11 +399,11 @@ export default function RH() {
           <div className="xl:col-span-2 space-y-4">
             {/* Profile header */}
             <div className="p-5 rounded-2xl glass border border-slate-700/40">
-              <div className="flex items-start gap-4">
+              <div className="flex items-start gap-4 flex-wrap">
                 <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${selected.color} flex items-center justify-center text-white font-bold text-xl shrink-0`}>
                   {selected.avatar}
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h2 className="text-xl font-bold text-white">{selected.name}</h2>
                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
@@ -414,7 +414,7 @@ export default function RH() {
                     <span className="text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">{selected.grade}</span>
                   </div>
                   <p className="text-sm text-slate-400 mt-0.5">{selected.role} — {selected.dept}</p>
-                  <div className="flex items-center gap-4 mt-2 text-sm text-slate-500">
+                  <div className="flex items-center gap-4 flex-wrap mt-2 text-sm text-slate-500">
                     <span className="flex items-center gap-1"><Phone size={11} />{selected.phone}</span>
                     <span className="flex items-center gap-1"><Mail size={11} />{selected.email}</span>
                     <span className="flex items-center gap-1"><Shield size={11} />{selected.id}</span>
@@ -433,7 +433,7 @@ export default function RH() {
               </div>
 
               {/* KPI Row */}
-              <div className="grid grid-cols-4 gap-3 mt-4 pt-4 border-t border-slate-800">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-slate-800">
                 {[
                   { label: 'MTTR', value: `${selected.mttr}h`, icon: Clock, color: 'text-blue-400' },
                   { label: 'Résolution', value: `${selected.resolved}%`, icon: CheckCircle2, color: 'text-emerald-400' },

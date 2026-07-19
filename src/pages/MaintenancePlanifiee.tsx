@@ -171,23 +171,23 @@ export default function MaintenancePlanifiee() {
         <div>
           <h1 className="uc-title text-2xl font-bold tracking-tight">
             Maintenances Planifiées
-            <span className="ml-2 text-xs font-medium bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30 align-middle">PPM</span>
+            <span className="ml-2 text-sm font-medium bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30 align-middle">PPM</span>
           </h1>
           <p className="uc-subtitle text-sm mt-1">Planned Preventive Maintenance · Checklists · Conformité réglementaire</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {(['list', 'calendar'] as const).map(v => (
             <button
               key={v}
               onClick={() => setActiveView(v)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all border ${
                 activeView === v ? 'bg-blue-600 border-blue-500 text-white' : 'border-slate-700 text-slate-400 hover:text-white'
               }`}
             >
               {v === 'list' ? '📋 Liste' : '📅 Calendrier'}
             </button>
           ))}
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-all border border-blue-500">
+          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-all border border-blue-500">
             <Plus size={13} /> Nouveau plan PM
           </button>
           <button
@@ -211,7 +211,7 @@ export default function MaintenancePlanifiee() {
           </div>
           <div>
             <p className="text-sm font-semibold text-white">Voir les indicateurs de conformité PM</p>
-            <p className="text-xs text-slate-500">Taux de conformité, retards, durée moyenne — page Statistiques</p>
+            <p className="text-sm text-slate-500">Taux de conformité, retards, durée moyenne — page Statistiques</p>
           </div>
         </div>
         <ArrowRight size={16} className="text-slate-500 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
@@ -221,7 +221,7 @@ export default function MaintenancePlanifiee() {
       <div className="flex flex-wrap gap-2">
         <button
           onClick={() => setFilter('all')}
-          className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${filter === 'all' ? 'bg-slate-700 border-slate-500 text-white' : 'border-slate-800 text-slate-500 hover:text-white'}`}
+          className={`px-3 py-1.5 rounded-xl text-sm font-semibold border transition-all ${filter === 'all' ? 'bg-slate-700 border-slate-500 text-white' : 'border-slate-800 text-slate-500 hover:text-white'}`}
         >
           Tous ({pmPlans.length})
         </button>
@@ -231,7 +231,7 @@ export default function MaintenancePlanifiee() {
             <button
               key={s}
               onClick={() => setFilter(s)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold border transition-all ${
                 filter === s ? cfg.color + ' opacity-100' : 'border-slate-800 text-slate-500 hover:text-white opacity-70 hover:opacity-100'
               }`}
             >
@@ -267,13 +267,13 @@ export default function MaintenancePlanifiee() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <p className="text-sm font-semibold text-slate-200 truncate">{plan.equipment}</p>
-                        <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full border shrink-0 flex items-center gap-1 ${cfg.color}`}>
+                        <span className={`text-sm font-bold px-1.5 py-0.5 rounded-full border shrink-0 flex items-center gap-1 ${cfg.color}`}>
                           <StatusIcon size={8} /> {cfg.label}
                         </span>
                       </div>
                       <p className="text-sm text-slate-500 mt-0.5">{plan.dept} · {plan.id}</p>
                       <div className="flex items-center gap-3 mt-2">
-                        <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full border ${freqColors[plan.frequency]}`}>{plan.frequency}</span>
+                        <span className={`text-sm font-bold px-1.5 py-0.5 rounded-full border ${freqColors[plan.frequency]}`}>{plan.frequency}</span>
                         <span className="text-sm text-slate-500 flex items-center gap-1">
                           <Clock size={9} /> {plan.estimatedDuration}
                         </span>
@@ -302,11 +302,11 @@ export default function MaintenancePlanifiee() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h2 className="text-lg font-bold text-white">{selected.equipment}</h2>
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${freqColors[selected.frequency]}`}>
+                    <span className={`text-sm font-bold px-2 py-0.5 rounded-full border ${freqColors[selected.frequency]}`}>
                       {selected.frequency}
                     </span>
                     {(() => { const SelIcon = statusConfig[selected.status].icon; return (
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${statusConfig[selected.status].color} flex items-center gap-1`}>
+                    <span className={`text-sm font-bold px-2 py-0.5 rounded-full border ${statusConfig[selected.status].color} flex items-center gap-1`}>
                       <SelIcon size={8} />
                       {statusConfig[selected.status].label}
                     </span>
@@ -359,7 +359,7 @@ export default function MaintenancePlanifiee() {
                       style={{ width: `${progress}%` }}
                     />
                   </div>
-                  <span className={`text-xs font-bold ${progress === 100 ? 'text-emerald-400' : 'text-slate-400'}`}>{progress}%</span>
+                  <span className={`text-sm font-bold ${progress === 100 ? 'text-emerald-400' : 'text-slate-400'}`}>{progress}%</span>
                 </div>
               </div>
 
@@ -391,12 +391,12 @@ export default function MaintenancePlanifiee() {
               {progress === 100 && (
                 <div className="mt-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2">
                   <CheckCircle2 size={14} className="text-emerald-400" />
-                  <p className="text-xs text-emerald-300 font-semibold">Checklist complète ! Clôturer la PM et mettre à jour le registre.</p>
+                  <p className="text-sm text-emerald-300 font-semibold">Checklist complète ! Clôturer la PM et mettre à jour le registre.</p>
                 </div>
               )}
 
               {progress === 100 && (
-                <button className="mt-3 w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold transition-all flex items-center justify-center gap-2">
+                <button className="mt-3 w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-sm font-bold transition-all flex items-center justify-center gap-2">
                   <CheckSquare size={14} /> Valider et clôturer la PM
                 </button>
               )}
@@ -416,7 +416,7 @@ export default function MaintenancePlanifiee() {
               <h2 className="text-base font-semibold text-white">Juin 2025</h2>
               <div className="flex items-center gap-1">
                 <button className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"><ChevronLeft size={16} /></button>
-                <button className="px-2.5 py-1 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">Aujourd'hui</button>
+                <button className="px-2.5 py-1 rounded-lg text-sm text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">Aujourd'hui</button>
                 <button className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"><ChevronRight size={16} /></button>
               </div>
             </div>
@@ -439,7 +439,7 @@ export default function MaintenancePlanifiee() {
                 return (
                   <div
                     key={day}
-                    className={`aspect-square flex flex-col items-center justify-center rounded-xl text-xs font-semibold transition-all cursor-pointer hover:bg-slate-800/60 relative ${
+                    className={`aspect-square flex flex-col items-center justify-center rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer hover:bg-slate-800/60 relative ${
                       isToday ? 'ring-2 ring-blue-500 bg-blue-950/30' : ''
                     }`}
                   >
@@ -525,7 +525,7 @@ export default function MaintenancePlanifiee() {
                       <p className="text-sm font-semibold text-slate-200 truncate">{p.equipment}</p>
                       <p className="text-sm text-slate-500">{p.daysLeft === 0 ? "Aujourd'hui" : `Dans ${p.daysLeft} jour${p.daysLeft > 1 ? 's' : ''}`} · {p.technician}</p>
                     </div>
-                    <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full border ${freqColors[p.frequency]}`}>{p.frequency}</span>
+                    <span className={`text-sm font-bold px-1.5 py-0.5 rounded-full border ${freqColors[p.frequency]}`}>{p.frequency}</span>
                   </div>
                 ))}
               </div>

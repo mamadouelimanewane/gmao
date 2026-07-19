@@ -123,32 +123,33 @@ export default function Layout() {
         <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* ── SIDEBAR ── */}
+      {/* ── SIDEBAR — poste de contrôle : toujours en fond noir/navy,
+             quel que soit le thème clair/sombre choisi ── */}
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-50 w-64 flex flex-col transition-transform duration-300 ease-in-out lg:static lg:translate-x-0",
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
         style={{
-          background: 'var(--bg-sidebar)',
-          borderRight: '1px solid var(--border-base)',
+          background: '#0f172a',
+          borderRight: '1px solid #1e293b',
         }}
       >
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-5"
-          style={{ borderBottom: '1px solid var(--border-base)' }}>
+          style={{ borderBottom: '1px solid #1e293b' }}>
           <Link to="/apps" className="flex items-center gap-2.5" title="Retour au portail des applications">
             <div className="p-1.5 rounded-lg bg-emerald-500/10">
               <Stethoscope size={22} className="text-emerald-500" />
             </div>
             <div>
-              <span className="text-sm font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>GMAO Health</span>
-              <div className="text-[10px] leading-none" style={{ color: 'var(--text-muted)' }}>v3.0 · Ndamatou</div>
+              <span className="text-sm font-bold tracking-tight" style={{ color: '#f1f5f9' }}>GMAO Health</span>
+              <div className="text-[10px] leading-none" style={{ color: '#94a3b8' }}>v3.0 · Ndamatou</div>
             </div>
           </Link>
           <button onClick={() => setSidebarOpen(false)}
             className="p-1 rounded lg:hidden transition-colors"
-            style={{ color: 'var(--text-muted)' }}>
+            style={{ color: '#94a3b8' }}>
             <X size={18} />
           </button>
         </div>
@@ -164,11 +165,11 @@ export default function Layout() {
 
         {/* Vue filtrée par catégorie (arrivée depuis le portail /apps) */}
         {activeGroup && (
-          <div className="mx-3 mt-3 mb-1 p-3 rounded-lg border" style={{ borderColor: CATEGORY_STYLE[activeGroup.key].color + '40', background: CATEGORY_STYLE[activeGroup.key].tint }}>
+          <div className="mx-3 mt-3 mb-1 p-3 rounded-lg border" style={{ borderColor: CATEGORY_STYLE[activeGroup.key].color + '40', background: 'rgba(255,255,255,0.06)' }}>
             <p className="text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: CATEGORY_STYLE[activeGroup.key].color }}>
               Vue filtrée
             </p>
-            <p className="text-xs font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>{activeGroup.label}</p>
+            <p className="text-xs font-semibold mb-2" style={{ color: '#f1f5f9' }}>{activeGroup.label}</p>
             <button
               onClick={showAllModules}
               className="text-[11px] font-semibold underline"
@@ -182,7 +183,7 @@ export default function Layout() {
         {/* Navigation */}
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
           <p className="text-[10px] font-semibold uppercase tracking-widest px-3 py-2"
-            style={{ color: 'var(--text-faint)' }}>Principal</p>
+            style={{ color: '#64748b' }}>Principal</p>
           {navigation.map((item) => {
             const isActive = location.pathname === item.href;
             return (
@@ -192,17 +193,17 @@ export default function Layout() {
                 onClick={() => setSidebarOpen(false)}
                 className="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group"
                 style={isActive ? {
-                  background: 'rgba(16,185,129,0.12)',
-                  color: '#10b981',
+                  background: 'rgba(16,185,129,0.15)',
+                  color: '#34d399',
                 } : {
-                  color: 'var(--text-muted)',
+                  color: '#94a3b8',
                 }}
-                onMouseEnter={e => { if (!isActive) { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)'; } }}
-                onMouseLeave={e => { if (!isActive) { (e.currentTarget as HTMLElement).style.background = ''; (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'; } }}
+                onMouseEnter={e => { if (!isActive) { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLElement).style.color = '#f1f5f9'; } }}
+                onMouseLeave={e => { if (!isActive) { (e.currentTarget as HTMLElement).style.background = ''; (e.currentTarget as HTMLElement).style.color = '#94a3b8'; } }}
               >
                 <div className="flex items-center gap-3">
                   <item.icon size={18} className="flex-shrink-0 transition-colors"
-                    style={{ color: isActive ? '#10b981' : 'var(--text-faint)' }} />
+                    style={{ color: isActive ? '#34d399' : '#64748b' }} />
                   {item.name}
                 </div>
                 {item.badge && (
@@ -210,29 +211,29 @@ export default function Layout() {
                     item.badge === 'NEW' ? 'bg-violet-500 text-white' : 'bg-rose-500 text-white'
                   }`}>{item.badge}</span>
                 )}
-                {isActive && !item.badge && <ChevronRight size={14} className="text-emerald-500" />}
+                {isActive && !item.badge && <ChevronRight size={14} className="text-emerald-400" />}
               </Link>
             );
           })}
 
           <p className="text-[10px] font-semibold uppercase tracking-widest px-3 py-2 mt-4"
-            style={{ color: 'var(--text-faint)' }}>Système</p>
+            style={{ color: '#64748b' }}>Système</p>
           <Link
             to="/settings"
             onClick={() => setSidebarOpen(false)}
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group"
-            style={location.pathname === '/settings' ? { background: 'rgba(16,185,129,0.12)', color: '#10b981' } : { color: 'var(--text-muted)' }}
-            onMouseEnter={e => { if (location.pathname !== '/settings') { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)'; } }}
-            onMouseLeave={e => { if (location.pathname !== '/settings') { (e.currentTarget as HTMLElement).style.background = ''; (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'; } }}
+            style={location.pathname === '/settings' ? { background: 'rgba(16,185,129,0.15)', color: '#34d399' } : { color: '#94a3b8' }}
+            onMouseEnter={e => { if (location.pathname !== '/settings') { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLElement).style.color = '#f1f5f9'; } }}
+            onMouseLeave={e => { if (location.pathname !== '/settings') { (e.currentTarget as HTMLElement).style.background = ''; (e.currentTarget as HTMLElement).style.color = '#94a3b8'; } }}
           >
-            <Settings size={18} className="flex-shrink-0" style={{ color: 'var(--text-faint)' }} />
+            <Settings size={18} className="flex-shrink-0" style={{ color: '#64748b' }} />
             {t('settings')}
           </Link>
         </nav>
 
         {/* User Profile */}
         {user && (
-          <div className="p-3" style={{ borderTop: '1px solid var(--border-base)' }}>
+          <div className="p-3" style={{ borderTop: '1px solid #1e293b' }}>
             <div className={`px-3 py-2 mb-2 rounded-xl bg-gradient-to-r ${roleColors[user.role]} bg-opacity-10`}>
               <div className="flex items-center gap-1.5">
                 <Shield size={10} className="text-white/70" />
@@ -240,13 +241,13 @@ export default function Layout() {
               </div>
             </div>
             <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors"
-              style={{ background: 'var(--bg-elevated)' }}>
+              style={{ background: '#1e293b' }}>
               <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${roleColors[user.role]} flex items-center justify-center text-xs font-bold text-white flex-shrink-0`}>
                 {user.avatar}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{user.name}</p>
-                <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{user.dept}</p>
+                <p className="text-sm font-semibold truncate" style={{ color: '#f1f5f9' }}>{user.name}</p>
+                <p className="text-xs truncate" style={{ color: '#94a3b8' }}>{user.dept}</p>
               </div>
               <button onClick={handleLogout} title={t('logout')}>
                 <LogOut size={15} className="text-rose-400 hover:text-rose-500 transition-colors flex-shrink-0" />

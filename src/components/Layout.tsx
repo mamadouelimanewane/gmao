@@ -15,6 +15,8 @@ import type { Lang } from '../contexts/LanguageContext';
 import { useNotifications, toastIconColors } from '../contexts/NotificationContext';
 import type { Notification } from '../contexts/NotificationContext';
 import { getActiveCategory, clearActiveCategory, MODULE_GROUPS, CATEGORY_STYLE } from '../lib/appModules';
+import QRScannerModal from './QRScannerModal';
+import { ScanLine as ScanLineIcon } from 'lucide-react';
 
 const buildNav = (t: (k: string) => string) => [
   { name: t('dashboard'),     href: '/apps',        icon: LayoutGrid,      badge: null  },
@@ -65,6 +67,7 @@ export default function Layout() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [online,       setOnline]       = useState(navigator.onLine);
   const [searchQuery,  setSearchQuery]  = useState('');
+  const [showScanner,  setShowScanner]  = useState(false);
 
   const notifRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -492,6 +495,17 @@ export default function Layout() {
           );
         })}
       </nav>
+
+      {/* ── FLOATING ACTION BUTTON (SCAN) ── */}
+      <button
+        onClick={() => setShowScanner(true)}
+        className="fixed bottom-20 right-6 z-40 w-14 h-14 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(16,185,129,0.5)] transition-transform hover:scale-110 lg:bottom-10 lg:right-10"
+      >
+        <ScanLineIcon size={24} />
+      </button>
+
+      {/* ── QR SCANNER MODAL ── */}
+      {showScanner && <QRScannerModal onClose={() => setShowScanner(false)} />}
     </div>
   );
 }

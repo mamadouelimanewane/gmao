@@ -25,14 +25,15 @@ interface AuditLog {
   action: string;
   details: string;
   status: 'Succès' | 'Échec';
+  hash: string;
 }
 
 const auditLogs: AuditLog[] = [
-  { id: 'AUD-901', timestamp: '28 Juin 2026, 14:32', user: 'Jean Diallo (Resp.)', action: 'Modification équipement', details: 'Changement statut IRM Siemens -> En Panne', status: 'Succès' },
-  { id: 'AUD-902', timestamp: '28 Juin 2026, 11:15', user: 'Fatou Sow (Tech)', action: 'Création Ticket', details: 'TKT-1043 généré pour dysfonctionnement alimentation', status: 'Succès' },
-  { id: 'AUD-903', timestamp: '27 Juin 2026, 16:45', user: 'Amadou Ndiaye (Tech)', action: 'Clôture Ticket', details: 'Fermeture TKT-1040 (Maintenance trimestrielle)', status: 'Succès' },
-  { id: 'AUD-904', timestamp: '26 Juin 2026, 09:12', user: 'Système', action: 'Génération Alerte RUL', details: 'Prédiction usure filament tube RX à 12 jours', status: 'Succès' },
-  { id: 'AUD-905', timestamp: '25 Juin 2026, 18:22', user: 'Jean Diallo (Resp.)', action: 'Accès base de données', details: 'Tentative de connexion depuis IP externe refusée', status: 'Échec' },
+  { id: 'AUD-901', timestamp: '28 Juin 2026, 14:32', user: 'Jean Diallo (Resp.)', action: 'Modification équipement', details: 'Changement statut IRM Siemens -> En Panne', status: 'Succès', hash: 'e3b0c44298fc1c14' },
+  { id: 'AUD-902', timestamp: '28 Juin 2026, 11:15', user: 'Fatou Sow (Tech)', action: 'Création Ticket', details: 'TKT-1043 généré pour dysfonctionnement alimentation', status: 'Succès', hash: '8f434346648f6b96' },
+  { id: 'AUD-903', timestamp: '27 Juin 2026, 16:45', user: 'Amadou Ndiaye (Tech)', action: 'Clôture Ticket', details: 'Fermeture TKT-1040 (Maintenance trimestrielle)', status: 'Succès', hash: 'b10a8db164e07541' },
+  { id: 'AUD-904', timestamp: '26 Juin 2026, 09:12', user: 'Système', action: 'Génération Alerte RUL', details: 'Prédiction usure filament tube RX à 12 jours', status: 'Succès', hash: '9b70b556f8a846c4' },
+  { id: 'AUD-905', timestamp: '25 Juin 2026, 18:22', user: 'Jean Diallo (Resp.)', action: 'Accès base de données', details: 'Tentative de connexion depuis IP externe refusée', status: 'Échec', hash: 'f2d4f243054c25bd' },
 ];
 
 export default function Rapports() {
@@ -66,9 +67,9 @@ export default function Rapports() {
   };
 
   const generateAuditCSV = () => {
-    const headers = ['ID', 'Horodatage', 'Utilisateur', 'Action', 'Détails', 'Statut'];
+    const headers = ['ID', 'Horodatage', 'Utilisateur', 'Action', 'Détails', 'Statut', 'Hash'];
     const rows = logs.map(log => [
-      log.id, log.timestamp, log.user, log.action, log.details, log.status,
+      log.id, log.timestamp, log.user, log.action, log.details, log.status, log.hash
     ]);
     downloadCSV(`audit-logs-${new Date().getFullYear()}.csv`, rows, headers);
   };
@@ -301,6 +302,7 @@ export default function Rapports() {
                   <th className="px-4 py-3 font-semibold">Utilisateur</th>
                   <th className="px-4 py-3 font-semibold">Action</th>
                   <th className="px-4 py-3 font-semibold">Détails</th>
+                  <th className="px-4 py-3 font-semibold">Hash d'intégrité</th>
                   <th className="px-4 py-3 font-semibold text-right">Statut</th>
                 </tr>
               </thead>
@@ -317,6 +319,12 @@ export default function Rapports() {
                     <td className="px-4 py-3 font-semibold text-slate-200">{log.user}</td>
                     <td className="px-4 py-3 text-sm text-slate-400 font-semibold">{log.action}</td>
                     <td className="px-4 py-3 text-sm text-slate-500">{log.details}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-950/50 rounded-md border border-slate-800 w-fit">
+                        <Lock size={10} className="text-emerald-500" />
+                        <span className="font-mono text-[10px] text-slate-500">{log.hash}</span>
+                      </div>
+                    </td>
                     <td className="px-4 py-3 text-right">
                       <span className={`uc-badge ${AUDIT_STATUS_BADGE[log.status] || 'uc-badge-neutral'}`}>
                         {log.status}

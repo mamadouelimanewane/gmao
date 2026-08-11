@@ -18,6 +18,7 @@ const Achats = lazy(() => import('./pages/Achats'));
 const Analytics = lazy(() => import('./pages/Analytics'));
 const Rapports = lazy(() => import('./pages/Rapports'));
 const Fournisseurs = lazy(() => import('./pages/Fournisseurs'));
+const Contrats = lazy(() => import('./pages/Contrats'));
 const Finances = lazy(() => import('./pages/Finances'));
 const AICopilot = lazy(() => import('./pages/AICopilot'));
 const RH = lazy(() => import('./pages/RH'));
@@ -84,6 +85,7 @@ function AppRoutes() {
         <Route path="stocks" element={<Stocks />} />
         <Route path="achats" element={<Achats />} />
         <Route path="fournisseurs" element={<Fournisseurs />} />
+        <Route path="contrats" element={<Contrats />} />
         <Route path="finances" element={<Finances />} />
         <Route path="rh" element={<RH />} />
         <Route path="ia" element={<AICopilot />} />

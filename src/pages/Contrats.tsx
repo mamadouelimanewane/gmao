@@ -166,10 +166,10 @@ export default function Contrats() {
           <div key={contrat.id} className="glass rounded-2xl border border-slate-700/40 p-5 hover:border-emerald-500/50 transition-colors group relative overflow-hidden">
             
             {/* Status Indicator Bar (Left border effect) */}
-            <div className={\`absolute left-0 top-0 bottom-0 w-1 \${
+            <div className={`absolute left-0 top-0 bottom-0 w-1 ${
               contrat.status === 'Actif' ? 'bg-emerald-500' : 
               contrat.status === 'Expire Bientôt' ? 'bg-amber-500' : 'bg-rose-500'
-            }\`}></div>
+            }`}></div>
 
             <div className="flex justify-between items-start mb-4">
               <div>
@@ -180,7 +180,7 @@ export default function Contrats() {
                   <FileSignature size={14} /> {contrat.id}
                 </p>
               </div>
-              <div className={\`flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold \${getStatusBadge(contrat.status)}\`}>
+              <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold ${getStatusBadge(contrat.status)}`}>
                 {getStatusIcon(contrat.status)}
                 {contrat.status}
               </div>
@@ -230,8 +230,8 @@ export default function Contrats() {
               <div className="flex-1 mx-4">
                 <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
                   <div 
-                    className={\`h-full rounded-full \${contrat.status === 'Expiré' ? 'bg-rose-500' : contrat.status === 'Expire Bientôt' ? 'bg-amber-500' : 'bg-emerald-500'}\`}
-                    style={{ width: \`\${contrat.health}%\` }}
+                    className={`h-full rounded-full ${contrat.status === 'Expiré' ? 'bg-rose-500' : contrat.status === 'Expire Bientôt' ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                    style={{ width: `${contrat.health}%` }}
                   ></div>
                 </div>
               </div>
@@ -239,7 +239,7 @@ export default function Contrats() {
               <div className="flex items-center gap-2 text-right">
                 <div>
                   <p className="text-[10px] text-slate-500 uppercase">Fin</p>
-                  <p className={\`text-xs font-medium \${contrat.status === 'Expiré' ? 'text-rose-400' : 'text-slate-300'}\`}>
+                  <p className={`text-xs font-medium ${contrat.status === 'Expiré' ? 'text-rose-400' : 'text-slate-300'}`}>
                     {contrat.endDate}
                   </p>
                 </div>

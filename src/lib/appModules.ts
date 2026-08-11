@@ -63,12 +63,12 @@ export const MODULE_GROUPS: AppGroup[] = [
     label: 'Pilotage & Innovation',
     hint: 'Décision, durabilité et IA',
     tiles: [
-      { name: 'Analytics IoT', desc: 'Capteurs et analytique prédictive', href: '/analytics', icon: TrendingUp },
+      { name: 'Jumeau Numérique', desc: 'Télémétrie & plan interactif', href: '/plan', icon: Map },
       { name: 'Statistiques', desc: 'Tous les indicateurs clés regroupés', href: '/statistiques', icon: BarChart3 },
       { name: 'Audit & Conformité', desc: 'Registre immuable et rapports', href: '/rapports', icon: FileBarChart },
       { name: 'IA Copilot', desc: 'Assistant intelligent de maintenance', href: '/ia', icon: Sparkles },
       { name: 'Énergie & ESG', desc: 'Optimisation énergétique et carbone', href: '/energie', icon: Leaf },
-      { name: 'Jumeau Numérique', desc: 'Télémétrie & plan interactif', href: '/plan', icon: Map },
+      { name: 'Analytics IoT', desc: 'Capteurs et analytique prédictive', href: '/analytics', icon: TrendingUp },
     ],
   },
   {

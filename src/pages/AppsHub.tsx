@@ -56,7 +56,7 @@ export default function AppsHub() {
     if (!q) return null;
 
     const matchedEquipments = equipments.filter(eq => 
-      eq.name.toLowerCase().includes(q) || eq.provider?.toLowerCase().includes(q) || eq.category.toLowerCase().includes(q)
+      eq.name.toLowerCase().includes(q) || eq.supplier?.toLowerCase().includes(q) || eq.category.toLowerCase().includes(q)
     ).slice(0, 3);
 
     const matchedContrats = MOCK_CONTRATS.filter(c =>
@@ -264,7 +264,7 @@ export default function AppsHub() {
                 {globalResults.matchedEquipments.map(eq => (
                   <div key={eq.id} onClick={() => navigate('/equipements')} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-emerald-500 hover:shadow-md transition-all cursor-pointer">
                     <p className="font-semibold text-slate-800 text-sm">{eq.name}</p>
-                    <p className="text-xs text-slate-500 mt-1">{eq.provider || 'Marque inconnue'} • {eq.category}</p>
+                    <p className="text-xs text-slate-500 mt-1">{eq.supplier || 'Marque inconnue'} • {eq.category}</p>
                   </div>
                 ))}
               </div>

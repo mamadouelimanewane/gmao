@@ -22,6 +22,7 @@ const Contrats = lazy(() => import('./pages/Contrats'));
 const Finances = lazy(() => import('./pages/Finances'));
 const AICopilot = lazy(() => import('./pages/AICopilot'));
 const RH = lazy(() => import('./pages/RH'));
+const Knowledge = lazy(() => import('./pages/Knowledge'));
 const MaintenancePlanifiee = lazy(() => import('./pages/MaintenancePlanifiee'));
 const MedPool = lazy(() => import('./pages/MedPool'));
 const EcoMed = lazy(() => import('./pages/EcoMed'));
@@ -78,6 +79,7 @@ function AppRoutes() {
         <Route index element={<Navigate to={getHomePath()} replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="equipements" element={<Equipments />} />
+        <Route path="knowledge" element={<Knowledge />} />
         <Route path="tickets" element={<Tickets />} />
         <Route path="pm" element={<MaintenancePlanifiee />} />
         <Route path="medpool" element={<MedPool />} />

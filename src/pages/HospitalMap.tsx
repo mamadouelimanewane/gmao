@@ -143,6 +143,7 @@ export default function HospitalMap() {
   const [mode, setMode] = useState<'view' | 'edit'>('view');
   const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   
   // Drag & Drop State
   const [dragState, setDragState] = useState<{ id: string; type: 'move' | 'resize'; startX: number; startY: number; initialRoom: Room } | null>(null);
@@ -180,6 +181,7 @@ export default function HospitalMap() {
   };
 
   const onMouseMove = (e: React.MouseEvent) => {
+    setMousePos({ x: e.clientX, y: e.clientY });
     if (!dragState) return;
     const coords = getMouseCoords(e);
     const dx = Math.round((coords.x - dragState.startX) / 10) * 10; // Snap to 10px grid
@@ -350,35 +352,35 @@ export default function HospitalMap() {
                   <rect x={room.x + room.width / 2 - 20} y={room.y} width={40} height={6} fill="#040b16" />
                   <path d={`M ${room.x + room.width / 2 - 20} ${room.y + 3} Q ${room.x + room.width / 2} ${room.y - 15} ${room.x + room.width / 2 + 20} ${room.y + 3}`} fill="none" stroke={cfg.stroke} strokeWidth="1" strokeDasharray="4 4" />
 
-                  {/* Room text */}
-                  <text
-                    x={room.x + room.width / 2}
-                    y={room.y + room.height / 2 - 6}
-                    textAnchor="middle"
-                    fill={mode === 'edit' ? '#94a3b8' : cfg.stroke}
-                    fontSize="13"
-                    fontWeight="bold"
-                    letterSpacing="2"
-                    fontFamily="monospace"
-                    className="pointer-events-none drop-shadow-md"
-                  >
-                    {room.name.toUpperCase()}
-                  </text>
-                  
-                  {/* Dimensions (Edit mode) or Equipments count (View mode) */}
-                  <text
-                    x={room.x + room.width / 2}
-                    y={room.y + room.height / 2 + 12}
-                    textAnchor="middle"
-                    fill={mode === 'edit' ? '#64748b' : '#94a3b8'}
-                    fontSize="10"
-                    fontFamily="monospace"
-                    className="pointer-events-none"
-                  >
-                    {mode === 'edit' 
-                      ? `${room.width} x ${room.height} mm`
-                      : `${equipments.filter(eq => eq.location.toLowerCase().includes(room.locationKey.toLowerCase())).length} ÉQ`}
-                  </text>
+                  {/* Room text (Visible only in edit mode or slightly transparent) */}
+                  {mode === 'edit' && (
+                    <>
+                      <text
+                        x={room.x + room.width / 2}
+                        y={room.y + room.height / 2 - 6}
+                        textAnchor="middle"
+                        fill="#94a3b8"
+                        fontSize="13"
+                        fontWeight="bold"
+                        letterSpacing="2"
+                        fontFamily="monospace"
+                        className="pointer-events-none drop-shadow-md"
+                      >
+                        {room.name.toUpperCase()}
+                      </text>
+                      <text
+                        x={room.x + room.width / 2}
+                        y={room.y + room.height / 2 + 12}
+                        textAnchor="middle"
+                        fill="#64748b"
+                        fontSize="10"
+                        fontFamily="monospace"
+                        className="pointer-events-none"
+                      >
+                        {`${room.width} x ${room.height} mm`}
+                      </text>
+                    </>
+                  )}
 
                   {/* Equipment Dots (View Mode) */}
                   {mode === 'view' && equipments.filter(eq => eq.location.toLowerCase().includes(room.locationKey.toLowerCase())).map((eq, idx) => (
@@ -446,6 +448,36 @@ export default function HospitalMap() {
                 ))
               )}
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── TOOLTIP (BULLE AU SURVOL) ── */}
+      <AnimatePresence>
+        {hoveredRoom && mode === 'view' && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.15 }}
+            style={{
+              position: 'fixed',
+              left: mousePos.x + 15,
+              top: mousePos.y + 15,
+            }}
+            className="z-50 pointer-events-none bg-slate-900/95 backdrop-blur border border-slate-700/80 p-3 rounded-xl shadow-2xl flex flex-col gap-1 min-w-[160px]"
+          >
+            <p className="text-white font-bold text-sm">
+              {rooms.find(r => r.id === hoveredRoom)?.name}
+            </p>
+            <p className="text-xs text-slate-400">
+              {equipments.filter(eq => eq.location.toLowerCase().includes(rooms.find(r => r.id === hoveredRoom)?.locationKey.toLowerCase() || '')).length} équipements détectés
+            </p>
+            {getRoomStatus(rooms.find(r => r.id === hoveredRoom)?.locationKey || '', equipments) === 'panne' && (
+              <p className="text-xs font-bold text-rose-400 mt-1 flex items-center gap-1">
+                <AlertTriangle size={12}/> Alerte critique
+              </p>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

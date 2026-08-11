@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Search, Filter, Plus, Stethoscope, Eye, Pencil, Trash2,
-  QrCode, MapPin, Calendar, X, CheckSquare2, BarChart2, Camera, ScanLine
+  QrCode, MapPin, Calendar, X, CheckSquare2, BarChart2, Camera, ScanLine, LayoutGrid, List
 } from 'lucide-react';
 import {
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
@@ -688,6 +688,7 @@ export default function Equipments() {
   const [compareList, setCompareList] = useState<string[]>([]);
   const [showCompare, setShowCompare] = useState(false);
   const [prefillEquipmentForTicket, setPrefillEquipmentForTicket] = useState<string | undefined>();
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
 
   const filtered = equipments.filter(eq => {
     const matchCat = activeCategory === 'Tous' || eq.category === activeCategory;
@@ -880,6 +881,7 @@ export default function Equipments() {
               className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-9 pr-4 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors"
             />
           </div>
+          </div>
           <div className="flex items-center gap-2 flex-wrap">
             <Filter size={14} className="text-slate-500" />
             <span className="text-sm text-slate-500">Statut:</span>
@@ -896,6 +898,15 @@ export default function Equipments() {
                 {st}
               </button>
             ))}
+            <div className="h-6 w-px bg-slate-700 mx-2 hidden sm:block"></div>
+            <div className="hidden sm:flex bg-slate-800 rounded-lg p-0.5">
+              <button onClick={() => setViewMode('table')} className={`p-1.5 rounded-md transition-all ${viewMode === 'table' ? 'bg-slate-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>
+                <List size={16} />
+              </button>
+              <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-slate-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}>
+                <LayoutGrid size={16} />
+              </button>
+            </div>
           </div>
           {compareList.length > 0 && (
             <span className="text-sm text-slate-400">
@@ -904,8 +915,8 @@ export default function Equipments() {
           )}
         </div>
 
-        {/* Vue Mobile (Cartes) */}
-        <div className="md:hidden space-y-4">
+        {/* Vue Cartes (Mobile ou Grille) */}
+        <div className={viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" : "md:hidden space-y-4"}>
           {filtered.map(eq => (
             <div key={eq.id} className="glass rounded-xl p-4 border border-slate-700/40">
               <div className="flex justify-between items-start mb-3">
@@ -959,8 +970,8 @@ export default function Equipments() {
           )}
         </div>
 
-        {/* Vue Desktop (Tableau) — masquée sur mobile */}
-        <div className="hidden md:block rounded-2xl glass border border-slate-700/40 overflow-hidden">
+        {/* Vue Desktop (Tableau) */}
+        <div className={`${viewMode === 'table' ? 'hidden md:block' : 'hidden'} rounded-2xl glass border border-slate-700/40 overflow-hidden`}>
           <div className="overflow-x-auto">
             <table className="w-full text-base text-left">
               <thead className="uc-thead text-xs uppercase tracking-wider border-b">

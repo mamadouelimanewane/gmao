@@ -159,7 +159,7 @@ export default function Statistiques() {
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
           {/* Area Chart */}
-          <div className="xl:col-span-2 p-5 rounded-2xl glass border border-slate-700/40">
+          <div className="xl:col-span-2 p-5 rounded-2xl glass border border-slate-700/40 hover-glow transition-all duration-300">
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h3 className="text-sm font-semibold text-white">Activité de la semaine</h3>
@@ -200,7 +200,7 @@ export default function Statistiques() {
 
           {/* Pie + Uptime */}
           <div className="flex flex-col gap-4">
-            <div className="p-5 rounded-2xl glass border border-slate-700/40 flex-1">
+            <div className="p-5 rounded-2xl glass border border-slate-700/40 flex-1 hover-glow transition-all duration-300">
               <h3 className="text-sm font-semibold text-white mb-4">État du parc (347 équipements)</h3>
               <div className="flex items-center gap-4">
                 <PieChart width={110} height={110}>
@@ -245,30 +245,36 @@ export default function Statistiques() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Alerts */}
-          <div className="p-5 rounded-2xl glass border border-slate-700/40">
+          {/* Activity Feed */}
+          <div className="p-5 rounded-2xl glass border border-slate-700/40 hover-glow transition-all duration-300 flex flex-col h-full">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-                <h3 className="text-sm font-semibold text-white">Alertes actives</h3>
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                <h3 className="text-sm font-semibold text-white">Flux d'activité en direct</h3>
               </div>
               <Link to="/tickets" className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">Voir tout <ArrowRight size={12} /></Link>
             </div>
-            <div className="space-y-2">
-              {activeAlerts.map((alert) => (
+            <div className="space-y-2 overflow-y-auto pr-1" style={{ maxHeight: '200px' }}>
+              {[
+                { id: 1, equipment: 'Ticket #42 résolu par Diallo A.', location: 'Radiologie', time: 'À l\'instant', status: 'success' },
+                { id: 2, equipment: 'IRM Siemens Magnetom (Alerte T°)', location: 'Radiologie – Salle 2', time: 'Il y a 10 min', status: 'critical' },
+                { id: 3, equipment: 'Commande #108 (Filtres HEPA) livrée', location: 'Magasin Central', time: 'Il y a 45 min', status: 'info' },
+                { id: 4, equipment: 'Nouveau Ticket : Moniteur Philips', location: 'Réanimation – Lit 4', time: 'Il y a 2h', status: 'warning' },
+                { id: 5, equipment: 'Maintenance PM terminée', location: 'Bloc Opératoire 2', time: 'Il y a 3h', status: 'success' },
+              ].map((alert) => (
                 <div key={alert.id} className="flex items-start gap-3 p-3 rounded-xl bg-slate-900/50 hover:bg-slate-800/50 border border-slate-800/50 hover:border-slate-700/50 transition-all cursor-pointer group">
                   <div className={`mt-0.5 p-1.5 rounded-lg flex-shrink-0 ${
                     alert.status === 'critical' ? 'bg-rose-500/15 text-rose-400' :
                     alert.status === 'warning' ? 'bg-amber-500/15 text-amber-400' :
+                    alert.status === 'success' ? 'bg-emerald-500/15 text-emerald-400' :
                     'bg-blue-500/15 text-blue-400'
                   }`}>
-                    <AlertTriangle size={13} />
+                    {alert.status === 'success' ? <CheckCircle2 size={13} /> : <Activity size={13} />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-slate-200 truncate">{alert.equipment}</p>
                     <p className="text-xs text-slate-500 mt-0.5">{alert.location} · {alert.time}</p>
                   </div>
-                  <ArrowRight size={14} className="text-slate-600 group-hover:text-slate-400 transition-colors mt-1 flex-shrink-0" />
                 </div>
               ))}
             </div>

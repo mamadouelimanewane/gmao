@@ -5,6 +5,7 @@ import {
   Wrench, X, ShieldAlert, PenLine, Eye, ArrowRight, ArrowLeft,
   ClipboardList, ShoppingCart
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useDataStore, REPAIR_STEPS, repairStepToStatus } from '../contexts/DataStore';
 import type { Ticket, PurchaseOrder } from '../contexts/DataStore';
 import { useNotifications } from '../contexts/NotificationContext';
@@ -600,8 +601,14 @@ export default function Tickets() {
                 </div>
 
                 <div className="space-y-3 flex-1 overflow-y-auto max-h-[600px] pr-1">
-                  {colTickets.map((t) => (
-                    <div
+                  <AnimatePresence>
+                  {colTickets.map((t, i) => (
+                    <motion.div
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.25, delay: i * 0.05 }}
+                      layout
                       key={t.id}
                       onClick={() => setWorkflowTicketId(t.id)}
                       className="p-4 rounded-xl glass border border-slate-800/80 hover:border-slate-700/60 transition-all duration-200 group cursor-pointer relative overflow-hidden"
@@ -680,8 +687,9 @@ export default function Tickets() {
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
+                  </AnimatePresence>
 
                   {colTickets.length === 0 && (
                     <div className="flex flex-col items-center justify-center h-48 border border-dashed border-slate-800 rounded-xl text-slate-600 text-xs">

@@ -2,7 +2,8 @@ import type { ElementType } from 'react';
 import {
   Stethoscope, Wrench, ClipboardList, CalendarClock, Network,
   Leaf, Package, ShoppingCart, Users, Coins, UserCog, Sparkles, TrendingUp,
-  FileBarChart, Map, Settings, BarChart3, BookOpen, ShieldCheck
+  FileBarChart, Map, Settings, BarChart3, BookOpen, ShieldCheck,
+  Gauge, Video
 } from 'lucide-react';
 
 export type CategoryKey = 'maintenance' | 'supply' | 'pilotage' | 'systeme';
@@ -43,6 +44,8 @@ export const MODULE_GROUPS: AppGroup[] = [
       { name: 'MedPool', desc: 'Réseau d\'entraide inter-hospitalière', href: '/medpool', icon: Network },
       { name: 'Scan Rapide', desc: 'Détection QR Code & codes-barres', href: '/equipements', icon: Wrench },
       { name: 'Base de Connaissances', desc: 'Manuels et guides de dépannage', href: '/knowledge', icon: BookOpen },
+      { name: 'Métrologie & Tests', desc: 'Sécurité électrique et étalonnage', href: '/equipements', icon: Gauge },
+      { name: 'Téléassistance AR', desc: 'Support visuel constructeur', href: '/tickets', icon: Video },
     ],
   },
   {

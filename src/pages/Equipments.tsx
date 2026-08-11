@@ -881,7 +881,6 @@ export default function Equipments() {
               className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-9 pr-4 text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors"
             />
           </div>
-          </div>
           <div className="flex items-center gap-2 flex-wrap">
             <Filter size={14} className="text-slate-500" />
             <span className="text-sm text-slate-500">Statut:</span>

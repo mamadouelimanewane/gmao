@@ -41,6 +41,7 @@ export const MODULE_GROUPS: AppGroup[] = [
       { name: 'Workflow Réparation', desc: 'Signalement → diagnostic → clôture', href: '/tickets', icon: ClipboardList },
       { name: 'PM Planifiées', desc: 'Maintenance préventive programmée', href: '/pm', icon: CalendarClock },
       { name: 'MedPool', desc: 'Réseau d\'entraide inter-hospitalière', href: '/medpool', icon: Network },
+      { name: 'Scan Rapide', desc: 'Détection QR Code & codes-barres', href: '/equipements', icon: Wrench },
       { name: 'Base de Connaissances', desc: 'Manuels et guides de dépannage', href: '/knowledge', icon: BookOpen },
     ],
   },
@@ -64,10 +65,10 @@ export const MODULE_GROUPS: AppGroup[] = [
     tiles: [
       { name: 'Analytics IoT', desc: 'Capteurs et analytique prédictive', href: '/analytics', icon: TrendingUp },
       { name: 'Statistiques', desc: 'Tous les indicateurs clés regroupés', href: '/statistiques', icon: BarChart3 },
-      { name: 'Rapports', desc: 'Audit et conformité réglementaire', href: '/rapports', icon: FileBarChart },
+      { name: 'Audit & Conformité', desc: 'Registre immuable et rapports', href: '/rapports', icon: FileBarChart },
       { name: 'IA Copilot', desc: 'Assistant intelligent de maintenance', href: '/ia', icon: Sparkles },
       { name: 'Énergie & ESG', desc: 'Optimisation énergétique et carbone', href: '/energie', icon: Leaf },
-      { name: 'Plan Hôpital', desc: 'Cartographie interactive des services', href: '/plan', icon: Map },
+      { name: 'Jumeau Numérique', desc: 'Télémétrie & plan interactif', href: '/plan', icon: Map },
     ],
   },
   {

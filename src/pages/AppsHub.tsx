@@ -7,6 +7,10 @@ import {
   MODULE_GROUPS, CATEGORY_STYLE, totalModules, setActiveCategory, clearActiveCategory,
 } from '../lib/appModules';
 import type { CategoryKey } from '../lib/appModules';
+import { useDataStore } from '../contexts/DataStore';
+import { MOCK_CONTRATS } from '../lib/mockContrats';
+import { MOCK_DOCUMENTS } from '../lib/mockDocuments';
+import { FileText, ShieldCheck, Stethoscope } from 'lucide-react';
 
 const TEXT = '#111827';
 const MUTED = '#5b6472';
@@ -17,6 +21,7 @@ export default function AppsHub() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [search, setSearch] = useState('');
+  const { equipments } = useDataStore();
 
   // Le portail est l'unique page d'accueil : chaque retour ici efface le
   // filtrage par catégorie hérité d'une visite précédente d'un module.
@@ -45,6 +50,28 @@ export default function AppsHub() {
     clearActiveCategory();
     navigate('/dashboard');
   };
+
+  const globalResults = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return null;
+
+    const matchedEquipments = equipments.filter(eq => 
+      eq.name.toLowerCase().includes(q) || eq.provider?.toLowerCase().includes(q) || eq.category.toLowerCase().includes(q)
+    ).slice(0, 3);
+
+    const matchedContrats = MOCK_CONTRATS.filter(c =>
+      c.provider.toLowerCase().includes(q) || c.equipment.toLowerCase().includes(q)
+    ).slice(0, 3);
+
+    const matchedDocs = MOCK_DOCUMENTS.filter(d =>
+      d.title.toLowerCase().includes(q)
+    ).slice(0, 3);
+
+    const totalMatches = matchedEquipments.length + matchedContrats.length + matchedDocs.length;
+    if (totalMatches === 0) return null;
+
+    return { matchedEquipments, matchedContrats, matchedDocs, totalMatches };
+  }, [search, equipments]);
 
   return (
     <div className="min-h-screen" style={{ background: PAGE_BG, color: TEXT }}>
@@ -213,6 +240,68 @@ export default function AppsHub() {
           );
         })}
       </div>
+
+      {/* --- GLOBAL SEARCH RESULTS --- */}
+      {globalResults && (
+        <div className="max-w-6xl mx-auto px-6 pb-24 animate-fade-in-up">
+          <div className="mt-8 mb-6 flex items-center gap-3 border-b border-slate-300/30 pb-3">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+              <Search size={18} />
+            </div>
+            <h2 className="text-xl font-bold text-slate-800">
+              Résultats globaux ({globalResults.totalMatches})
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            {/* Équipements */}
+            {globalResults.matchedEquipments.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                  <Stethoscope size={14} /> Équipements
+                </h3>
+                {globalResults.matchedEquipments.map(eq => (
+                  <div key={eq.id} onClick={() => navigate('/equipements')} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-emerald-500 hover:shadow-md transition-all cursor-pointer">
+                    <p className="font-semibold text-slate-800 text-sm">{eq.name}</p>
+                    <p className="text-xs text-slate-500 mt-1">{eq.provider || 'Marque inconnue'} • {eq.category}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Contrats */}
+            {globalResults.matchedContrats.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                  <ShieldCheck size={14} /> Contrats
+                </h3>
+                {globalResults.matchedContrats.map(c => (
+                  <div key={c.id} onClick={() => navigate('/contrats')} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-emerald-500 hover:shadow-md transition-all cursor-pointer">
+                    <p className="font-semibold text-slate-800 text-sm">{c.provider}</p>
+                    <p className="text-xs text-slate-500 mt-1">{c.equipment}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Connaissances */}
+            {globalResults.matchedDocs.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                  <FileText size={14} /> Base de Connaissances
+                </h3>
+                {globalResults.matchedDocs.map(d => (
+                  <div key={d.id} onClick={() => navigate('/knowledge')} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-emerald-500 hover:shadow-md transition-all cursor-pointer">
+                    <p className="font-semibold text-slate-800 text-sm line-clamp-1">{d.title}</p>
+                    <p className="text-xs text-slate-500 mt-1">{d.type} • {d.size}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <footer className="text-center pb-10">
         <p className="text-xs" style={{ color: FAINT }}>© 2026 GMAO Health · Hôpital Ndamatou Touba, Sénégal</p>

@@ -51,26 +51,7 @@ interface Message {
   liked?: boolean | null;
 }
 
-const PREBUILT_QA: Record<string, string> = {
-  default: "Je suis votre assistant GMAO intelligent. Posez-moi une question sur vos équipements, pannes, stocks ou plannings.",
-  "quel équipement": "📊 **Analyse IA — Équipement le plus critique**\n\nL'**Automate Sysmex XN-1000** (Laboratoire Biologie) a un score de risque de **92/100** avec une panne prédite dans **3 jours**. Une intervention préventive est recommandée immédiatement. Voulez-je que je génère un bon de travail ?",
-  "scanner": "🔍 **Diagnostic — Scanner GE Optima CT660**\n\nUsure du filament tube RX détectée (73/100 de risque). Durée de vie résiduelle estimée : **18 jours**. Coût de remplacement tube : ~3 500 000 FCFA. Je recommande de planifier l'intervention dans les 10 jours pour éviter une panne en production.",
-  "stock": "📦 **Alerte Stock — Analyse IA**\n\nJe détecte **4 pièces détachées** en rupture imminente :\n- Filtre HEPA (Stérilisation) : 2 unités restantes\n- Joints toriques Ø12 : 0 unités (**rupture totale**)\n- Lampe UV désinfection : 1 unité\n- Huile compresseur ISO 46 : 1 bidon\n\nSuggestion : Commande urgente chez Biomédical Sénégal (fournisseur privilégié).",
-  "planning": "📅 **Optimisation Planning — Semaine prochaine**\n\nL'IA a réduit les déplacements des techniciens de **32%** en regroupant les interventions par département :\n- Lundi : Bloc Opératoire (4 interventions regroupées)\n- Mardi : Radiologie + Laboratoire\n- Mercredi : Réanimation (priorité critique)\n- Jeudi/Vendredi : Maintenances préventives programmées\n\nTemps total économisé : **10 heures** cette semaine.",
-  "rapport": "📝 **Rapport Automatique — Juin 2025**\n\nVoici un résumé IA du mois :\n✅ MTTR moyen : **3.2 heures** (-18% vs mai)\n✅ Disponibilité équipements : **97.4%** (+1.2%)\n⚠️ Budget maintenance : 87% consommé (alerte)\n🔴 2 équipements en zone critique (remplacement recommandé)\n\nSouhaitez-vous que je génère le rapport PDF complet ?",
-  "mttr": "⏱️ **MTTR — Mean Time To Repair**\n\nMTTR global actuel : **3.2h** sur 30 derniers jours.\nObjectif KPI : < 4h ✅\n\nMeilleure performance : Diallo A. (MTTR: 2.1h)\nDépartement le plus lent : Radiologie (MTTR: 5.8h) — manque de pièces détachées en cause.",
-  "budget": "💰 **Analyse Budgétaire IA**\n\n**Budget annuel alloué** : 45 000 000 FCFA\n**Consommé** : 39 150 000 FCFA (87%)\n**Restant** : 5 850 000 FCFA\n\n⚠️ Alerte : À ce rythme, le budget sera épuisé en **septembre**. Recommandation : Réallouer 8M FCFA depuis le budget acquisitions Q4 pour couvrir les maintenances critiques.",
-};
-
-function getAIResponse(input: string): string {
-  const lower = input.toLowerCase();
-  for (const key of Object.keys(PREBUILT_QA)) {
-    if (key !== 'default' && lower.includes(key)) return PREBUILT_QA[key];
-  }
-  if (lower.includes('irm') || lower.includes('mri')) return "🧲 **IRM Siemens Magnetom Skyra**\n\nScore de risque actuel : **87/100** (Critique). Dégradation bobine gradient détectée par le modèle LSTM. RUL estimé : 8 jours. Intervention prioritaire recommandée. Technicien suggéré : Sow M. (compétence IRM certifiée SIEMENS).";
-  if (lower.includes('techni') || lower.includes('tech')) return "👷 **Performance Techniciens — Ce mois**\n\n1. Diallo A. — MTTR 2.1h, 98% taux de résolution ⭐\n2. Sow M. — MTTR 2.9h, 95% taux de résolution\n3. Ndiaye F. — MTTR 3.4h, 91% taux de résolution\n4. Ba K. — MTTR 4.2h, 88% taux de résolution\n\nRecommandation : Former Ba K. sur les équipements de radiologie.";
-  return "🤖 J'ai analysé votre question. Basé sur les données de votre parc biomédical, voici ce que je recommande :\n\n- Vérifiez l'état des équipements en zone critique (score > 75)\n- Planifiez une revue hebdomadaire des stocks de pièces\n- Activez les alertes automatiques pour les seuils critiques\n\nVoulez-vous que je génère un rapport détaillé sur un aspect spécifique ?";
-}
+import { simulateAIStream } from '../lib/ai';
 
 // ——————————————————————————————————————————————
 // COMPONENTS
@@ -101,10 +82,11 @@ function AISectionCard({ title, subtitle, icon: Icon, gradient, children }: {
 
 export default function AICopilot() {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: PREBUILT_QA.default, ts: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
+    { role: 'assistant', content: "Je suis votre IA Copilot, propulsé par Gemini. Posez-moi une question sur vos équipements, vos risques de panne, vos stocks ou l'optimisation des plannings.", ts: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [streamingText, setStreamingText] = useState('');
   const [reportGenerated, setReportGenerated] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState<'anomaly' | 'scheduling' | 'failure'>('failure');
@@ -142,17 +124,35 @@ export default function AICopilot() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const sendMessage = () => {
-    if (!input.trim()) return;
+  const sendMessage = async () => {
+    if (!input.trim() || isTyping) return;
     const userMsg: Message = { role: 'user', content: input, ts: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) };
     setMessages(prev => [...prev, userMsg]);
+    const currentInput = input;
     setInput('');
     setIsTyping(true);
-    setTimeout(() => {
-      const reply = getAIResponse(input);
+    setStreamingText('');
+
+    try {
+      // Appel du service IA (streaming asynchrone)
+      const reply = await simulateAIStream(
+        currentInput,
+        { anomalies: anomalyData, scheduling: schedulingData, failures: failureScores },
+        (chunk) => {
+          setStreamingText(chunk);
+          // Auto-scroll on stream
+          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
+      );
+      
       setMessages(prev => [...prev, { role: 'assistant', content: reply, ts: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }), liked: null }]);
+    } catch (e) {
+      console.error(e);
+      setMessages(prev => [...prev, { role: 'assistant', content: "Désolé, une erreur de connexion à l'API IA est survenue.", ts: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }), liked: null }]);
+    } finally {
       setIsTyping(false);
-    }, 1200);
+      setStreamingText('');
+    }
   };
 
   const handleKey = (e: React.KeyboardEvent) => {
@@ -243,10 +243,19 @@ export default function AICopilot() {
                 <div className="w-7 h-7 shrink-0 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center">
                   <Bot size={12} className="text-white" />
                 </div>
-                <div className="bg-slate-800/80 border border-slate-700/50 rounded-2xl rounded-tl-sm px-4 py-2.5 flex items-center gap-1.5">
-                  {[0, 0.2, 0.4].map((d, j) => (
-                    <div key={j} className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: `${d}s` }} />
-                  ))}
+                <div className="bg-slate-800/80 border border-slate-700/50 rounded-2xl rounded-tl-sm px-4 py-2.5 flex flex-col gap-2 min-w-[60px] max-w-[85%]">
+                  {streamingText ? (
+                    <div className="text-xs text-slate-200 whitespace-pre-line leading-relaxed">
+                      {streamingText}
+                      <span className="inline-block w-1.5 h-3 ml-1 bg-violet-400 animate-pulse align-middle" />
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5 h-4">
+                      {[0, 0.2, 0.4].map((d, j) => (
+                        <div key={j} className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: `${d}s` }} />
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}

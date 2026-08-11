@@ -2,7 +2,7 @@ import type { ElementType } from 'react';
 import {
   Stethoscope, Wrench, ClipboardList, CalendarClock, Network,
   Leaf, Package, ShoppingCart, Users, Coins, UserCog, Sparkles, TrendingUp,
-  FileBarChart, Map, Settings, BarChart3,
+  FileBarChart, Map, Settings, BarChart3, BookOpen, ShieldCheck
 } from 'lucide-react';
 
 export type CategoryKey = 'maintenance' | 'supply' | 'pilotage' | 'systeme';
@@ -41,6 +41,7 @@ export const MODULE_GROUPS: AppGroup[] = [
       { name: 'Workflow Réparation', desc: 'Signalement → diagnostic → clôture', href: '/tickets', icon: ClipboardList },
       { name: 'PM Planifiées', desc: 'Maintenance préventive programmée', href: '/pm', icon: CalendarClock },
       { name: 'MedPool', desc: 'Réseau d\'entraide inter-hospitalière', href: '/medpool', icon: Network },
+      { name: 'Base de Connaissances', desc: 'Manuels et guides de dépannage', href: '/knowledge', icon: BookOpen },
     ],
   },
   {
@@ -53,6 +54,7 @@ export const MODULE_GROUPS: AppGroup[] = [
       { name: 'Fournisseurs', desc: 'Contrats, contacts, réactivité SLA', href: '/fournisseurs', icon: Users },
       { name: 'Coûts & TCO', desc: 'Budgets et coût total de possession', href: '/finances', icon: Coins },
       { name: 'Ressources Humaines', desc: 'Planning et équipe biomédicale', href: '/rh', icon: UserCog },
+      { name: 'Contrats & Garanties', desc: 'Suivi des garanties fournisseurs', href: '/contrats', icon: ShieldCheck },
     ],
   },
   {

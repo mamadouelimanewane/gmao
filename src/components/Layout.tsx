@@ -62,12 +62,12 @@ export default function Layout() {
   const { theme, toggleTheme } = useTheme();
   const [sidebarOpen,  setSidebarOpen]  = useState(false);
   const [notifOpen,    setNotifOpen]    = useState(false);
-  const [langOpen,     setLangOpen]     = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [online,       setOnline]       = useState(navigator.onLine);
   const [searchQuery,  setSearchQuery]  = useState('');
 
   const notifRef = useRef<HTMLDivElement>(null);
-  const langRef  = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const on  = () => setOnline(true);
@@ -81,7 +81,7 @@ export default function Layout() {
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifOpen(false);
-      if (langRef.current  && !langRef.current.contains(e.target as Node))  setLangOpen(false);
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) setUserMenuOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -315,66 +315,16 @@ export default function Layout() {
               <LayoutGrid size={17} />
             </button>
 
-            {/* Theme Toggle — pill switch. Le libellé reflète le thème
-                ACTUELLEMENT actif (pas la destination du clic), pour éviter
-                toute confusion sur l'état réel de l'interface. */}
-            <button
-              onClick={toggleTheme}
-              title={isLight ? 'Thème clair actif — cliquer pour passer en sombre' : 'Thème sombre actif — cliquer pour passer en clair'}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
-              style={{
-                background: isLight ? '#f1f5f9' : '#0f172a',
-                color: isLight ? '#0f172a' : '#f8fafc',
-                border: '1px solid var(--border-base)',
-              }}
-            >
-              {isLight ? <Sun size={14} /> : <Moon size={14} />}
-              <span className="hidden sm:inline">{isLight ? 'Clair' : 'Sombre'}</span>
-            </button>
-
-            {/* Language Switcher */}
-            <div ref={langRef} className="relative">
-              <button
-                onClick={() => { setLangOpen(!langOpen); setNotifOpen(false); }}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all"
-                style={{ color: 'var(--text-muted)', background: langOpen ? 'var(--bg-elevated)' : '' }}
-              >
-                <Globe size={15} />
-                <span>{langMeta[lang].flag}</span>
-              </button>
-              {langOpen && (
-                <div className="absolute right-0 top-full mt-1.5 w-36 rounded-xl shadow-2xl overflow-hidden z-50"
-                  style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-base)' }}>
-                  {(Object.entries(langMeta) as [Lang, typeof langMeta[Lang]][]).map(([code, meta]) => (
-                    <button
-                      key={code}
-                      onClick={() => { setLang(code); setLangOpen(false); }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-left transition-colors"
-                      style={lang === code
-                        ? { background: 'rgba(16,185,129,0.1)', color: '#10b981' }
-                        : { color: 'var(--text-muted)' }}
-                      onMouseEnter={e => { if (lang !== code) (e.currentTarget as HTMLElement).style.background = 'var(--bg-elevated)'; }}
-                      onMouseLeave={e => { if (lang !== code) (e.currentTarget as HTMLElement).style.background = ''; }}
-                    >
-                      <span className="text-base">{meta.flag}</span>
-                      <span className="font-medium">{meta.label}</span>
-                      {lang === code && <CheckCircle2 size={10} className="ml-auto text-emerald-500" />}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
             {/* Notification Bell */}
             <div ref={notifRef} className="relative">
               <button
-                onClick={() => { setNotifOpen(!notifOpen); setLangOpen(false); }}
+                onClick={() => { setNotifOpen(!notifOpen); setUserMenuOpen(false); }}
                 className="relative p-2 rounded-lg transition-colors"
                 style={{ color: 'var(--text-muted)' }}
               >
                 <Bell size={20} />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-rose-500 flex items-center justify-center text-[9px] font-bold text-white animate-pulse">
+                  <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-rose-500 flex items-center justify-center text-[10px] font-bold text-white animate-pulse">
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
@@ -386,13 +336,13 @@ export default function Layout() {
                   <div className="flex items-center justify-between px-4 py-3"
                     style={{ borderBottom: '1px solid var(--border-soft)' }}>
                     <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{t('notif_title')}</h3>
-                    <button onClick={markAllRead} className="text-[10px] text-emerald-500 transition-colors">
+                    <button onClick={markAllRead} className="text-xs text-emerald-500 transition-colors">
                       {t('mark_read')}
                     </button>
                   </div>
                   <div className="max-h-80 overflow-y-auto">
                     {notifications.length === 0 ? (
-                      <p className="text-xs text-center py-6" style={{ color: 'var(--text-muted)' }}>{t('notif_empty')}</p>
+                      <p className="text-sm text-center py-6" style={{ color: 'var(--text-muted)' }}>{t('notif_empty')}</p>
                     ) : notifications.slice(0, 8).map((n: Notification) => {
                       const NIcon = notifTypeIcon[n.type];
                       return (
@@ -403,15 +353,15 @@ export default function Layout() {
                           onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = !n.read ? 'rgba(16,185,129,0.05)' : ''}
                         >
                           <div className={`p-1.5 rounded-lg border shrink-0 mt-0.5 ${notifTypeBg[n.type]}`}>
-                            <NIcon size={11} className={toastIconColors[n.type]} />
+                            <NIcon size={12} className={toastIconColors[n.type]} />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-1">
-                              <p className="text-[11px] font-semibold leading-snug" style={{ color: 'var(--text-primary)' }}>{n.title}</p>
+                              <p className="text-xs font-semibold leading-snug" style={{ color: 'var(--text-primary)' }}>{n.title}</p>
                               {!n.read && <div className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0 mt-1" />}
                             </div>
-                            <p className="text-[10px] mt-0.5 line-clamp-2" style={{ color: 'var(--text-muted)' }}>{n.message}</p>
-                            <p className="text-[9px] mt-1" style={{ color: 'var(--text-faint)' }}>{timeAgo(n.ts)}</p>
+                            <p className="text-xs mt-0.5 line-clamp-2" style={{ color: 'var(--text-muted)' }}>{n.message}</p>
+                            <p className="text-[10px] mt-1" style={{ color: 'var(--text-faint)' }}>{timeAgo(n.ts)}</p>
                           </div>
                         </div>
                       );
@@ -420,7 +370,7 @@ export default function Layout() {
                   <div className="px-4 py-2.5" style={{ borderTop: '1px solid var(--border-soft)' }}>
                     <button
                       onClick={() => { setNotifOpen(false); navigate('/settings'); }}
-                      className="text-[11px] text-emerald-500 hover:text-emerald-400 transition-colors font-medium"
+                      className="text-xs text-emerald-500 hover:text-emerald-400 transition-colors font-medium"
                     >
                       Voir toutes les notifications →
                     </button>
@@ -429,10 +379,68 @@ export default function Layout() {
               )}
             </div>
 
-            {/* User Avatar */}
+            {/* User Avatar & Menu */}
             {user && (
-              <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${roleColors[user.role]} flex items-center justify-center text-xs font-bold text-white cursor-pointer shadow-lg ml-1`}>
-                {user.avatar}
+              <div ref={userMenuRef} className="relative ml-1">
+                <div 
+                  onClick={() => { setUserMenuOpen(!userMenuOpen); setNotifOpen(false); }}
+                  className={`w-8 h-8 rounded-full bg-gradient-to-br ${roleColors[user.role]} flex items-center justify-center text-xs font-bold text-white cursor-pointer shadow-lg`}
+                >
+                  {user.avatar}
+                </div>
+                {userMenuOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl shadow-2xl z-50 overflow-hidden"
+                    style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-base)' }}>
+                    <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--border-soft)' }}>
+                      <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{user.name}</p>
+                      <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{roleLabels[user.role]}</p>
+                    </div>
+                    
+                    <div className="p-2">
+                      <button
+                        onClick={toggleTheme}
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-colors text-left"
+                        style={{ color: 'var(--text-primary)' }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-elevated)'; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = ''; }}
+                      >
+                        {isLight ? <Moon size={16} /> : <Sun size={16} />}
+                        <span>{isLight ? 'Passer au mode Sombre' : 'Passer au mode Clair'}</span>
+                      </button>
+
+                      <div className="px-3 py-2 mt-1">
+                        <p className="text-xs font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>Langue</p>
+                        <div className="grid grid-cols-3 gap-1">
+                          {(Object.entries(langMeta) as [Lang, typeof langMeta[Lang]][]).map(([code, meta]) => (
+                            <button
+                              key={code}
+                              onClick={() => { setLang(code); }}
+                              className={`flex justify-center items-center py-1.5 rounded-lg border transition-colors ${lang === code ? 'border-emerald-500 bg-emerald-500/10' : 'border-transparent'}`}
+                              style={{ color: lang === code ? '#10b981' : 'var(--text-primary)' }}
+                              onMouseEnter={e => { if (lang !== code) (e.currentTarget as HTMLElement).style.background = 'var(--bg-elevated)'; }}
+                              onMouseLeave={e => { if (lang !== code) (e.currentTarget as HTMLElement).style.background = ''; }}
+                              title={meta.label}
+                            >
+                              {meta.flag}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-2" style={{ borderTop: '1px solid var(--border-soft)' }}>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-colors text-rose-500 text-left"
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-elevated)'; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = ''; }}
+                      >
+                        <LogOut size={16} />
+                        <span>Déconnexion</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

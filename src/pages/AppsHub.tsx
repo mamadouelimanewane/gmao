@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, ArrowLeft, LayoutGrid, Search } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useAuth, roleLabels } from '../contexts/AuthContext';
 import {
   MODULE_GROUPS, CATEGORY_STYLE, totalModules, setActiveCategory, clearActiveCategory,
@@ -59,7 +60,7 @@ export default function AppsHub() {
         <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm"
-              style={{ background: '#dc2626' }}>
+              style={{ background: '#10b981' }}>
               <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
                 <rect x="12" y="3" width="8" height="26" rx="2" fill="#ffffff" />
                 <rect x="3" y="12" width="26" height="8" rx="2" fill="#ffffff" />
@@ -74,12 +75,12 @@ export default function AppsHub() {
           <div className="flex items-center gap-3">
             {user && (
               <div className="hidden sm:flex items-center gap-2 pr-3 border-r" style={{ borderColor: 'rgba(255,255,255,0.15)' }}>
-                <div className="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center text-xs font-bold">
+                <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">
                   {user.avatar}
                 </div>
                 <div className="leading-tight">
                   <p className="uc-title text-sm font-semibold">{user.name}</p>
-                  <p className="text-[11px] font-medium" style={{ color: '#fca5a5' }}>{roleLabels[user.role]}</p>
+                  <p className="text-xs font-medium" style={{ color: '#a7f3d0' }}>{roleLabels[user.role]}</p>
                 </div>
               </div>
             )}
@@ -94,8 +95,8 @@ export default function AppsHub() {
         </div>
       </header>
 
-      {/* Hero — poste de contrôle navy, liseré rouge d'alerte */}
-      <div className="relative overflow-hidden" style={{ background: '#0f172a', borderBottom: '4px solid #dc2626' }}>
+      {/* Hero — poste de contrôle navy */}
+      <div className="relative overflow-hidden" style={{ background: '#0f172a' }}>
         <svg className="absolute inset-0 w-full h-full opacity-[0.08]" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern id="geo-hub" x="0" y="0" width="72" height="72" patternUnits="userSpaceOnUse">
@@ -107,11 +108,12 @@ export default function AppsHub() {
         </svg>
 
         <div className="relative max-w-6xl mx-auto px-6 pt-12 pb-10 text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border mb-5"
-            style={{ borderColor: '#dc2626', background: 'rgba(220,38,38,0.15)' }}>
-            <LayoutGrid size={14} style={{ color: '#fca5a5' }} />
-            <span className="text-xs font-bold tracking-[0.15em] uppercase" style={{ color: '#fca5a5' }}>Portail d'accès</span>
-          </div>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border mb-5"
+            style={{ borderColor: '#10b981', background: 'rgba(16,185,129,0.15)' }}>
+            <LayoutGrid size={14} style={{ color: '#a7f3d0' }} />
+            <span className="text-xs font-bold tracking-[0.15em] uppercase" style={{ color: '#a7f3d0' }}>Portail d'accès</span>
+          </motion.div>
           <h1 className="font-black text-4xl sm:text-5xl tracking-tight mb-3" style={{ color: '#ffffff' }}>
             {totalModules} modules GMAO
           </h1>
@@ -144,7 +146,7 @@ export default function AppsHub() {
               placeholder="Rechercher un module…"
               className="w-full rounded-xl pl-11 pr-4 py-3 text-sm outline-none transition-all"
               style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)', color: '#ffffff' }}
-              onFocus={e => { e.target.style.background = 'rgba(255,255,255,0.12)'; e.target.style.borderColor = '#dc2626'; }}
+              onFocus={e => { e.target.style.background = 'rgba(255,255,255,0.12)'; e.target.style.borderColor = '#10b981'; }}
               onBlur={e => { e.target.style.background = 'rgba(255,255,255,0.08)'; e.target.style.borderColor = 'rgba(255,255,255,0.18)'; }}
             />
           </div>
@@ -178,14 +180,19 @@ export default function AppsHub() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {group.tiles.map(tile => (
-                  <button
+                {group.tiles.map((tile, i) => (
+                  <motion.button
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.05, duration: 0.3 }}
                     key={tile.name}
                     onClick={() => openTile(group.key, tile.href)}
-                    className="group relative flex items-start gap-4 p-5 rounded-2xl text-left transition-all hover:-translate-y-1 bg-white border-2"
-                    style={{ borderColor: '#e7eaf3', boxShadow: '0 1px 3px rgba(17,24,39,0.06)' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = style.color; (e.currentTarget as HTMLElement).style.boxShadow = `0 12px 24px -8px ${style.ring}`; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#e7eaf3'; (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 3px rgba(17,24,39,0.06)'; }}
+                    className="group relative flex items-start gap-4 p-5 rounded-2xl text-left bg-white border-2 hover-glow"
+                    style={{ 
+                      borderColor: '#e7eaf3', 
+                      '--glow-color': style.color + '40', // 25% opacity for glow
+                      '--glow-border': style.color 
+                    } as React.CSSProperties}
                   >
                     <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110"
                       style={{ background: style.tint, color: style.color }}>
@@ -199,7 +206,7 @@ export default function AppsHub() {
                         Ouvrir <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
                       </div>
                     </div>
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </section>

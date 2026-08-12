@@ -25,7 +25,7 @@ export interface NewUserInput {
 
 export const createUser = (input: NewUserInput) => call({ action: 'create', ...input });
 
-export const updateUser = (id: string, patch: { role?: string; dept?: string; name?: string }) =>
+export const updateUser = (id: string, patch: { role?: string; dept?: string; name?: string; password?: string }) =>
   call({ action: 'update', id, ...patch });
 
 export const deleteUser = (id: string) => call({ action: 'delete', id });

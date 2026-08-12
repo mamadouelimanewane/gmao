@@ -65,14 +65,26 @@ export default async function handler(req, res) {
     }
 
     if (action === 'update') {
-      const { id, role, dept, name } = req.body;
+      const { id, role, dept, name, password } = req.body;
       if (!id) { res.status(400).json({ error: 'id requis' }); return; }
+
+      if (password) {
+        if (password.length < 6) {
+          res.status(400).json({ error: 'Le mot de passe doit contenir au moins 6 caractères' });
+          return;
+        }
+        const { error: pwErr } = await sb.auth.admin.updateUserById(id, { password });
+        if (pwErr) { res.status(400).json({ error: pwErr.message }); return; }
+      }
+
       const patch = {};
       if (role) patch.role = role;
       if (dept) patch.dept = dept;
       if (name) { patch.name = name; patch.avatar = initials(name); }
-      const { error: updErr } = await sb.from('profiles').update(patch).eq('id', id);
-      if (updErr) { res.status(400).json({ error: updErr.message }); return; }
+      if (Object.keys(patch).length > 0) {
+        const { error: updErr } = await sb.from('profiles').update(patch).eq('id', id);
+        if (updErr) { res.status(400).json({ error: updErr.message }); return; }
+      }
       res.status(200).json({ ok: true });
       return;
     }
